@@ -261,7 +261,7 @@ if RequiredScript == "lib/managers/menumanager" then
 
 	function LIES:_upd_assault_task()
 		local task_data = self._task_data.assault
-
+		
 		if LIES.settings.copsretire then
 			local task_data = self._task_data.assault
 			
@@ -282,7 +282,7 @@ if RequiredScript == "lib/managers/menumanager" then
 					local old_hunt = self._hunt_mode
 					self._old_hunt_mode = old_hunt
 				end
-				
+
 				self._hunt_mode = "boss"
 
 				if task_data.phase == "anticipation" or task_data.phase == "fade" or not task_data.active then
