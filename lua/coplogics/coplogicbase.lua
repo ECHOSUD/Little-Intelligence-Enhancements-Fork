@@ -354,7 +354,7 @@ function CopLogicBase._set_attention_obj(data, new_att_obj, new_reaction)
 		if data.char_tweak.chatter and AIAttentionObject.REACT_SHOOT <= new_reaction and new_att_obj.verified and new_att_obj.is_person then
 			if data.char_tweak.chatter.contact and contact_chatter_time_ok then
 				local said = managers.groupai:state():chk_say_enemy_chatter(data.unit, data.m_pos, "contact")
-							
+
 				if not said and data.unit:base().has_tag and data.unit:base():has_tag("special") then
 					if not data.next_priority_speak_t or data.next_priority_speak_t < data.t then
 						if data.unit:sound():say("c01", true) then
@@ -556,7 +556,7 @@ function CopLogicBase._upd_attention_obj_detection(data, min_reaction, max_react
 			if not is_weapons_hot and settings.notice_requires_FOV then
 				my_head_fwd = my_head_fwd or data.unit:movement():m_head_rot():z()
 				local angle = mvector3.angle(my_head_fwd, tmp_vec1)
-				
+				local angle_max
 				if hhtacs then
 					if not my_data.detection.use_uncover_range and settings.uncover_range and dis < settings.uncover_range then
 						local att_unit = handler:unit()

@@ -1157,7 +1157,6 @@ local bosses = {
 	biker_boss = true,
 	mobster_boss = true
 }
-
 function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_func)
 	local best_target, best_target_priority_slot, best_target_priority, best_target_reaction = nil
 	
@@ -1278,7 +1277,7 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 			elseif reaction == AIAttentionObject.REACT_IDLE then
 				reaction_too_mild = true
 			end
-			
+
 			if bosses[data.unit:base()._tweak_table] then
 				if not crim_record then
 					if hhtacs and att_unit:base() and att_unit:base().has_tag and att_unit:base():has_tag("special") then
@@ -1419,7 +1418,7 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 						weight_mul = (weight_mul or 1) * 0.1 
 					end
 				end
-				
+
 				if weight_mul and weight_mul ~= 1 then
 					weight_mul = 1 / weight_mul
 					alert_dt = alert_dt and alert_dt * weight_mul

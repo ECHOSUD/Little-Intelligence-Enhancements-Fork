@@ -76,7 +76,7 @@ local adjust_ids = {
 		[100124] = 0.25,
 		[100125] = 0.5,
 	},
-	
+
 	--transports and other heists sharing element numbers in really obvious ways.
 	pines = {
 		[100122] = 0.01,
@@ -143,10 +143,10 @@ Hooks:PostHook(ElementDifficulty, "init", "lies_alter_diff_values", function(sel
 			self._values.difficulty = to_adjust[self._id]
 		end
 	end
-	
+
 	if remove_on_exec[Global.level_data.level_id] then
 		local to_adjust = remove_on_exec[Global.level_data.level_id]
-		
+
 		if remove_on_exec[self._id] then --empty out the on executed table
 			self._values.on_executed = {}
 		end

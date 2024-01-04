@@ -448,6 +448,7 @@ Hooks:PostHook(GroupAIStateBase, "unregister_rescueable_hostage", "lies_hrt_unre
 	local rescueable_hostages = self._rescueable_hostages or {}
 	rescueable_hostages[u_key] = nil
 	self._rescueable_hostages = rescueable_hostages
+
 end)
 
 function GroupAIStateBase:register_boss(unit)
@@ -473,7 +474,7 @@ Hooks:PostHook(GroupAIStateBase, "on_enemy_unregistered", "lies_unregister_boss"
 	end
 
 	local u_key = unit:key()
-	
+
 	self:unregister_boss(u_key)
 end)
 
@@ -691,7 +692,7 @@ function GroupAIStateBase:unregister_AI_attention_object(unit_key)
 	if self._police[unit_key] then
 		return
 	end
-	
+
 	if self._criminals[unit_key] then
 		return
 	end

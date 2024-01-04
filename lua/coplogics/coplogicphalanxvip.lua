@@ -168,7 +168,6 @@ function CopLogicPhalanxVip.is_available_for_assignment(data, objective)
 
 	return false
 end
-
 function CopLogicPhalanxVip.breakup(remote_call)
 	print("CopLogicPhalanxVip.breakup")
 
@@ -183,17 +182,17 @@ function CopLogicPhalanxVip.breakup(remote_call)
 		local ignore_segments = {}
 		local data = phalanx_vip:brain()._logic_data
 		local flee_pos = managers.groupai:state():flee_point(data.unit:movement():nav_tracker():nav_segment(), ignore_segments)
-	
+
 		if not flee_pos then
 			managers.groupai:state():detonate_smoke_grenade(data.m_pos + math.UP * 10, data.unit:movement():m_head_pos(), 5, false)
-			
+
 			data.unit:brain():set_active(false)
 			data.unit:base():set_slot(data.unit, 0)
-			
+
 			if not remote_call then
 				CopLogicPhalanxMinion.breakup(true)
 			end
-			
+
 			return
 		end
 
@@ -211,13 +210,13 @@ function CopLogicPhalanxVip.breakup(remote_call)
 		while iterations < max_attempts do
 			local nav_seg = managers.navigation:get_nav_seg_from_pos(flee_pos)
 			search_params.to_seg = nav_seg
-			
+
 			if search_params.verify_clbk and iterations > 4 then
 				search_params.verify_clbk = nil
 				iterations = 1
 				ignore_segments = {}
 			end
-			
+
 			coarse_path = managers.navigation:search_coarse(search_params)
 
 			if not coarse_path then
@@ -255,7 +254,7 @@ function CopLogicPhalanxVip.breakup(remote_call)
 			end
 		else
 			managers.groupai:state():detonate_smoke_grenade(data.m_pos + math.UP * 10, data.unit:movement():m_head_pos(), 5, false)
-	
+
 			data.unit:brain():set_active(false)
 			data.unit:base():set_slot(data.unit, 0)
 		end

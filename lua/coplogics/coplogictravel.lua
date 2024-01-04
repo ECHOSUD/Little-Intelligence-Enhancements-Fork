@@ -277,7 +277,7 @@ function CopLogicTravel._chk_start_pathing_to_next_nav_point(data, my_data)
 				if type(i_door) == "number" then
 					entry_found = true
 					break
-				elseif alive(i_door) and i_door:delay_time() <= TimerManager:game():time() and i_door:check_access(data.char_tweak.access) then		
+				elseif alive(i_door) and i_door:delay_time() <= TimerManager:game():time() and i_door:check_access(data.char_tweak.access) then
 					entry_found = true
 					break
 				elseif alive(i_door) then
@@ -1968,7 +1968,7 @@ function CopLogicTravel.queue_update(data, my_data, delay)
 	my_data.waiting_for_navlink = nil
 end
 
-function CopLogicTravel._get_pos_on_wall(from_pos, max_dist, step_offset, is_recurse, pos_rsrv_id)
+function CopLogicTravel._get_pos_on_wall(from_pos, max_dist, step_offset, is_recurse, pos_rsrv_id, ...)
 	local nav_manager = managers.navigation
 	local nr_rays = 9
 	local ray_dis = max_dist or 1000

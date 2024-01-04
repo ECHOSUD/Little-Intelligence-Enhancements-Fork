@@ -11,7 +11,7 @@ function CopActionShoot:on_exit()
 		self._weapon_base:stop_autofire()
 		self._ext_movement:play_redirect("up_idle")
 	end
-	
+
 	if self._ext_anim.reload and self._looped_expire_t then
 		self._looped_expire_t = nil
 

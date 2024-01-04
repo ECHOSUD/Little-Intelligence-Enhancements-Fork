@@ -997,7 +997,7 @@ Hooks:PostHook(GroupAIStateBesiege, "_upd_assault_task", "lies_retire", function
 				local old_hunt = self._hunt_mode
 				self._old_hunt_mode = old_hunt
 			end
-			
+
 			self._hunt_mode = "boss"
 
 			if task_data.phase == "anticipation" or task_data.phase == "fade" or not task_data.active then
@@ -1009,7 +1009,7 @@ Hooks:PostHook(GroupAIStateBesiege, "_upd_assault_task", "lies_retire", function
 			self._old_hunt_mode = nil
 		end
 	end
-	
+
 	if not copsretire then		
 		return
 	end
@@ -3360,7 +3360,7 @@ function GroupAIStateBesiege:_upd_recon_sweep_task()
 	end
 	
 	local target_area
-	
+	local used_group
 	for area_id, area in pairs(task_data.target_areas) do
 		if table.size(area.neighbours) < 2 and not visited_areas[area_id] and not next(area.police.units) then
 			target_area = area
@@ -4319,7 +4319,7 @@ function GroupAIStateBesiege:_perform_group_spawning(spawn_task, force, use_last
 					produce_data.name = units[math.random(#units)]
 					produce_data.name = managers.modifiers:modify_value("GroupAIStateBesiege:SpawningUnit", produce_data.name)
 					local spawned_unit = sp_data.mission_element:produce(produce_data)
-					
+
 					if not spawned_unit or not alive(spawned_unit) then
 						return
 					end

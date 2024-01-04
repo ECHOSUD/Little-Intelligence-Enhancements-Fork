@@ -205,7 +205,6 @@ function CivilianLogicFlee.on_alert(data, alert_data)
 			type = "act"
 		}
 
-		data.unit:brain():action_request(action_data)
 		data.unit:sound():say("a01x_any", true)
 
 		if data.unit:unit_data().mission_element then
@@ -516,7 +515,7 @@ function CivilianLogicFlee.update(data)
 							crim_pos = closest_crim.m_head_pos
 						end
 					end
-					
+					local cover
 					if crim_pos then
 						cover = managers.navigation:find_cover_away_from_pos(coarse_path[cur_index + 2][2], crim_pos, next_area.nav_segs)
 					end
@@ -689,7 +688,7 @@ function CivilianLogicFlee.clbk_chk_call_the_police(ignore_this, data)
 			break
 		end
 	end
-	
+
 	if data.unit:anim_data() and data.unit:anim_data().react_enter then
 		my_data.call_police_clbk_id = "civ_call_police" .. tostring(data.key)
 		local call_t = math.max(data.call_police_delay_t or 0, TimerManager:game():time() + 0.5)
@@ -709,7 +708,7 @@ function CivilianLogicFlee.clbk_chk_call_the_police(ignore_this, data)
 			managers.groupai:state():on_criminal_suspicion_progress(nil, data.unit, "calling")
 		end
 	end
-	
+
 	my_data.call_police_clbk_id = "civ_call_police" .. tostring(data.key)
 	local call_t = math.max(data.call_police_delay_t or 0, TimerManager:game():time() + math.lerp(1, 10, math.random()))
 

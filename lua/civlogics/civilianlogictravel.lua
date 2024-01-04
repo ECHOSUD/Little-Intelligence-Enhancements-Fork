@@ -306,7 +306,7 @@ function CivilianLogicTravel.update(data)
 	end
 end
 
-function CivilianLogicTravel.queued_update(data)
+function CivilianLogicTravel.queued_update(data,...)
 	local my_data = data.internal_data
 	
 	CivilianLogicTravel.update(data)

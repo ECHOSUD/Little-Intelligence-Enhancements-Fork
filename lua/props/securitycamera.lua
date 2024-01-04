@@ -437,7 +437,7 @@ function SecurityCamera:_detect_criminals_loud(t, criminals)
 				mvector3.direction(self._tmp_vec1, my_pos, detection_pos)
 				local angle = mvector3.angle(my_fwd, self._tmp_vec1)
 				local angle_max = my_cone * 0.5
-				angle_multiplier = angle / angle_max
+				local angle_multiplier = angle / angle_max
 
 				if angle_multiplier < 1 then
 					local vis_ray = self._unit:raycast("ray", my_pos, detection_pos, "slot_mask", self._visibility_slotmask, "ray_type", "ai_vision")

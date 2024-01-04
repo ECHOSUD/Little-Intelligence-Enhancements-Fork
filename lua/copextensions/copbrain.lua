@@ -35,11 +35,11 @@ local loud_bosses = {
 
 Hooks:PostHook(CopBrain, "_reset_logic_data", "lies_reset_logic_data", function(self)
 	self._logic_data.char_tweak = self._unit:base()._char_tweak or tweak_data.character[self._unit:base()._tweak_table]
-	
+
 	if LIES.settings.hhtacs then
 		if self._unit:base()._tweak_table == "tank_mini" then
 			local difficulty_index = tweak_data:difficulty_to_index(Global.game_settings.difficulty)
-			
+
 			if difficulty_index > 6 then
 				self._minigunner_firing_buff = {
 					id = self._unit:base():add_buff("base_damage", 0),
@@ -48,11 +48,11 @@ Hooks:PostHook(CopBrain, "_reset_logic_data", "lies_reset_logic_data", function(
 				}
 			end
 		end
-		
+
 		if loud_bosses[self._unit:base()._tweak_table] then
 			managers.groupai:state():register_boss(self._unit)
 		end
-		
+
 		self:_do_hhtacs_damage_modifiers()
 	end
 	

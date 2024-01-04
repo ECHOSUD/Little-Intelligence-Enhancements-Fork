@@ -248,7 +248,7 @@ function CopLogicAttack.update(data)
 		if data.char_tweak.chatter and data.char_tweak.chatter.suppress and my_data.attitude == "engage" and want_to_take_cover then
 			if (data.important or data.unit:base():has_tag("special")) and want_to_take_cover ~= my_data.want_to_take_cover and not my_data.want_to_take_cover then
 				local said = managers.groupai:state():chk_say_enemy_chatter(data.unit, data.m_pos, "wantcover")
-				
+
 				if not said and data.unit:base():has_tag("special") then
 					if not data.next_priority_speak_t or data.next_priority_speak_t < data.t then
 						if data.unit:sound():say("hlp", true) then
@@ -1216,7 +1216,7 @@ function CopLogicAttack.aim_allow_fire(shoot, aim, data, my_data)
 					if managers.groupai:state():is_detection_persistent() or not data.unit:base():has_tag("law") then
 						if data.important or data.unit:base():has_tag("special") then
 							local said = managers.groupai:state():chk_say_enemy_chatter(data.unit, data.m_pos, "aggressive")
-							
+
 							if not said and data.unit:base():has_tag("special") then
 								if not data.next_priority_speak_t or data.next_priority_speak_t < data.t then
 									if data.unit:sound():say("g90", true) then
@@ -1507,7 +1507,7 @@ function CopLogicAttack._chk_start_action_move_back(data, my_data, focus_enemy, 
 		local max_walk_dis = 400
 		local vis_required = engage
 		local retreat_to, is_fail = CopLogicAttack._find_retreat_position(data, from_pos, focus_enemy.m_pos, threat_head_pos, threat_tracker, max_walk_dis, vis_required)
-		
+		local pose
 		if retreat_to then
 			local to_pos = retreat_to
 			local second_retreat_pos, retry_is_fail

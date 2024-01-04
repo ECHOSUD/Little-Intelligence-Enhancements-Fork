@@ -1,5 +1,5 @@
 --to-do, finish this stuff
-local CoreWorldInstanceManager._get_IMD_to_modify = CoreWorldInstanceManager._get_instance_mission_data
+CoreWorldInstanceManager._get_IMD_to_modify = CoreWorldInstanceManager._get_instance_mission_data
 
 local lvl_tweakids = {
 	chew = _do_chew_tweaks
