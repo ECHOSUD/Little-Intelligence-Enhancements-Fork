@@ -205,6 +205,7 @@ function CivilianLogicFlee.on_alert(data, alert_data)
 			type = "act"
 		}
 
+		data.unit:brain():action_request(action_data)
 		data.unit:sound():say("a01x_any", true)
 
 		if data.unit:unit_data().mission_element then
