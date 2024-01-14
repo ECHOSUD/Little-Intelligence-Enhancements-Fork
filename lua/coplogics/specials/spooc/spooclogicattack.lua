@@ -29,9 +29,10 @@ function SpoocLogicAttack.enter(data, new_logic_name, enter_params)
 	local objective = data.objective
 	my_data.attitude = "engage"
 
-	my_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+	my_data.weapon_range = data.char_tweak.weapon
+	[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 	my_data.wanted_attack_range = 1500
-	
+
 	data.unit:movement():set_cool(false)
 
 	if my_data ~= data.internal_data then
@@ -44,7 +45,7 @@ function SpoocLogicAttack.enter(data, new_logic_name, enter_params)
 	data.unit:brain():set_attention_settings({
 		cbt = true
 	})
-	
+
 	data.unit:brain():set_update_enabled_state(true)
 end
 
@@ -77,12 +78,12 @@ function SpoocLogicAttack.update(data)
 				end
 			end
 		end
-		
+
 		if my_data.spooc_attack then
 			if data.internal_data == my_data then
 				CopLogicBase._report_detections(data.detected_attention_objects)
 			end
-		
+
 			return
 		end
 	end
@@ -115,7 +116,7 @@ function SpoocLogicAttack.update(data)
 		if not data.attention_obj.react_t then
 			data.attention_obj.react_t = data.t
 		end
-	
+
 		if not data.attention_obj.verified_t or data.t - data.attention_obj.verified_t > 2 then
 			data.attention_obj.react_t = data.t
 		end
@@ -129,7 +130,7 @@ function SpoocLogicAttack.update(data)
 			do_spooc_attack = nil
 		end
 	end
-	
+
 	if do_spooc_attack then
 		SpoocLogicAttack._upd_spooc_attack(data, my_data)
 	elseif data.attention_obj then
@@ -144,7 +145,7 @@ function SpoocLogicAttack.update(data)
 		my_data.want_to_take_cover = SpoocLogicAttack._chk_wants_to_take_cover(data, my_data)
 
 		CopLogicAttack._update_cover(data)
-		
+
 		if not data.next_mov_time or data.next_mov_time < data.t then
 			CopLogicAttack._upd_combat_movement(data)
 		end
@@ -156,8 +157,8 @@ end
 function SpoocLogicAttack._chk_wants_to_take_cover(data, my_data)
 	local ammo_max, ammo = data.unit:inventory():equipped_unit():base():ammo_info()
 
-	if not my_data.spooc_attack then	
-		if ammo <= 0 then		
+	if not my_data.spooc_attack then
+		if ammo <= 0 then
 			return true
 		end
 	end
@@ -165,34 +166,34 @@ function SpoocLogicAttack._chk_wants_to_take_cover(data, my_data)
 	if not data.attention_obj or data.attention_obj.reaction < AIAttentionObject.REACT_COMBAT then
 		return
 	end
-	
+
 	if data.spooc_attack_timeout_t and data.t < data.spooc_attack_timeout_t then
 		return true
 	end
-	
+
 	local aggro_level = LIES.settings.enemy_aggro_level
-	
+
 	if my_data.attitude ~= "engage" then
 		return true
 	end
-	
+
 	if aggro_level > 3 then
 		return
 	end
-	
+
 	if data.unit:anim_data().reload then
 		return true
 	end
-	
+
 	if aggro_level < 3 then
 		if data.is_suppressed then
 			return true
 		end
-		
+
 		if ammo / ammo_max < 0.2 then
 			return true
 		end
-		
+
 		if data.attention_obj.verified then
 			if aggro_level < 2 or not data.tactics or (data.tactics.ranged_fire or data.tactics.sniper) and my_data.weapon_range.close < data.attention_obj.verified_dis then
 				if my_data.firing then
@@ -211,10 +212,10 @@ function SpoocLogicAttack.action_complete_clbk(data, action)
 		my_data.advancing = nil
 		my_data.old_action_advancing = nil
 		my_data.in_cover = nil
-		
+
 		CopLogicAttack._cancel_cover_pathing(data, my_data)
 		CopLogicAttack._cancel_charge(data, my_data)
-		
+
 		if my_data.surprised then
 			my_data.surprised = false
 		elseif my_data.moving_to_cover then
@@ -229,12 +230,12 @@ function SpoocLogicAttack.action_complete_clbk(data, action)
 		elseif my_data.walking_to_cover_shoot_pos then
 			my_data.walking_to_cover_shoot_pos = nil
 			my_data.charging = nil
-			
+
 			if action:expired() then
 				my_data.at_cover_shoot_pos = true
 			end
 		end
-		
+
 		if action:expired() then
 			if data.attention_obj and AIAttentionObject.REACT_COMBAT <= data.attention_obj.reaction then
 				data.logic._update_cover(data)
@@ -254,13 +255,13 @@ function SpoocLogicAttack.action_complete_clbk(data, action)
 		my_data.shooting = nil
 	elseif action_type == "turn" then
 		my_data.turning = nil
-		
+
 		if action:expired() then
 			data.logic._upd_aim(data, my_data) --check if i need to turn again
 		end
 	elseif action_type == "heal" then
 		CopLogicAttack._cancel_cover_pathing(data, my_data)
-		
+
 		if action:expired() then
 			data.logic._upd_aim(data, my_data)
 		end
@@ -273,7 +274,8 @@ function SpoocLogicAttack.action_complete_clbk(data, action)
 			end
 		end
 	elseif action_type == "spooc" then
-		data.spooc_attack_timeout_t = TimerManager:game():time() + math.lerp(data.char_tweak.spooc_attack_timeout[1], data.char_tweak.spooc_attack_timeout[2], math.random())
+		data.spooc_attack_timeout_t = TimerManager:game():time() +
+		math.lerp(data.char_tweak.spooc_attack_timeout[1], data.char_tweak.spooc_attack_timeout[2], math.random())
 
 		data.brain:_chk_use_cover_grenade(unit)
 
@@ -312,7 +314,7 @@ function SpoocLogicAttack._upd_spooc_attack(data, my_data)
 
 				my_data.attention_unit = focus_enemy.u_key
 			end
-			
+
 			if LIES.settings.enemy_reaction_level < 3 then
 				SpoocLogicAttack._chk_play_charge_spooc_sound(data, my_data, focus_enemy)
 			end
@@ -336,7 +338,7 @@ function SpoocLogicAttack._upd_spooc_attack(data, my_data)
 
 				my_data.attention_unit = focus_enemy.u_key
 			end
-			
+
 			if LIES.settings.enemy_reaction_level < 3 then
 				SpoocLogicAttack._chk_play_charge_spooc_sound(data, my_data, focus_enemy)
 			end

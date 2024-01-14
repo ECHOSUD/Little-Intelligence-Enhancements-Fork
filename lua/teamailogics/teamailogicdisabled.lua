@@ -4,7 +4,7 @@ function TeamAILogicDisabled._consider_surrender(data, my_data)
 
 	if my_health_ratio < 0.1 then
 		my_data.stay_cool = true
-		
+
 		return
 	end
 

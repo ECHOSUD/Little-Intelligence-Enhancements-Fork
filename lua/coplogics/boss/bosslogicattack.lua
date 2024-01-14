@@ -34,7 +34,8 @@ local AI_REACT_AIM = AIAttentionObject.REACT_AIM
 local AI_REACT_SHOOT = AIAttentionObject.REACT_SHOOT
 local AI_REACT_COMBAT = AIAttentionObject.REACT_COMBAT
 local AI_REACT_SPECIAL_ATTACK = AIAttentionObject.REACT_SPECIAL_ATTACK
-LIESBossLogicAttack = LIESBossLogicAttack or class(BossLogicAttack) --for custom maps who override things, i need to make sure i override their overrides for common units
+LIESBossLogicAttack = LIESBossLogicAttack or
+class(BossLogicAttack)                                              --for custom maps who override things, i need to make sure i override their overrides for common units
 
 LIESBossLogicAttack._global_throwable_delays = {}
 
@@ -107,7 +108,8 @@ function LIESBossLogicAttack.enter(data, new_logic_name, enter_params)
 		local action_timeout_t = objective.action_timeout_t or data.t + objective.action_duration
 		objective.action_timeout_t = action_timeout_t
 
-		CopLogicBase.add_delayed_clbk(new_internal_data, new_internal_data.action_timeout_clbk_id, callback(CopLogicIdle, CopLogicIdle, "clbk_action_timeout", data), action_timeout_t)
+		CopLogicBase.add_delayed_clbk(new_internal_data, new_internal_data.action_timeout_clbk_id,
+			callback(CopLogicIdle, CopLogicIdle, "clbk_action_timeout", data), action_timeout_t)
 	end
 
 	brain_ext:set_attention_settings({
@@ -125,7 +127,7 @@ function LIESBossLogicAttack._pathing_complete_clbk(data)
 
 	if my_data.pathing_to_chase_pos then
 		LIESBossLogicAttack._process_pathing_results(data, my_data)
-	
+
 		if data.attention_obj and AI_REACT_COMBAT <= data.attention_obj.reaction then
 			LIESBossLogicAttack._upd_combat_movement(data, my_data)
 		end
@@ -137,7 +139,7 @@ function LIESBossLogicAttack.queued_update(data)
 	data.t = TimerManager:game():time()
 
 	LIESBossLogicAttack._upd_enemy_detection(data, true)
-	
+
 	if data.internal_data == my_data then
 		if data.attention_obj and AIAttentionObject.REACT_AIM <= data.attention_obj.reaction then
 			LIESBossLogicAttack.update(data)
@@ -153,12 +155,13 @@ end
 
 function LIESBossLogicAttack.queue_update(data, my_data)
 	local delay = 0 --whisper mode updates need to be as CONSTANT as possible to keep units moving smoothly and predictably
-	
+
 	if not managers.groupai:state():whisper_mode() then
-		delay = data.important and 0.2 or 0.5 
+		delay = data.important and 0.2 or 0.5
 	end
 
-	CopLogicBase.queue_task(my_data, my_data.update_queue_id, LIESBossLogicAttack.queued_update, data, data.t + delay, true)
+	CopLogicBase.queue_task(my_data, my_data.update_queue_id, LIESBossLogicAttack.queued_update, data, data.t + delay,
+		true)
 end
 
 function LIESBossLogicAttack.update(data)
@@ -216,18 +219,18 @@ function LIESBossLogicAttack.update(data)
 
 	LIESBossLogicAttack._process_pathing_results(data, my_data)
 	local ammo_max, ammo = data.unit:inventory():equipped_unit():base():ammo_info()
-	
+
 	local can_keep_moving = data.char_tweak.reload_while_moving_tmp or data.unit:anim_data().reload or ammo > 0
-	
+
 	if cur_att_obj and AI_REACT_COMBAT <= cur_att_obj.reaction then
 		LIESBossLogicAttack._upd_combat_movement(data, my_data)
 	else
 		LIESBossLogicAttack._cancel_chase_attempt(data, my_data)
 	end
-	
+
 	--this isn't even working anyways lol
 	--if not data.logic.action_taken then
-		--LIESBossLogicAttack._chk_start_action_move_out_of_the_way(data, my_data)
+	--LIESBossLogicAttack._chk_start_action_move_out_of_the_way(data, my_data)
 	--end
 
 	if not my_data.update_queue_id then
@@ -240,7 +243,7 @@ function LIESBossLogicAttack.update(data)
 end
 
 function LIESBossLogicAttack._upd_aim(data, my_data)
-	do 
+	do
 		return CopLogicAttack._upd_aim(data, my_data) --just...for now
 	end
 
@@ -388,7 +391,7 @@ function LIESBossLogicAttack._upd_aim(data, my_data)
 		if not aim and data.char_tweak.always_face_enemy and AI_REACT_COMBAT <= reaction and (expected_pos or focus.last_verified_pos) then
 			aim = true
 		end
-		
+
 		CopLogicAttack._chk_enrage(data, focus)
 		LIESBossLogicAttack._chk_use_throwable(data, my_data, focus, expected_pos)
 	end
@@ -420,11 +423,11 @@ function LIESBossLogicAttack._upd_aim(data, my_data)
 				my_data.shooting = true
 			end
 		end
-		
+
 		if data.logic.chk_should_turn(data, my_data) then
 			local focus_pos = nil
 			focus_pos = (focus.verified or focus.nearly_visible) and focus.m_pos or my_data.attention_unit
-			
+
 			if focus_pos then
 				CopLogicAttack._chk_request_action_turn_to_enemy(data, my_data, data.m_pos, focus_pos)
 			end
@@ -445,19 +448,19 @@ function LIESBossLogicAttack._upd_aim(data, my_data)
 			my_data.attention_unit = nil
 		end
 	end
-	
+
 	if reaction and AI_REACT_COMBAT <= reaction then
 		if LIES.settings.enemy_reaction_level < 3 and not data.unit:in_slot(16) then
 			if not focus.react_t then
 				focus.react_t = data.t
 			end
-			
+
 			if not focus.verified_t or data.t - focus.verified_t > 2 then
 				focus.react_t = data.t
 			end
-		
+
 			local react_t = 2 / LIES.settings.enemy_reaction_level
-		
+
 			if shoot then
 				if data.t - focus.react_t < react_t then
 					aim = true
@@ -466,7 +469,7 @@ function LIESBossLogicAttack._upd_aim(data, my_data)
 			end
 		end
 	end
-	
+
 	CopLogicAttack.aim_allow_fire(shoot, aim, data, my_data)
 end
 
@@ -486,11 +489,11 @@ function LIESBossLogicAttack._upd_combat_movement(data, my_data)
 			local enemy_dis = enemy_visible and focus_enemy.dis or focus_enemy.verified_dis
 			local run_dist = enemy_visible and 800 or 400
 			local speed = "run"
-		
+
 			if not data.enrage_data or not data.enrage_data.enraged then
 				speed = enemy_dis < run_dist and "walk" or speed
 			end
-			
+
 			my_data.at_shoot_pos = nil
 
 			LIESBossLogicAttack._chk_request_action_walk_to_chase_pos(data, my_data, speed)
@@ -502,70 +505,73 @@ function LIESBossLogicAttack._upd_combat_movement(data, my_data)
 					local threat_head_pos = focus_enemy.m_head_pos
 					local max_walk_dis = 400
 					local vis_required = nil
-					local retreat_to, is_fail = CopLogicAttack._find_retreat_position(data, from_pos, focus_enemy.m_pos, threat_head_pos, threat_tracker, max_walk_dis, nil)
+					local retreat_to, is_fail = CopLogicAttack._find_retreat_position(data, from_pos, focus_enemy.m_pos,
+						threat_head_pos, threat_tracker, max_walk_dis, nil)
 
 					if retreat_to then
 						local to_pos = retreat_to
 						local second_retreat_pos, retry_is_fail
-						
+
 						if is_fail then
-							second_retreat_pos, retry_is_fail = CopLogicAttack._find_retreat_position(data, retreat_to, focus_enemy.m_pos, threat_head_pos, threat_tracker, max_walk_dis, vis_required)
-							
+							second_retreat_pos, retry_is_fail = CopLogicAttack._find_retreat_position(data, retreat_to,
+								focus_enemy.m_pos, threat_head_pos, threat_tracker, max_walk_dis, vis_required)
+
 							to_pos = second_retreat_pos
 						end
-					
+
 						local dis = mvec3_dis_sq(from_pos, to_pos)
-						
+
 						if dis > 10000 then
 							local retreat_path = {
 								retreat_to
 							}
-							
+
 							if second_retreat_pos then
 								retreat_path[#retreat_path + 1] = second_retreat_pos
 							end
 
 							my_data.chase_path = retreat_path
-							
+
 							if LIESBossLogicAttack._chk_request_action_walk_to_chase_pos(data, my_data, "run") then
 								my_data.defensive_move = true
 								my_data.cover_test_step = 0
 								my_data.at_shoot_pos = nil
-								
+
 								return
 							end
 						end
 					end
 				end
 			end
-			
+
 			if not data.unit:anim_data().reload then
 				if not my_data.at_shoot_pos then
 					if my_data.chase_path_failed_t and data.t - my_data.chase_path_failed_t < 1 or data._visor_broken then
 						if not enemy_visible and focus_enemy.verified_t and t - focus_enemy.verified_t < 4 then
 							local my_tracker = data.unit:movement():nav_tracker()
 							local aim_pos = focus_enemy.verified_pos
-							
+
 							if not my_data.cover_test_step then
 								my_data.cover_test_step = 0
 							end
-							
+
 							while my_data.cover_test_step < 3 do
-								local shoot_from_pos = CopLogicAttack._peek_for_pos_sideways(data, my_data, my_tracker, aim_pos, 165, true)
-								
+								local shoot_from_pos = CopLogicAttack._peek_for_pos_sideways(data, my_data, my_tracker,
+									aim_pos, 165, true)
+
 								if shoot_from_pos then
 									local path = {
 										shoot_from_pos
 									}
-								
+
 									my_data.chase_path = path
-									
+
 									if LIESBossLogicAttack._chk_request_action_walk_to_chase_pos(data, my_data, "run") then
 										my_data.defensive_move = true
-										my_data.walking_to_shoot_pos = true										
+										my_data.walking_to_shoot_pos = true
 										return
 									end
-									
+
 									break
 								else
 									my_data.cover_test_step = my_data.cover_test_step + 1
@@ -574,7 +580,7 @@ function LIESBossLogicAttack._upd_combat_movement(data, my_data)
 						end
 					end
 				end
-				
+
 				if not my_data.chase_path_failed_t or data.t - my_data.chase_path_failed_t > 1 then
 					local height_diff = math_abs(data.m_pos.z - focus_enemy.m_pos.z)
 
@@ -625,11 +631,11 @@ function LIESBossLogicAttack._upd_combat_movement(data, my_data)
 								local enemy_dis = enemy_visible and focus_enemy.dis or focus_enemy.verified_dis
 								local run_dist = enemy_visible and 800 or 400
 								local speed = "run"
-			
+
 								if not data.enrage_data or not data.enrage_data.enraged then
 									speed = enemy_dis < run_dist and "walk" or speed
 								end
-								
+
 								LIESBossLogicAttack._chk_request_action_walk_to_chase_pos(data, my_data, speed)
 							else
 								my_data.chase_path_search_id = tostring(data.unit:key()) .. "chase"
@@ -654,11 +660,11 @@ function LIESBossLogicAttack._upd_combat_movement(data, my_data)
 		if data._visor_broken then
 			if focus_enemy.verified and focus_enemy.dis < 700 then
 				LIESBossLogicAttack._cancel_chase_attempt(data, my_data)
-				
+
 				return
 			end
 		end
-	
+
 		local current_haste = my_data.advancing and my_data.advancing:haste()
 
 		if current_haste then
@@ -689,7 +695,8 @@ function LIESBossLogicAttack._confirm_retreat_position_visless(retreat_pos, thre
 	mvector3.add(retreat_head_pos, Vector3(0, 0, 160))
 
 	local slotmask = managers.slot:get_mask("AI_visibility") + managers.slot:get_mask("enemy_shield_check")
-	local ray_res = World:raycast("ray", retreat_head_pos, threat_head_pos, "slot_mask", slotmask, "ray_type", "ai_vision", "report")
+	local ray_res = World:raycast("ray", retreat_head_pos, threat_head_pos, "slot_mask", slotmask, "ray_type",
+		"ai_vision", "report")
 
 	if ray_res then
 		return true
@@ -713,17 +720,17 @@ function LIESBossLogicAttack.action_complete_clbk(data, action)
 		if my_data.moving_out_of_the_way then
 			my_data.moving_out_of_the_way = nil
 		end
-		
+
 		if my_data.defensive_move then
 			my_data.defensive_move = nil
 		end
-		
+
 		if action:expired() then
 			if my_data.walking_to_shoot_pos then
 				my_data.at_shoot_pos = true
 			end
 		end
-		
+
 		my_data.walking_to_shoot_pos = nil
 
 		LIESBossLogicAttack._cancel_chase_attempt(data, my_data)
@@ -800,7 +807,7 @@ function LIESBossLogicAttack._chk_use_throwable(data, my_data, focus, ...)
 	if data.used_throwable_t and data.t < data.used_throwable_t then
 		return
 	end
-	
+
 	if LIESBossLogicAttack._global_throwable_delays and LIESBossLogicAttack._global_throwable_delays[data.unit:base()._tweak_table] and LIESBossLogicAttack._global_throwable_delays[data.unit:base()._tweak_table] > data.t then
 		return
 	end
@@ -834,9 +841,9 @@ function LIESBossLogicAttack._chk_use_throwable(data, my_data, focus, ...)
 	if throw_dis > 2000 then
 		return
 	end
-	
+
 	local last_seen_pos = mvec3_cpy(focus.last_verified_m_pos)
-	
+
 	local target_vec = temp_vec3
 	mvec3_dir(target_vec, data.m_pos, last_seen_pos)
 	mvec3_set_z(target_vec, 0)
@@ -855,15 +862,16 @@ function LIESBossLogicAttack._chk_use_throwable(data, my_data, focus, ...)
 		last_seen_pos = focus.last_verified_m_pos:with_z(focus.last_verified_m_pos.z + 1)
 		slotmask = managers.slot:get_mask("bullet_impact_targets_no_criminals")
 	end
-	
-	
+
+
 	local obstructed = nil
-	
+
 	if throwable == "launcher_frag" or throwable == "launcher_incendiary" then
 		obstructed = data.unit:raycast("ray", throw_from, last_seen_pos, "slot_mask", slotmask, "report")
 	else
 		mvec3_set_z(last_seen_pos, last_seen_pos.z + 15)
-		obstructed = data.unit:raycast("ray", throw_from, last_seen_pos, "sphere_cast_radius", 15, "slot_mask", slotmask, "report")
+		obstructed = data.unit:raycast("ray", throw_from, last_seen_pos, "sphere_cast_radius", 15, "slot_mask", slotmask,
+			"report")
 	end
 
 	if obstructed then
@@ -880,19 +888,20 @@ function LIESBossLogicAttack._chk_use_throwable(data, my_data, focus, ...)
 
 	mvec3_set_z(throw_dir, throw_dir.z + compensation)
 	mvec3_norm(throw_dir)
-	
+
 	local delay = data.char_tweak.throwable_delay or 10
-	
+
 	if data.char_tweak.global_delay then
-		LIESBossLogicAttack._global_throwable_delays[data.unit:base()._tweak_table] = data.t + data.char_tweak.global_delay
+		LIESBossLogicAttack._global_throwable_delays[data.unit:base()._tweak_table] = data.t +
+		data.char_tweak.global_delay
 	end
-	
+
 	data.used_throwable_t = data.t + delay
 
 	if throwable ~= "launcher_frag" and throwable ~= "launcher_incendiary" and mov_ext:play_redirect("throw_grenade") then
 		data.unit:sound():play("clk_baton_swing", nil, true)
 		managers.network:session():send_to_peers_synched("play_distance_interact_redirect", data.unit, "throw_grenade")
-	else		
+	else
 		data.unit:sound():play("grenade_gas_npc_fire", nil, true)
 	end
 
@@ -906,7 +915,8 @@ function LIESBossLogicAttack._upd_enemy_detection(data, is_synchronous)
 	local my_data = data.internal_data
 	local min_reaction = AI_REACT_AIM
 	local delay = CopLogicBase._upd_attention_obj_detection(data, min_reaction, nil)
-	local new_attention, new_prio_slot, new_reaction = CopLogicIdle._get_priority_attention(data, data.detected_attention_objects, nil)
+	local new_attention, new_prio_slot, new_reaction = CopLogicIdle._get_priority_attention(data,
+		data.detected_attention_objects, nil)
 	local old_att_obj = data.attention_obj
 
 	CopLogicBase._set_attention_obj(data, new_attention, new_reaction)
@@ -931,7 +941,8 @@ function LIESBossLogicAttack._upd_enemy_detection(data, is_synchronous)
 	CopLogicAttack._upd_aim(data, my_data)
 
 	if not is_synchronous then
-		CopLogicBase.queue_task(my_data, my_data.detection_task_key, LIESBossLogicAttack._upd_enemy_detection, data, data.t + delay, true)
+		CopLogicBase.queue_task(my_data, my_data.detection_task_key, LIESBossLogicAttack._upd_enemy_detection, data,
+			data.t + delay, true)
 	end
 
 	CopLogicBase._report_detections(data.detected_attention_objects)

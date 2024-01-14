@@ -1,151 +1,151 @@
 {
-	"menu_id" : "lies_options",
-	"parent_menu_id" : "blt_options",
-	"title" : "menu_lies_title",
-	"back_callback" : "callback_lies_close",
-	"items" : [
+	"menu_id": "lies_options",
+	"parent_menu_id": "blt_options",
+	"title": "menu_lies_title",
+	"back_callback": "callback_lies_close",
+	"items": [
 		{
-			"type" : "multiple_choice",
-			"id" : "lies_lua_cover",
-			"title" : "menu_lies_lua_cover_title",
-			"description" : "menu_lies_lua_cover_desc",
-			"callback" : "callback_lies_lua_cover",
-			"items" : [
-                "menu_lies_cover_off",
+			"type": "multiple_choice",
+			"id": "lies_lua_cover",
+			"title": "menu_lies_lua_cover_title",
+			"description": "menu_lies_lua_cover_desc",
+			"callback": "callback_lies_lua_cover",
+			"items": [
+				"menu_lies_cover_off",
 				"menu_lies_cover_HD"
-            ],
-			"value" : "lua_cover"
+			],
+			"value": "lua_cover"
 		},
 		{
-			"type" : "toggle",
-			"id" : "lies_extra_chatter",
-			"title" : "menu_lies_extra_chatter_title",
-			"description" : "menu_lies_extra_chatter_desc",
-			"callback" : "callback_lies_extra_chatter",
-			"value" : "extra_chatter"
+			"type": "toggle",
+			"id": "lies_extra_chatter",
+			"title": "menu_lies_extra_chatter_title",
+			"description": "menu_lies_extra_chatter_desc",
+			"callback": "callback_lies_extra_chatter",
+			"value": "extra_chatter"
 		},
 		{
-			"type" : "toggle",
-			"id" : "lies_jokerhurts",
-			"title" : "menu_lies_jokerhurts_title",
-			"description" : "menu_lies_jokerhurts_desc",
-			"callback" : "callback_lies_jokerhurts",
-			"value" : "jokerhurts"
+			"type": "toggle",
+			"id": "lies_jokerhurts",
+			"title": "menu_lies_jokerhurts_title",
+			"description": "menu_lies_jokerhurts_desc",
+			"callback": "callback_lies_jokerhurts",
+			"value": "jokerhurts"
 		},
 		{
-			"type" : "multiple_choice",
-			"id" : "lies_fixed_spawngroups",
-			"title" : "menu_lies_fixed_spawngroups_title",
-			"description" : "menu_lies_fixed_spawngroups_desc",
-			"callback" : "callback_lies_fixed_spawngroups",
-			"items" : [
-                "menu_lies_spawngroups_off",
+			"type": "multiple_choice",
+			"id": "lies_fixed_spawngroups",
+			"title": "menu_lies_fixed_spawngroups_title",
+			"description": "menu_lies_fixed_spawngroups_desc",
+			"callback": "callback_lies_fixed_spawngroups",
+			"items": [
+				"menu_lies_spawngroups_off",
 				"menu_lies_spawngroups_norng",
-                "menu_lies_spawngroups_fixed",
+				"menu_lies_spawngroups_fixed",
 				"menu_lies_spawngroups_fixnorng"
-            ],
-			"value" : "fixed_spawngroups"
+			],
+			"value": "fixed_spawngroups"
 		},
 		{
-			"type" : "toggle",
-			"id" : "lies_copsretire",
-			"title" : "menu_lies_copsretire_title",
-			"description" : "menu_lies_copsretire_desc",
-			"callback" : "callback_lies_copsretire",
-			"value" : "copsretire"
+			"type": "toggle",
+			"id": "lies_copsretire",
+			"title": "menu_lies_copsretire_title",
+			"description": "menu_lies_copsretire_desc",
+			"callback": "callback_lies_copsretire",
+			"value": "copsretire"
 		},
 		{
-			"type" : "toggle",
-			"id" : "lies_hhtacs",
-			"title" : "menu_lies_hhtacs_title",
-			"description" : "menu_lies_hhtacs_desc",
-			"callback" : "callback_lies_hhtacs",
-			"value" : "hhtacs"
+			"type": "toggle",
+			"id": "lies_hhtacs",
+			"title": "menu_lies_hhtacs_title",
+			"description": "menu_lies_hhtacs_desc",
+			"callback": "callback_lies_hhtacs",
+			"value": "hhtacs"
 		},
 		{
-            "type" : "multiple_choice",
-            "id" : "lies_enemy_aggro_level",
-            "title" : "menu_lies_enemy_aggro_level_title",
-            "description" : "menu_lies_enemy_aggro_level_desc",
-            "callback" : "callback_lies_enemy_aggro_level",
-            "items" : [
-                "menu_lies_enemy_aggro_low",
-                "menu_lies_enemy_aggro_normal",
-                "menu_lies_enemy_aggro_high",
+			"type": "multiple_choice",
+			"id": "lies_enemy_aggro_level",
+			"title": "menu_lies_enemy_aggro_level_title",
+			"description": "menu_lies_enemy_aggro_level_desc",
+			"callback": "callback_lies_enemy_aggro_level",
+			"items": [
+				"menu_lies_enemy_aggro_low",
+				"menu_lies_enemy_aggro_normal",
+				"menu_lies_enemy_aggro_high",
 				"menu_lies_enemy_aggro_poggers"
-            ],
-            "value" : "enemy_aggro_level"
-        },
+			],
+			"value": "enemy_aggro_level"
+		},
 		{
-            "type" : "multiple_choice",
-            "id" : "lies_enemy_travel_level",
-            "title" : "menu_lies_enemy_travel_level_title",
-            "description" : "menu_lies_enemy_travel_level_desc",
-            "callback" : "callback_lies_enemy_travel_level",
-            "items" : [
-                "menu_lies_enemy_travel_low",
-                "menu_lies_enemy_travel_normal",
-                "menu_lies_enemy_travel_high",
+			"type": "multiple_choice",
+			"id": "lies_enemy_travel_level",
+			"title": "menu_lies_enemy_travel_level_title",
+			"description": "menu_lies_enemy_travel_level_desc",
+			"callback": "callback_lies_enemy_travel_level",
+			"items": [
+				"menu_lies_enemy_travel_low",
+				"menu_lies_enemy_travel_normal",
+				"menu_lies_enemy_travel_high",
 				"menu_lies_enemy_travel_poggers"
-            ],
-            "value" : "enemy_travel_level"
-        },
+			],
+			"value": "enemy_travel_level"
+		},
 		{
-            "type" : "multiple_choice",
-            "id" : "lies_enemy_reaction_level",
-            "title" : "menu_lies_enemy_reaction_level_title",
-            "description" : "menu_lies_enemy_reaction_level_desc",
-            "callback" : "callback_lies_enemy_reaction_level",
-            "items" : [
-                "menu_lies_enemy_reaction_low",
-                "menu_lies_enemy_reaction_normal",
-                "menu_lies_enemy_reaction_none"
-            ],
-            "value" : "enemy_reaction_level"
-        },
+			"type": "multiple_choice",
+			"id": "lies_enemy_reaction_level",
+			"title": "menu_lies_enemy_reaction_level_title",
+			"description": "menu_lies_enemy_reaction_level_desc",
+			"callback": "callback_lies_enemy_reaction_level",
+			"items": [
+				"menu_lies_enemy_reaction_low",
+				"menu_lies_enemy_reaction_normal",
+				"menu_lies_enemy_reaction_none"
+			],
+			"value": "enemy_reaction_level"
+		},
 		{
-			"type" : "multiple_choice",
-			"id" : "lies_nav_link_interval",
-			"title" : "menu_lies_nav_link_interval_title",
-			"description" : "menu_lies_nav_link_interval_desc",
-			"callback" : "callback_lies_nav_link_interval",
-			"items" : [
-                "menu_lies_nav_link_interval_vanilla",
+			"type": "multiple_choice",
+			"id": "lies_nav_link_interval",
+			"title": "menu_lies_nav_link_interval_title",
+			"description": "menu_lies_nav_link_interval_desc",
+			"callback": "callback_lies_nav_link_interval",
+			"items": [
+				"menu_lies_nav_link_interval_vanilla",
 				"menu_lies_nav_link_interval_half",
-                "menu_lies_nav_link_interval_athird",
+				"menu_lies_nav_link_interval_athird",
 				"menu_lies_nav_link_interval_nochill"
-            ],
-			"value" : "nav_link_interval"
+			],
+			"value": "nav_link_interval"
 		},
 		{
-			"type" : "toggle",
-			"id" : "lies_teamaihelpers",
-			"title" : "menu_lies_teamaihelpers_title",
-			"description" : "menu_lies_teamaihelpers_desc",
-			"callback" : "callback_lies_teamaihelpers",
-			"value" : "teamaihelpers"
+			"type": "toggle",
+			"id": "lies_teamaihelpers",
+			"title": "menu_lies_teamaihelpers_title",
+			"description": "menu_lies_teamaihelpers_desc",
+			"callback": "callback_lies_teamaihelpers",
+			"value": "teamaihelpers"
 		},
 		{
-			"type" : "toggle",
-			"id" : "lies_interruptoncontact",
-			"title" : "menu_lies_interruptoncontact_title",
-			"description" : "menu_lies_interruptoncontact_desc",
-			"callback" : "callback_lies_interruptoncontact",
-			"value" : "interruptoncontact"
+			"type": "toggle",
+			"id": "lies_interruptoncontact",
+			"title": "menu_lies_interruptoncontact_title",
+			"description": "menu_lies_interruptoncontact_desc",
+			"callback": "callback_lies_interruptoncontact",
+			"value": "interruptoncontact"
 		},
 		{
-			"type" : "multiple_choice",
-			"id" : "lies_spawngroupdelays",
-			"title" : "menu_lies_spawngroupdelays_title",
-			"description" : "menu_lies_spawngroupdelays_desc",
-			"callback" : "callback_lies_spawngroupdelays",
-			"items" : [
+			"type": "multiple_choice",
+			"id": "lies_spawngroupdelays",
+			"title": "menu_lies_spawngroupdelays_title",
+			"description": "menu_lies_spawngroupdelays_desc",
+			"callback": "callback_lies_spawngroupdelays",
+			"items": [
 				"menu_lies_spawngroupdelays_vanilla",
 				"menu_lies_spawngroupdelays_long",
 				"menu_lies_spawngroupdelays_medium",
 				"menu_lies_spawngroupdelays_short"
-            ],
-			"value" : "spawngroupdelays"
+			],
+			"value": "spawngroupdelays"
 		}
 	]
 }

@@ -23,27 +23,28 @@ function CopLogicArrest.enter(data, new_logic_name, enter_params)
 			managers.navigation:reserve_cover(my_data.nearest_cover[1], data.pos_rsrv_id)
 		end
 	end
-	
+
 	CopLogicIdle._chk_has_old_action(data, my_data)
 	data.unit:brain():set_attention_settings({
 		cbt = true
 	})
 	my_data.next_action_delay_t = data.t + 0.5
-	my_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
-	
+	my_data.weapon_range = data.char_tweak.weapon
+	[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+
 	if (not data.char_tweak.allowed_poses or data.char_tweak.allowed_poses.stand) and not data.unit:anim_data().stand then
 		CopLogicAttack._chk_request_action_stand(data)
 	end
 
 	data.unit:movement():set_cool(false)
-	
+
 	if my_data ~= data.internal_data then
 		return
 	end
 
 	local key_str = tostring(data.key)
 	my_data.update_task_key = "CopLogicArrest.queued_update" .. key_str
-	
+
 	data.unit:brain():set_update_enabled_state(false)
 	CopLogicArrest.queued_update(data)
 end
@@ -60,7 +61,8 @@ function CopLogicArrest._mark_call_in_event(data, my_data, attention_obj)
 		local unit_brain = attention_obj.unit:brain()
 
 		if attention_obj.unit:in_slot(17) then
-			my_data.call_in_event = managers.enemy:get_corpse_unit_data_from_key(attention_obj.unit:key()).is_civilian and "dead_civ" or "dead_cop"
+			my_data.call_in_event = managers.enemy:get_corpse_unit_data_from_key(attention_obj.unit:key()).is_civilian and
+			"dead_civ" or "dead_cop"
 		elseif attention_obj.unit:in_slot(managers.slot:get_mask("enemies")) then
 			my_data.call_in_event = "w_hot"
 		elseif unit_brain and unit_brain.is_hostage and unit_brain:is_hostage() then
@@ -109,7 +111,6 @@ function CopLogicArrest._say_call_the_police(data, my_data)
 	data.unit:sound():say(blame_list[my_data.call_in_event] or "a23", true)
 end
 
-
 function CopLogicArrest._upd_enemy_detection(data)
 	managers.groupai:state():on_unit_detection_updated(data.unit)
 
@@ -121,7 +122,8 @@ function CopLogicArrest._upd_enemy_detection(data)
 
 	CopLogicArrest._verify_arrest_targets(data, my_data)
 
-	local new_attention, new_prio_slot, new_reaction = CopLogicArrest._get_priority_attention(data, data.detected_attention_objects)
+	local new_attention, new_prio_slot, new_reaction = CopLogicArrest._get_priority_attention(data,
+		data.detected_attention_objects)
 	local old_att_obj = data.attention_obj
 
 	CopLogicBase._set_attention_obj(data, new_attention, new_reaction)
@@ -132,7 +134,7 @@ function CopLogicArrest._upd_enemy_detection(data)
 	if should_arrest ~= my_data.should_arrest or should_stand_close ~= my_data.should_stand_close then
 		CopLogicArrest._cancel_advance(data, my_data)
 	end
-	
+
 	my_data.should_arrest = should_arrest
 	my_data.should_stand_close = should_stand_close
 	--log("should_arrest: " .. tostring(should_arrest))
@@ -200,7 +202,7 @@ function CopLogicArrest._upd_enemy_detection(data)
 			end
 		end
 	end
-	
+
 	return delay
 end
 
@@ -212,17 +214,18 @@ function CopLogicArrest.queued_update(data)
 
 	if my_data ~= data.internal_data then
 		CopLogicBase._report_detections(data.detected_attention_objects)
-		
+
 		return
 	end
 
 	if my_data.has_old_action or my_data.old_action_advancing then
 		CopLogicAttack._upd_stop_old_action(data, my_data)
-		
+
 		if my_data.has_old_action or my_data.old_action_advancing then
-			CopLogicBase.queue_task(my_data, my_data.update_task_key, CopLogicArrest.queued_update, data, data.t + delay, data.important)
+			CopLogicBase.queue_task(my_data, my_data.update_task_key, CopLogicArrest.queued_update, data, data.t + delay,
+				data.important)
 			CopLogicBase._report_detections(data.detected_attention_objects)
-			
+
 			return
 		end
 	end
@@ -255,7 +258,7 @@ function CopLogicArrest.queued_update(data)
 	if arrest_data then
 		if not arrest_data.intro_t then
 			arrest_data.intro_t = data.t
-			
+
 			if managers.groupai:state():whisper_mode() then
 				data.unit:sound():say("i01", true)
 			end
@@ -289,7 +292,8 @@ function CopLogicArrest.queued_update(data)
 	end
 
 	CopLogicArrest._upd_cover(data)
-	CopLogicBase.queue_task(my_data, my_data.update_task_key, CopLogicArrest.queued_update, data, data.t + delay, data.important)
+	CopLogicBase.queue_task(my_data, my_data.update_task_key, CopLogicArrest.queued_update, data, data.t + delay,
+		data.important)
 	CopLogicBase._report_detections(data.detected_attention_objects)
 end
 
@@ -365,7 +369,7 @@ end
 function CopLogicArrest._upd_advance(data, my_data, attention_obj, arrest_data)
 	local action_taken = my_data.turning or data.unit:movement():chk_action_forbidden("walk")
 	local whisper = managers.groupai:state():whisper_mode()
-	
+
 	if arrest_data and my_data.should_arrest then
 		if attention_obj.dis < 180 then
 			if not action_taken then
@@ -389,7 +393,7 @@ function CopLogicArrest._upd_advance(data, my_data, attention_obj, arrest_data)
 			end
 		elseif not arrest_data.approach_snd and attention_obj.dis < 600 and attention_obj.dis >= 180 and not data.unit:sound():speaking(data.t) then
 			arrest_data.approach_snd = true
-			
+
 			if whisper then
 				data.unit:sound():say("i02", true)
 			end
@@ -422,7 +426,7 @@ function CopLogicArrest._upd_advance(data, my_data, attention_obj, arrest_data)
 		end
 	elseif my_data.processing_path then
 		CopLogicArrest._process_pathing_results(data, my_data)
-		
+
 		if my_data.advance_path then
 			if (not whisper and LIES.settings.hhtacs or my_data.next_action_delay_t < data.t) and not data.unit:movement():chk_action_forbidden("walk") then
 				if (not data.char_tweak.allowed_poses or data.char_tweak.allowed_poses.stand) and my_data.should_stand_close and not data.unit:anim_data().stand then

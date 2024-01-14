@@ -36,7 +36,7 @@ Hooks:PostHook(CopSound, "init", "lies_init", function(self, unit)
 	elseif hotline_gang[self._unit:name():key()] then
 		self._prefix = "rt" .. tostring(math.random(2)) .. "_"
 	end
-	
+
 	self.speaking = self.speaking_fix
 	self.say = self.say_fix
 	self._play = self._play_fixed
@@ -73,7 +73,8 @@ function CopSound:_play_fixed(sound_name, source_name, clbk)
 	return event
 end
 
-local line_array = { c01 = "contact",
+local line_array = {
+	c01 = "contact",
 	c01x = "contact",
 	rrl = "gogo",
 	e01 = "ready",
@@ -151,13 +152,13 @@ local line_array = { c01 = "contact",
 function CopSound:_play_vc_framework_voice(sound_name, important)
 	if self._unit:base():char_tweak()["custom_voicework"] then
 		local line_to_check = line_array[sound_name]
-		
+
 		if line_to_check then
 			local voicelines = _G.voiceline_framework.BufferedSounds[self._unit:base():char_tweak().custom_voicework]
 			if voicelines and voicelines[line_to_check] then
 				local line_to_use = voicelines[line_to_check][math.random(#voicelines[line_to_check])]
 				self._unit:base():play_voiceline(line_to_use, important)
-				
+
 				return true
 			end
 		end
@@ -186,7 +187,7 @@ function CopSound:say_fix(sound_name, sync, skip_prefix, important, callback)
 	if important_sounds[sound_name] then
 		important = true
 	end
-	
+
 	if _G.voiceline_framework then
 		if self:_play_vc_framework_voice(sound_name, important) then
 			return
@@ -212,7 +213,7 @@ function CopSound:say_fix(sound_name, sync, skip_prefix, important, callback)
 				full_sound = "l5n_burndeath"
 			end
 		end
-	
+
 		if self._prefix == "l5d_" then
 			if sound_name == "c01" then
 				sound_name = "i01"
@@ -228,7 +229,7 @@ function CopSound:say_fix(sound_name, sync, skip_prefix, important, callback)
 		end
 
 		local fixed_sound = nil
-		
+
 		if self._prefix == "l1n_" or self._prefix == "l2n_" or self._prefix == "l3n_" then
 			if sound_name == "x02a_any_3p" then
 				sound_name = "x01a_any_3p"
@@ -237,7 +238,7 @@ function CopSound:say_fix(sound_name, sync, skip_prefix, important, callback)
 				sound_name = "x02a_any_3p"
 			end
 		end
-		
+
 		if self._prefix == "l2n_" then --these are flipped for l2n for some reason, because of bnk typos probably
 			if sound_name == "lk3a" then
 				sound_name = "lk3b"
@@ -245,7 +246,7 @@ function CopSound:say_fix(sound_name, sync, skip_prefix, important, callback)
 				sound_name = "lk3a"
 			end
 		end
-		
+
 		if self._prefix == "l4n_" then
 			if sound_name == "x02a_any_3p" then
 				sound_name = "x01a_any_3p"
@@ -254,13 +255,13 @@ function CopSound:say_fix(sound_name, sync, skip_prefix, important, callback)
 				full_sound = "l1n_x02a_any_3p"
 			end
 		end
-		
+
 		if self._prefix == "l1d_" or self._prefix == "l2d_" or self._prefix == "l3d_" or self._prefix == "l4d_" or self._prefix == "l5d_" then
 			if sound_name == "a05" or sound_name == "a06" then
 				sound_name = "clr"
 			end
 		end
-		
+
 		if self._prefix == "l2d_" then
 			if sound_name == "x02a_any_3p" then
 				full_sound = "l1d_x02a_any_3p"
@@ -287,12 +288,12 @@ function CopSound:say_fix(sound_name, sync, skip_prefix, important, callback)
 					"rdy",
 					"c01",
 					"d01"
-					
+
 				}
 				sound_name = sounds[math.random(#sounds)]
 			end
 		end
-			
+
 		if self._prefix == "fl1n_" then
 			if sound_name == "x02a_any_3p" then
 				full_sound = "fl1n_x01a_any_3p_01"
@@ -328,8 +329,8 @@ function CopSound:say_fix(sound_name, sync, skip_prefix, important, callback)
 
 		self._unit:network():send("say", event_id)
 	end
-	
-	
+
+
 	--clbk specifically when speaking is used to prevent lines from overlapping
 	local clbk = self.stop_speaking_clbk
 
@@ -340,6 +341,6 @@ function CopSound:say_fix(sound_name, sync, skip_prefix, important, callback)
 	end
 
 	self._speak_expire_t = TimerManager:game():time() + 2
-	
+
 	return true
 end

@@ -4,8 +4,8 @@ function TeamAIInventory:equip_selection(selection_index, instant)
 	end
 
 	local res = TeamAIInventory.super.equip_selection(self, selection_index, instant)
-	
+
 	self:_ensure_weapon_visibility()
-	
+
 	return res
 end

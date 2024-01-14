@@ -46,14 +46,14 @@ function CopLogicPhalanxVip.enter(data, new_logic_name, enter_params)
 		})
 	end
 
-	my_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+	my_data.weapon_range = data.char_tweak.weapon
+	[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 
 	CopLogicPhalanxVip.calc_initial_phalanx_pos(data.m_pos, objective)
 	data.unit:brain():set_update_enabled_state(false)
 	CopLogicPhalanxVip._perform_objective_action(data, my_data, objective)
 	managers.groupai:state():phalanx_damage_reduction_enable()
 	CopLogicPhalanxVip._set_final_health_limit(data)
-	
 end
 
 function CopLogicPhalanxVip.exit(data, new_logic_name, enter_params)
@@ -65,11 +65,11 @@ function CopLogicPhalanxVip.exit(data, new_logic_name, enter_params)
 	CopLogicBase.cancel_queued_tasks(my_data)
 	CopLogicBase.cancel_delayed_clbks(my_data)
 	data.brain:rem_pos_rsrv("path")
-	
+
 	if not data.objective or data.objective.type ~= "phalanx" or new_logic_name == "inactive" then
 		managers.groupai:state():phalanx_damage_reduction_disable()
 		managers.groupai:state():force_end_assault_phase()
-		
+
 		for achievement_id, achievement_data in pairs(tweak_data.achievement.enemy_kill_achievements) do
 			if achievement_data.is_vip then
 				local all_pass, mutators_pass = nil
@@ -96,10 +96,10 @@ function CopLogicPhalanxVip._reposition_VIP_team()
 	local phalanx_minions = managers.groupai:state():phalanx_minions()
 	local diffs_to_fixed_angle = {}
 	local fixed_angle_free = true
-	
+
 	if managers.groupai:state():phalanx_vip() then
 		local unit = managers.groupai:state():phalanx_vip()
-		
+
 		if alive(unit) then
 			if unit:brain() and unit:brain():objective() then
 				local phalanx_objective = unit:brain():objective()
@@ -143,18 +143,20 @@ function CopLogicPhalanxVip._reposition_VIP_team()
 
 	for diff, unit in pairs(diffs_to_fixed_angle) do
 		local neighbour_num = CopLogicPhalanxMinion._i_am_nth_neighbour(diffs_to_fixed_angle, diff, fixed_angle_free)
-		local angle_to_move_to = CopLogicPhalanxMinion._get_next_neighbour_angle(neighbour_num, phalanx_minion_count, fixed_angle)
+		local angle_to_move_to = CopLogicPhalanxMinion._get_next_neighbour_angle(neighbour_num, phalanx_minion_count,
+			fixed_angle)
 
 		if unit:brain() and unit:brain():objective() then
 			local phalanx_objective = unit:brain():objective()
 			phalanx_objective.type = "phalanx"
 			phalanx_objective.angle = angle_to_move_to
-			phalanx_objective.pos = CopLogicPhalanxMinion._calc_pos_on_phalanx_circle(center_pos, angle_to_move_to, phalanx_minion_count)
+			phalanx_objective.pos = CopLogicPhalanxMinion._calc_pos_on_phalanx_circle(center_pos, angle_to_move_to,
+				phalanx_minion_count)
 			phalanx_objective.in_place = nil
 
 			unit:brain():set_objective(phalanx_objective)
 		end
-	end	
+	end
 end
 
 function CopLogicPhalanxVip.is_available_for_assignment(data, objective)
@@ -168,6 +170,7 @@ function CopLogicPhalanxVip.is_available_for_assignment(data, objective)
 
 	return false
 end
+
 function CopLogicPhalanxVip.breakup(remote_call)
 	print("CopLogicPhalanxVip.breakup")
 
@@ -181,10 +184,12 @@ function CopLogicPhalanxVip.breakup(remote_call)
 		local nav_seg = phalanx_vip:movement():nav_tracker():nav_segment()
 		local ignore_segments = {}
 		local data = phalanx_vip:brain()._logic_data
-		local flee_pos = managers.groupai:state():flee_point(data.unit:movement():nav_tracker():nav_segment(), ignore_segments)
+		local flee_pos = managers.groupai:state():flee_point(data.unit:movement():nav_tracker():nav_segment(),
+			ignore_segments)
 
 		if not flee_pos then
-			managers.groupai:state():detonate_smoke_grenade(data.m_pos + math.UP * 10, data.unit:movement():m_head_pos(), 5, false)
+			managers.groupai:state():detonate_smoke_grenade(data.m_pos + math.UP * 10, data.unit:movement():m_head_pos(),
+				5, false)
 
 			data.unit:brain():set_active(false)
 			data.unit:base():set_slot(data.unit, 0)
@@ -230,7 +235,8 @@ function CopLogicPhalanxVip.breakup(remote_call)
 			iterations = iterations + 1
 
 			if max_attempts > iterations then
-				flee_pos = managers.groupai:state():flee_point(data.unit:movement():nav_tracker():nav_segment(), ignore_segments)
+				flee_pos = managers.groupai:state():flee_point(data.unit:movement():nav_tracker():nav_segment(),
+					ignore_segments)
 
 				if not flee_pos then
 					break
@@ -253,7 +259,8 @@ function CopLogicPhalanxVip.breakup(remote_call)
 				phalanx_vip:sound():say("cpw_a04", true, true)
 			end
 		else
-			managers.groupai:state():detonate_smoke_grenade(data.m_pos + math.UP * 10, data.unit:movement():m_head_pos(), 5, false)
+			managers.groupai:state():detonate_smoke_grenade(data.m_pos + math.UP * 10, data.unit:movement():m_head_pos(),
+				5, false)
 
 			data.unit:brain():set_active(false)
 			data.unit:base():set_slot(data.unit, 0)

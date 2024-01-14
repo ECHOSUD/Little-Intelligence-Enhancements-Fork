@@ -2,7 +2,7 @@ function PlayerBleedOut._register_revive_SO(revive_SO_data, variant)
 	if revive_SO_data.SO_id or not managers.navigation:is_data_ready() then
 		return
 	end
-	
+
 	local followup_objective = {
 		type = "act",
 		action = {
@@ -72,7 +72,8 @@ end
 
 function PlayerBleedOut:on_rescue_SO_administered(revive_SO_data, receiver_unit)
 	if revive_SO_data.rescuer then
-		debug_pause("[PlayerBleedOut:on_rescue_SO_administered] Already had a rescuer!!!!", receiver_unit, revive_SO_data.rescuer)
+		debug_pause("[PlayerBleedOut:on_rescue_SO_administered] Already had a rescuer!!!!", receiver_unit,
+			revive_SO_data.rescuer)
 	end
 
 	revive_SO_data.rescuer = receiver_unit
@@ -82,24 +83,25 @@ function PlayerBleedOut:on_rescue_SO_administered(revive_SO_data, receiver_unit)
 		local speed = 670
 		local can_run = true
 		local speed_mul = 1
-		
+
 		if tweak_data.carry.types[tweak_data.carry[receiver_unit:movement():carry_id()].type] then
 			can_run = tweak_data.carry.types[tweak_data.carry[receiver_unit:movement():carry_id()].type].can_run
-			speed_mul = tweak_data.carry.types[tweak_data.carry[receiver_unit:movement():carry_id()].type].move_speed_modifier
+			speed_mul = tweak_data.carry.types[tweak_data.carry[receiver_unit:movement():carry_id()].type]
+			.move_speed_modifier
 		end
 
 		if not can_run then
 			speed = 285
 		end
-		
+
 		speed = speed * speed_mul
-		
+
 		if can_run then
 			speed = speed * 28
 		else
 			speed = speed * 10
 		end
-		
+
 		if mvector3.distance(revive_SO_data.unit:movement():m_pos(), receiver_unit:movement():m_pos()) > speed then
 			receiver_unit:movement():throw_bag()
 		end

@@ -3,7 +3,7 @@ Hooks:PostHook(ElementSpawnEnemyGroup, "_finalize_values", "lies_finalize_values
 		self._values.team = nil
 	elseif self._values.team ~= nil then
 		local teams = tweak_data.levels:get_team_setup()
-		
+
 		if not teams[self._values.team] then
 			self._values.team = tweak_data.levels:get_default_team_ID("combatant")
 		end
@@ -19,26 +19,25 @@ Hooks:PostHook(ElementSpawnEnemyGroup, "_finalize_values", "lies_finalize_values
 
 	if self._values.preferred_spawn_groups then
 		local has_regular_enemies = true
-	
+
 		for name, name2 in pairs(self._values.preferred_spawn_groups) do
 			if name2 == "single_spooc" or name2 == "Phalanx" then
-				
 				has_regular_enemies = nil
 				break
 			end
 		end
-		
+
 		if not has_regular_enemies then
 
 		else
 			local preferreds = {}
-			
+
 			for cat_name, team in pairs(tweak_data.group_ai.enemy_spawn_groups) do
 				if cat_name ~= "Phalanx" and cat_name ~= "single_spooc" then
 					table.insert(preferreds, cat_name)
 				end
 			end
-			
+
 			self._values.preferred_spawn_groups = preferreds
 		end
 	end
@@ -55,8 +54,9 @@ function ElementSpawnEnemyGroup:on_executed(instigator)
 		if self._group_data.spawn_type == "group" then
 			local spawn_group_data = managers.groupai:state():create_spawn_group(self._id, self, self._spawn_points)
 
-			local has_spawned_group = managers.groupai:state():force_spawn_group(spawn_group_data, self._values.preferred_spawn_groups)
-			
+			local has_spawned_group = managers.groupai:state():force_spawn_group(spawn_group_data,
+				self._values.preferred_spawn_groups)
+
 			if has_spawned_group then
 				local spawn_task = managers.groupai:state()._spawning_groups[1]
 

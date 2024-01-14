@@ -23,17 +23,18 @@ if RequiredScript == "lib/managers/menumanager" then
 			hhtacs = false
 		}
 	}
-	LIES.update_url = "https://raw.githubusercontent.com/fuglore/Little-Intelligence-Enhancements/auto-updates/autoupdate.json"
+	LIES.update_url =
+	"https://raw.githubusercontent.com/fuglore/Little-Intelligence-Enhancements/auto-updates/autoupdate.json"
 
 	function LIES:tprint(tbl, indent, depth)
 		depth = depth or 2
 		indent = indent or 0
 		local toprint = string.rep(" ", indent) .. "{\r\n"
 		indent = indent + 2
-		
+
 		if type(tbl) ~= "table" then
 			toprint = "type is not table, type is " .. type(tbl) .. " with value of " .. tostring(tbl)
-			
+
 			return toprint
 		else
 			for k, v in pairs(tbl) do
@@ -81,20 +82,22 @@ if RequiredScript == "lib/managers/menumanager" then
 	end
 
 	function LIES:Save()
-		local file = io.open(LIES.save_path,"w+")
+		local file = io.open(LIES.save_path, "w+")
 
 		if file then
 			file:write(json.encode(LIES.settings))
 			file:close()
 		end
 	end
-	
+
 	local mvec3_cpy = mvector3.copy
-	
-	function LIES:find_cover_in_cone_from_threat_pos_1(threat_pos, furthest_pos, near_pos, search_from_pos, angle, min_dis, nav_seg, optimal_threat_dis, rsrv_filter)
+
+	function LIES:find_cover_in_cone_from_threat_pos_1(threat_pos, furthest_pos, near_pos, search_from_pos, angle,
+													   min_dis, nav_seg, optimal_threat_dis, rsrv_filter)
 		local copied_threat_pos = threat_pos and mvec3_cpy(threat_pos) or nil
-		
-		return managers.navigation:_find_cover_through_lua(copied_threat_pos, near_pos, furthest_pos, min_dis, search_from_pos)
+
+		return managers.navigation:_find_cover_through_lua(copied_threat_pos, near_pos, furthest_pos, min_dis,
+			search_from_pos)
 	end
 
 	function LIES:find_cover_in_nav_seg_3(nav_seg_id, max_near_dis, near_pos, threat_pos)
@@ -108,16 +111,17 @@ if RequiredScript == "lib/managers/menumanager" then
 
 		return managers.navigation:_find_cover_in_seg_through_lua(threat_pos, near_pos, nav_seg_id)
 	end
-	
+
 	function LIES:find_cover_near_pos_1(near_pos, threat_pos, max_near_dis, min_threat_dis, allow_fwd)
 		local copied_threat_pos = threat_pos and mvec3_cpy(threat_pos) or nil
-		
-		return managers.navigation:_find_cover_through_lua(copied_threat_pos, near_pos, nil, min_threat_dis, nil, max_near_dis)
+
+		return managers.navigation:_find_cover_through_lua(copied_threat_pos, near_pos, nil, min_threat_dis, nil,
+			max_near_dis)
 	end
-	
+
 	function LIES:find_cover_away_from_pos(near_pos, threat_pos, nav_seg_id)
 		local copied_threat_pos = threat_pos and mvec3_cpy(threat_pos) or nil
-		
+
 		return managers.navigation:_find_cover_in_seg_through_lua(copied_threat_pos, near_pos, nav_seg_id)
 	end
 
@@ -129,7 +133,7 @@ if RequiredScript == "lib/managers/menumanager" then
 				return
 			end
 		end
-		
+
 		if not pos_to.z then
 			if alive(pos_to) then
 				pos_to = CopActionWalk._nav_point_pos(pos_to:script_data())
@@ -138,23 +142,23 @@ if RequiredScript == "lib/managers/menumanager" then
 			end
 		end
 
-		if math.abs(pos_from.z - pos_to.z) > 60 then 
+		if math.abs(pos_from.z - pos_to.z) > 60 then
 			return
 		end
-		
+
 		local ray = CopActionWalk._chk_shortcut_pos_to_pos(pos_from, pos_to)
 
-		return not ray 
+		return not ray
 	end
-	
-	function LIES:_optimize_path(path, u_data)		
+
+	function LIES:_optimize_path(path, u_data)
 		if #path <= 2 then
 			return path
 		end
 
 		local opt_path = {}
 		local nav_path = {}
-		
+
 		for i = 1, #path do
 			local nav_point = path[i]
 
@@ -169,12 +173,12 @@ if RequiredScript == "lib/managers/menumanager" then
 				return path
 			end
 		end
-		
+
 		nav_path = CopActionWalk._calculate_simplified_path(path[1], nav_path, 3, true, true)
-		
+
 		for i = 1, #nav_path do
 			local nav_point = nav_path[i]
-			
+
 			if nav_point.c_class then
 				opt_path[#opt_path + 1] = nav_point.c_class
 			else
@@ -184,7 +188,6 @@ if RequiredScript == "lib/managers/menumanager" then
 
 		return opt_path
 	end
-
 
 	local function make_dis_id(from, to)
 		local f = from < to and from or to
@@ -196,7 +199,7 @@ if RequiredScript == "lib/managers/menumanager" then
 	local function spawn_group_id(spawn_group)
 		return spawn_group.mission_element:id()
 	end
-	
+
 	function LIES:_upd_recon_tasks()
 		local task_data = self._task_data.recon.tasks[1]
 
@@ -211,7 +214,8 @@ if RequiredScript == "lib/managers/menumanager" then
 		self:_assign_assault_groups_to_retire()
 
 		local target_pos = task_data.target_area.pos
-		local nr_wanted = self:_get_difficulty_dependent_value(self._tweak_data.recon.force) - self:_count_police_force("recon")
+		local nr_wanted = self:_get_difficulty_dependent_value(self._tweak_data.recon.force) -
+		self:_count_police_force("recon")
 
 		if nr_wanted <= 0 then
 			return
@@ -233,7 +237,9 @@ if RequiredScript == "lib/managers/menumanager" then
 			if next(self._spawning_groups) then
 				used_group = true
 			else
-				local spawn_group, spawn_group_type = self:_find_spawn_group_near_area(task_data.target_area, self._tweak_data.recon.groups, nil, nil, callback(self, self, "_verify_anticipation_spawn_point"), "recon")
+				local spawn_group, spawn_group_type = self:_find_spawn_group_near_area(task_data.target_area,
+					self._tweak_data.recon.groups, nil, nil, callback(self, self, "_verify_anticipation_spawn_point"),
+					"recon")
 
 				if spawn_group then
 					local grp_objective = {
@@ -255,18 +261,20 @@ if RequiredScript == "lib/managers/menumanager" then
 		if used_event or used_spawn_points or reassigned then
 			table.remove(self._task_data.recon.tasks, 1)
 
-			self._task_data.recon.next_dispatch_t = t + math.ceil(self:_get_difficulty_dependent_value(self._tweak_data.recon.interval)) + math.random() * self._tweak_data.recon.interval_variation
+			self._task_data.recon.next_dispatch_t = t +
+			math.ceil(self:_get_difficulty_dependent_value(self._tweak_data.recon.interval)) +
+			math.random() * self._tweak_data.recon.interval_variation
 		end
 	end
 
 	function LIES:_upd_assault_task()
 		local task_data = self._task_data.assault
-		
+
 		if LIES.settings.copsretire then
 			local task_data = self._task_data.assault
-			
+
 			if self._hunt_mode then
-			
+
 			elseif task_data.phase == "fade" then
 				self:_assign_assault_groups_to_retire()
 			elseif task_data.said_retreat then
@@ -303,7 +311,8 @@ if RequiredScript == "lib/managers/menumanager" then
 
 		self:_assign_recon_groups_to_retire()
 
-		local force_pool = self:_get_difficulty_dependent_value(self._tweak_data.assault.force_pool) * self:_get_balancing_multiplier(self._tweak_data.assault.force_pool_balance_mul)
+		local force_pool = self:_get_difficulty_dependent_value(self._tweak_data.assault.force_pool) *
+		self:_get_balancing_multiplier(self._tweak_data.assault.force_pool_balance_mul)
 		local task_spawn_allowance = force_pool - (self._hunt_mode and 0 or task_data.force_spawned)
 
 		if task_data.phase == "anticipation" then
@@ -355,7 +364,10 @@ if RequiredScript == "lib/managers/menumanager" then
 				task_data.phase = "fade"
 				task_data.phase_end_t = t + self._tweak_data.assault.fade_duration
 			elseif task_data.phase_end_t < t or self._drama_data.zone == "high" then
-				local sustain_duration = math.lerp(self:_get_difficulty_dependent_value(self._tweak_data.assault.sustain_duration_min), self:_get_difficulty_dependent_value(self._tweak_data.assault.sustain_duration_max), math.random()) * self:_get_balancing_multiplier(self._tweak_data.assault.sustain_duration_balance_mul)
+				local sustain_duration = math.lerp(
+				self:_get_difficulty_dependent_value(self._tweak_data.assault.sustain_duration_min),
+					self:_get_difficulty_dependent_value(self._tweak_data.assault.sustain_duration_max), math.random()) *
+				self:_get_balancing_multiplier(self._tweak_data.assault.sustain_duration_balance_mul)
 
 				managers.modifiers:run_func("OnEnterSustainPhase", sustain_duration)
 
@@ -364,7 +376,8 @@ if RequiredScript == "lib/managers/menumanager" then
 			end
 		elseif task_data.phase == "sustain" then
 			local end_t = self:assault_phase_end_time()
-			task_spawn_allowance = managers.modifiers:modify_value("GroupAIStateBesiege:SustainSpawnAllowance", task_spawn_allowance, force_pool)
+			task_spawn_allowance = managers.modifiers:modify_value("GroupAIStateBesiege:SustainSpawnAllowance",
+				task_spawn_allowance, force_pool)
 
 			if task_spawn_allowance <= 0 then
 				task_data.phase = "fade"
@@ -392,7 +405,7 @@ if RequiredScript == "lib/managers/menumanager" then
 
 				if enemies_defeated or taking_too_long then
 					self:_assign_assault_groups_to_retire()
-				
+
 					if not task_data.said_retreat then
 						task_data.said_retreat = true
 
@@ -473,7 +486,7 @@ if RequiredScript == "lib/managers/menumanager" then
 
 		if not task_data.old_target_pos then
 			local target_pos
-			
+
 			local target_pos = primary_target_area.pos
 			local nearest_pos, nearest_dis = nil
 
@@ -487,12 +500,12 @@ if RequiredScript == "lib/managers/menumanager" then
 					end
 				end
 			end
-			
+
 			if nearest_pos then
 				task_data.old_target_pos = mvec3_cpy(nearest_pos)
 				task_data.old_target_pos_t = 0
 			end
-		else		
+		else
 			local target_pos = task_data.old_target_pos
 			local nearest_pos, nearest_dis, best_z = nil
 
@@ -500,7 +513,7 @@ if RequiredScript == "lib/managers/menumanager" then
 				if not criminal_data.status or criminal_data.status == "electrified" then
 					local dis = mvector3.distance(target_pos, criminal_data.m_pos)
 					local z_dis = math.abs(criminal_data.m_pos.z - target_pos.z)
-					
+
 					if not best_z or best_z <= 350 and z_dis <= 350 or z_dis < best_z then
 						if not nearest_dis or dis < nearest_dis then
 							nearest_dis = dis
@@ -510,13 +523,14 @@ if RequiredScript == "lib/managers/menumanager" then
 					end
 				end
 			end
-			
+
 			if nearest_pos and (best_z > 250 or nearest_dis > 600) then
 				task_data.old_target_pos = mvector3.copy(nearest_pos)
 				task_data.old_target_pos_t = 0
 			elseif nearest_pos then
 				local t_since_upd = self._t - self._last_upd_t
-				task_data.old_target_pos_t = task_data.old_target_pos_t and task_data.old_target_pos_t + t_since_upd or t_since_upd
+				task_data.old_target_pos_t = task_data.old_target_pos_t and task_data.old_target_pos_t + t_since_upd or
+				t_since_upd
 			else --all players invalid for this, so lets empty it
 				task_data.old_target_pos = nil
 				task_data.old_target_pos_t = nil
@@ -545,8 +559,9 @@ if RequiredScript == "lib/managers/menumanager" then
 					-- Nothing
 				else
 					self:_check_spawn_timed_groups(primary_target_area, task_data)
-				
-					local spawn_group, spawn_group_type = self:_find_spawn_group_near_area(primary_target_area, self._tweak_data.assault.groups, nil, nil, nil, "assault")
+
+					local spawn_group, spawn_group_type = self:_find_spawn_group_near_area(primary_target_area,
+						self._tweak_data.assault.groups, nil, nil, nil, "assault")
 
 					if spawn_group then
 						local grp_objective = {
@@ -580,16 +595,16 @@ if RequiredScript == "lib/managers/menumanager" then
 		self:_assign_enemy_groups_to_assault(task_data.phase)
 	end
 
-	function LIES:_choose_best_groups(best_groups, group, group_types, allowed_groups, my_wgt, task_data)	
+	function LIES:_choose_best_groups(best_groups, group, group_types, allowed_groups, my_wgt, task_data)
 		local total_weight = 0
 		local group_type_order, group_order_index, wanted_group
-		
+
 		if task_data and self._group_type_order[task_data] then
-			group_type_order = self._group_type_order[task_data].group_types			
+			group_type_order = self._group_type_order[task_data].group_types
 			group_order_index = self._group_type_order[task_data].index
-			
+
 			self._group_type_order[task_data].index = self._group_type_order[task_data].index + 1
-			
+
 			wanted_group = group_type_order[group_order_index]
 		end
 
@@ -600,9 +615,9 @@ if RequiredScript == "lib/managers/menumanager" then
 					local special_type, spawn_limit, current_count = nil
 					local cat_weights = allowed_groups[group_type]
 
-					if cat_weights then				
+					if cat_weights then
 						local cat_weight = cat_weights[1]
-						
+
 						table.insert(best_groups, {
 							group = group,
 							group_type = group_type,
@@ -620,23 +635,23 @@ if RequiredScript == "lib/managers/menumanager" then
 		if group_type_order and self._group_type_order[task_data].index > #group_type_order then
 			self._group_type_order[task_data].index = 1
 		end
-		
+
 		return total_weight
 	end
-	
+
 	function LIES:check_for_updates()
 		dohttpreq(self.update_url, function(json_data, http_id)
 			self:set_update_data(json_data)
 		end)
 	end
-	
+
 	function LIES:set_update_data(json_data)
 		if json_data:is_nil_or_empty() then
 			return
 		end
-		
+
 		local received_data = json.decode(json_data)
-		
+
 		for _, data in pairs(received_data) do
 			if data.version then
 				LIES.received_version = data.version
@@ -645,63 +660,63 @@ if RequiredScript == "lib/managers/menumanager" then
 			end
 		end
 	end
-	
-	Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInit_LIES", function( loc )
-		loc:load_localization_file( LIES.default_loc_path)
+
+	Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInit_LIES", function(loc)
+		loc:load_localization_file(LIES.default_loc_path)
 	end)
-	
+
 	--add the menu callbacks for when menu options are changed
-	Hooks:Add( "MenuManagerInitialize", "MenuManagerInitialize_LIES", function(menu_manager)		
+	Hooks:Add("MenuManagerInitialize", "MenuManagerInitialize_LIES", function(menu_manager)
 		MenuCallbackHandler.callback_lies_lua_cover = function(self, item)
 			local value = item:value()
 			LIES.settings.lua_cover = value
-			
+
 			if managers.navigation then
 				managers.navigation:_change_funcs()
 			end
-			
+
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_extra_chatter = function(self, item)
 			local on = item:value() == "on"
 			LIES.settings.extra_chatter = on
 
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_jokerhurts = function(self, item)
 			local on = item:value() == "on"
 			LIES.settings.jokerhurts = on
 
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_enemy_aggro_level = function(self, item)
 			local value = item:value()
 			LIES.settings.enemy_aggro_level = value
 
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_enemy_travel_level = function(self, item)
 			local value = item:value()
 			LIES.settings.enemy_travel_level = value
 
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_enemy_reaction_level = function(self, item)
 			local value = item:value()
 			LIES.settings.enemy_reaction_level = value
 
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_fixed_spawngroups = function(self, item)
 			local value = item:value()
 			LIES.settings.fixed_spawngroups = value
-			
+
 			LIES.smg_groups = nil
 
 			LIES:Save()
@@ -713,85 +728,85 @@ if RequiredScript == "lib/managers/menumanager" then
 
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_teamaihelpers = function(self, item)
 			local on = item:value() == "on"
 			LIES.settings.teamaihelpers = on
 
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_nav_link_interval = function(self, item)
 			local value = item:value()
 			LIES.settings.nav_link_interval = value
 
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_coplimit = function(self, item)
 			local value = item:value()
 			LIES.settings.coplimit = value
 
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_interruptoncontact = function(self, item)
 			local on = item:value() == "on"
 			LIES.settings.interruptoncontact = on
 
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_spawngroupdelays = function(self, item)
 			local value = item:value()
 			LIES.settings.spawngroupdelays = value
 
 			LIES:Save()
 		end
-		
+
 		MenuCallbackHandler.callback_lies_hhtacs = function(self, item)
 			local on = item:value() == "on"
 			LIES.settings.hhtacs = on
 
 			LIES:Save()
 		end
-		
+
 		--called when the menu is closed
 		MenuCallbackHandler.callback_lies_close = function(self)
 		end
 
 		--load settings from user's mod settings txt
 		LIES:Load()
-		
+
 		if type(LIES.settings.spawngroupdelays) ~= "number" then
 			log("LIES: Thanks for downloading the newest version. <3")
 			LIES.settings.spawngroupdelays = LIES.settings.spawngroupdelays == true and 2 or 1
-			
+
 			LIES:Save()
 		end
-		
+
 		if type(LIES.settings.fixed_spawngroups) ~= "number" then
 			log("LIES: Thanks for downloading the newest version. <3")
 			LIES.settings.fixed_spawngroups = 1
-			
+
 			LIES:Save()
 		end
-		
+
 		if type(LIES.settings.lua_cover) ~= "number" then
 			log("LIES: Thanks for downloading the newest version. <3")
 			LIES.settings.lua_cover = LIES.settings.lua_cover == true and 2 or 1
-			
+
 			LIES:Save()
 		elseif LIES.settings.lua_cover > 2 then
 			log("LIES: Thanks for downloading the newest version. <3")
 			LIES.settings.lua_cover = 2
-			
+
 			LIES:Save()
 		end
 
 		--create menus
 		MenuHelper:LoadFromJsonFile(LIES.options_path, LIES, LIES.settings)
-		
+
 		if not Global.checked_for_updates_lies then
 			log("LIES: Checking for update data.")
 			LIES:check_for_updates()

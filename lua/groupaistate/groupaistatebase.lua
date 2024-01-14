@@ -14,14 +14,14 @@ function GroupAIStateBase:set_importance_weight(u_key, wgt_report)
 	local imp_adj = 0
 	local criminals = self._player_criminals
 	local cops = self._police
-	
+
 	if wgt_report[2] then
 		if self._police[u_key] then
 			local u_data = self._police[u_key]
 			local crim_data = criminals[wgt_report[1]]
-			
+
 			local dis = mvec3_dis_sq(u_data.m_pos, crim_data.m_pos)
-			
+
 			wgt_report[2] = dis * wgt_report[2]
 		end
 	end
@@ -113,12 +113,12 @@ function GroupAIStateBase:_calculate_difficulty_ratio_hhtacs()
 	while diff > (ramp[i] or 1) do
 		i = i + 1
 	end
-		
+
 	local previous_ramp = ramp[i - 1] and ramp[i - 1] or 0
 	local next_ramp = ramp[i] and ramp[i] or 1
 	local diff_lerp = math.abs(previous_ramp - next_ramp)
 	local diff = (self._difficulty_value - previous_ramp) / diff_lerp
-	
+
 	self._difficulty_point_index = i
 	self._difficulty_ramp = diff
 end
@@ -180,7 +180,7 @@ function GroupAIStateBase:on_objective_failed(unit, objective)
 			end
 		end
 	end
-	
+
 	if objective then
 		fail_clbk = objective.fail_clbk
 		objective.fail_clbk = nil
@@ -193,7 +193,7 @@ function GroupAIStateBase:on_objective_failed(unit, objective)
 	if fail_clbk then
 		fail_clbk(unit)
 	end
-	
+
 	if valid_and_alive and u_data.group and self._groups[u_data.group.id] and not u_data.unit:movement():cool() then
 		self:_upd_group(self._groups[u_data.group.id])
 	end
@@ -246,7 +246,8 @@ function GroupAIStateBase:register_criminal(unit)
 
 	if is_AI then
 		self._ai_criminals[u_key] = u_sighting
-		u_sighting.so_access = managers.navigation:convert_access_flag(tweak_data.character[unit:base()._tweak_table].access)
+		u_sighting.so_access = managers.navigation:convert_access_flag(tweak_data.character[unit:base()._tweak_table]
+		.access)
 	elseif not is_deployable then
 		self._player_criminals[u_key] = u_sighting
 	end
@@ -316,11 +317,11 @@ end
 
 function GroupAIStateBase:_determine_objective_for_criminal_AI(unit)
 	local objective, closest_dis, closest_record = nil
-	
+
 	if self._converted_police[unit:key()] then
 		local m_key = unit:key()
 		local owner
-		
+
 		for pl_key, pl_record in pairs(self._player_criminals) do
 			if alive(pl_record.unit) and pl_record.minions then
 				if pl_record.minions[m_key] then
@@ -329,7 +330,7 @@ function GroupAIStateBase:_determine_objective_for_criminal_AI(unit)
 				end
 			end
 		end
-		
+
 		if owner then
 			objective = {
 				scan = true,
@@ -337,11 +338,11 @@ function GroupAIStateBase:_determine_objective_for_criminal_AI(unit)
 				type = "follow",
 				follow_unit = owner
 			}
-			
+
 			return objective
 		end
 	end
-	
+
 	local ai_pos = (self._ai_criminals[unit:key()] or self._police[unit:key()]).m_pos
 
 	for pl_key, pl_record in pairs(self._player_criminals) do
@@ -406,14 +407,14 @@ function GroupAIStateBase:register_security_camera(unit, state)
 		if not self._disabled_security_cameras then
 			self._disabled_security_cameras = {}
 		end
-	
+
 		if not unit:base()._destroyed then
 			self._disabled_security_cameras[unit:key()] = not state and unit or nil
 		else
 			self._disabled_security_cameras[unit:key()] = nil
 		end
 	end
-	
+
 	self._security_cameras[unit:key()] = state and unit or nil
 end
 
@@ -424,7 +425,7 @@ Hooks:PostHook(GroupAIStateBase, "_clbk_switch_enemies_to_not_cool", "lies_switc
 				unit_data.unit:base():change_and_sync_char_tweak(unit_data.unit:base()._loudtweakdata)
 			end
 		end
-		
+
 		self._set_altered_tweakdatas = true
 	end
 end)
@@ -437,9 +438,9 @@ Hooks:PostHook(GroupAIStateBase, "register_rescueable_hostage", "lies_hrt_reg", 
 	local u_key = unit:key()
 	local position = unit:movement():nav_tracker():position()
 	local rescue_area = rescue_area or self:get_area_from_nav_seg_id(unit:movement():nav_tracker():nav_segment())
-	
+
 	local rescueable_hostages = self._rescueable_hostages or {}
-	rescueable_hostages[u_key] = {area = rescue_area, pos = position}
+	rescueable_hostages[u_key] = { area = rescue_area, pos = position }
 	self._rescueable_hostages = rescueable_hostages
 end)
 
@@ -448,7 +449,6 @@ Hooks:PostHook(GroupAIStateBase, "unregister_rescueable_hostage", "lies_hrt_unre
 	local rescueable_hostages = self._rescueable_hostages or {}
 	rescueable_hostages[u_key] = nil
 	self._rescueable_hostages = rescueable_hostages
-
 end)
 
 function GroupAIStateBase:register_boss(unit)
@@ -486,14 +486,14 @@ Hooks:PostHook(GroupAIStateBase, "_remove_group_member", "lies_frienddead", func
 	if not self._groups[group.id] or not is_casualty then
 		return
 	end
-	
+
 	for un_key, unit_data in pairs(group.units) do
 		if un_key ~= u_key then
 			local brain = unit_data.unit:brain()
-			
+
 			if brain:is_important() and not unit_data.unit:anim_data().hands_tied then
 				local current_objective = brain:objective()
-				
+
 				if unit_data.char_tweak.chatter.suppress and self:chk_say_enemy_chatter(unit_data.unit, unit_data.m_pos, "teammatedown") then
 					break
 				end
@@ -522,8 +522,8 @@ function GroupAIStateBase:_get_spawn_unit_name(weights, wanted_access_type)
 				suitable = false
 			end
 		end
-		
-		if not fixed_specialcaps then 
+
+		if not fixed_specialcaps then
 			if suitable and cat_data.special_type and not self._special_units[cat_name] then
 				local nr_boss_types_present = table.size(self._special_units)
 
@@ -571,10 +571,9 @@ function GroupAIStateBase:_get_spawn_unit_name(weights, wanted_access_type)
 	return spawn_unit_name, lucky_cat_name
 end
 
-
 function GroupAIStateBase:register_active_drill(drill_key, area)
 	self._jammable_drills = self._jammable_drills or {}
-	
+
 	self._jammable_drills[drill_key] = area
 end
 
@@ -586,103 +585,105 @@ end
 function GroupAIStateBase:print_objective(objective)
 	if objective then
 		log("objective info:")
-		
+
 		log(objective.type)
-		
+
 		if objective.is_default then
 			log("objective is default")
 		end
-		
+
 		if objective.forced then
 			log("forced objective")
 		end
-		
+
 		if objective.stance then
 			log(objective.stance)
 		end
-		
+
 		if objective.attitude then
 			log(objective.attitude)
 		end
-		
+
 		if objective.path_style then
 			log(objective.path_style)
 		end
-		
+
 		if objective.action then
-			log("objective has action type " ..tostring(objective.action.type)..":"..tostring(objective.action.variant))
+			log("objective has action type " .. tostring(objective.action.type) ..
+			":" .. tostring(objective.action.variant))
 		end
-		
+
 		if objective.element then
 			log("objective has element: " .. tostring(objective.element._id))
 		end
 	else
 		log("no objective")
-		
+
 		return
 	end
 
 	local cmpl_clbk = objective.complete_clbk
-	
+
 	if cmpl_clbk then
 		log("objective has completion clbk")
 	end
-	
+
 	local fail_clbk = objective.fail_clbk
-	
+
 	if fail_clbk then
 		log("objective has fail clbk")
 	end
-	
+
 	local act_start_clbk = objective.action_start_clbk
-	
+
 	if act_start_clbk then
 		log("objective has action start clbk")
 	end
-	
+
 	local ver_clbk = objective.verification_clbk
-	
+
 	if ver_clbk then
 		log("objective has verification clbk")
 	end
-	
+
 	local area = objective.area
-	
+
 	if area then
 		log("objective has area, drawing pillar")
-		
+
 		local line = Draw:brush(Color.blue:with_alpha(0.5), 5)
 		line:cylinder(area.pos, area.pos + math_up * 1000, 100)
 	end
-	
+
 	local followup_SO = objective.followup_SO
-	
+
 	if followup_SO then
 		log("objective has follow up SO")
-		
+
 		if followup_SO.type then
 			local followup_SO_type_str = followup_SO.type and tostring(followup_SO.type) or "lmao what"
-			
+
 			log("f. SO has type: " .. followup_SO_type_str .. "")
 		end
 	end
-	
+
 	local grp_objective = objective.grp_objective
-	
+
 	if grp_objective then
 		local grp_objective_type_str = grp_objective.type and tostring(grp_objective.type) or "lmao what"
-	
+
 		log("objective has group objective!!! type: " .. grp_objective_type_str .. "")
 	end
-	
+
 	local followup_objective = objective.followup_objective
-	
+
 	if followup_objective then
 		log("objective has followup objective")
-		
+
 		if followup_objective.type then
-			local followup_objective_type_str = followup_objective.type and tostring(followup_objective.type) or "lmao what"
-			
+			local followup_objective_type_str = followup_objective.type and tostring(followup_objective.type) or
+			"lmao what"
+
 			log("f. objective has type: " .. followup_objective_type_str .. "")
 		end
 	end

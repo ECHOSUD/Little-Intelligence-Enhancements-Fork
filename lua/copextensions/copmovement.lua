@@ -1,8 +1,8 @@
-Hooks:PostHook(CopMovement, "_upd_actions", "lies_actions", function(self, t)	
+Hooks:PostHook(CopMovement, "_upd_actions", "lies_actions", function(self, t)
 	if not Network:is_server() then
 		return
 	end
-	
+
 	if LIES.settings.hhtacs then
 		self._unit:brain():upd_falloff_sim()
 	end

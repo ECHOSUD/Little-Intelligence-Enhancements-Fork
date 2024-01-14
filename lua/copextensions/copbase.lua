@@ -30,7 +30,7 @@ local fbi_3_units = {
 function CopBase:default_weapon_name(selection_name)
 	local weap_ids = tweak_data.character.weap_ids
 	local weap_unit_names = tweak_data.character.weap_unit_names
-	
+
 	if selection_name and self._default_weapons then
 		local weapon_id = self._default_weapons[selection_name]
 
@@ -43,7 +43,7 @@ function CopBase:default_weapon_name(selection_name)
 			end
 		end
 	end
-	
+
 	local difficulty = Global.game_settings and Global.game_settings.difficulty or "normal"
 	local difficulty_index = tweak_data:difficulty_to_index(difficulty)
 
@@ -52,47 +52,48 @@ function CopBase:default_weapon_name(selection_name)
 	if LIES.settings.hhtacs then
 		if fbi_3_units[self._unit:name():key()] then
 			m_weapon_id = "r870"
-			
+
 			local char_tweaks = deep_clone(self._char_tweak)
 			char_tweaks.safe_weapon = "mp5"
-			
+
 			self._char_tweak = char_tweaks
-							
+
 			if self._unit:brain()._logic_data then
 				self._unit:brain()._logic_data.char_tweak = char_tweaks
 			end
-			
+
 			self._unit:character_damage()._char_tweak = char_tweaks
 			self._unit:movement()._tweak_data = char_tweaks
-			
+
 			if self._unit:movement()._action_common_data then
 				self._unit:movement()._action_common_data.char_tweak = char_tweaks
 			end
 		end
-	
+
 		if not LIES.smg_groups then
 			LIES.smg_groups = {}
-			
+
 			LIES.smg_groups["tac_swat_smg"] = true
 		end
-		
-		local group_type = self._unit:brain()._logic_data and self._unit:brain()._logic_data.group and self._unit:brain()._logic_data.group.type
-	
+
+		local group_type = self._unit:brain()._logic_data and self._unit:brain()._logic_data.group and
+		self._unit:brain()._logic_data.group.type
+
 		if difficulty == "sm_wish" then
 			if m_weapon_id == "dmr" then
 				m_weapon_id = "heavy_zeal_sniper"
 			end
-			
-			if m_weapon_id == "m4" or m_weapon_id == "mp5" or m_weapon_id == "ak47_ass" or m_weapon_id == "g36" then	
+
+			if m_weapon_id == "m4" or m_weapon_id == "mp5" or m_weapon_id == "ak47_ass" or m_weapon_id == "g36" then
 				local zeal_types = {
 					swat = tweak_data.group_ai._not_america,
 					heavy_swat = tweak_data.group_ai._not_america,
 					zeal_swat = true,
 					zeal_heavy_swat = true
 				}
-				
+
 				--log(self._tweak_table)
-				
+
 				if self._tweak_table == "taser" then
 					m_weapon_id = "m4_yellow"
 				elseif self._tweak_table == "medic" and not shotguns[m_weapon_id] then
@@ -106,31 +107,31 @@ function CopBase:default_weapon_name(selection_name)
 					elseif LIES.smg_groups[group_type] then
 						m_weapon_id = "ump"
 					end
-					
+
 					if self._tweak_table == "zeal_heavy_swat" and rifles[m_weapon_id] then
 						m_weapon_id = "sg417"
 
 						if not self._char_tweak.throwable then
 							local char_tweaks = deep_clone(self._char_tweak)
-							
+
 							char_tweaks.safe_weapon = "raging_bull"
-							
+
 							char_tweaks.throwable = "launcher_frag"
-							
+
 							if self._tweak_table ~= "drug_lord_boss" then
 								char_tweaks.throwable_delay = 30
 								char_tweaks.global_delay = 5
 							end
-							
+
 							self._char_tweak = char_tweaks
-							
+
 							if self._unit:brain()._logic_data then
 								self._unit:brain()._logic_data.char_tweak = char_tweaks
 							end
-							
+
 							self._unit:character_damage()._char_tweak = char_tweaks
 							self._unit:movement()._tweak_data = char_tweaks
-							
+
 							if self._unit:movement()._action_common_data then
 								self._unit:movement()._action_common_data.char_tweak = char_tweaks
 							end
@@ -147,14 +148,14 @@ function CopBase:default_weapon_name(selection_name)
 				end
 			elseif m_weapon_id == "r870" then
 				m_weapon_id = "benelli"
-				
+
 				if self._tweak_table ~= "tank" and self._tweak_table ~= "tank_hw" then
 					self._shotgunner = true
 				end
 			end
 		elseif difficulty_index > 6 and m_weapon_id == "r870" then
 			m_weapon_id = "benelli"
-			
+
 			if self._tweak_table ~= "tank" and self._tweak_table ~= "tank_hw" then
 				self._shotgunner = true
 			end
@@ -173,19 +174,19 @@ function CopBase:default_weapon_name(selection_name)
 		elseif self._tweak_table == "medic" and not shotguns[m_weapon_id] then
 			m_weapon_id = "mp5"
 		end
-	
+
 		local security_vars = {
 			security = true,
 			security_mex = true,
 			security_mex_no_pager = true
 		}
-		
+
 		local cop_vars = {
 			cop = true,
 			cop_scared = true,
 			cop_female = true
 		}
-		
+
 		if self._tweak_table == "chavez_boss" then
 			m_weapon_id = "ak47"
 		elseif security_vars[self._tweak_table] then
@@ -194,7 +195,7 @@ function CopBase:default_weapon_name(selection_name)
 				"mp5",
 				"raging_bull"
 			}
-			
+
 			m_weapon_id = security_weapon_ids[math.random(#security_weapon_ids)]
 		elseif cop_vars[self._tweak_table] then
 			local police_weapon_ids = {
@@ -203,27 +204,27 @@ function CopBase:default_weapon_name(selection_name)
 				"r870",
 				"c45"
 			}
-			
+
 			m_weapon_id = police_weapon_ids[math.random(#police_weapon_ids)]
-			
+
 			if difficulty_index > 6 and m_weapon_id == "r870" then
-				m_weapon_id = "benelli"	
+				m_weapon_id = "benelli"
 				self._shotgunner = true
 			end
 		end
-	elseif m_weapon_id == "m4" or m_weapon_id == "mp5" or m_weapon_id == "ak47_ass" then	
+	elseif m_weapon_id == "m4" or m_weapon_id == "mp5" or m_weapon_id == "ak47_ass" then
 		if LIES.settings.fixed_spawngroups > 2 and difficulty == "sm_wish" then
 			local zeal_types = {
 				zeal_swat = true,
 				zeal_heavy_swat = true
 			}
-			
+
 			if zeal_types[self._tweak_table] then
 				if self._shotgunner then
 					m_weapon_id = "benelli"
 				elseif self._unit:brain()._logic_data and self._unit:brain()._logic_data.group and self._unit:brain()._logic_data.group.type ~= "custom" then
 					local l_data = self._unit:brain()._logic_data
-					
+
 					if shotgun_groups[l_data.group.type] then
 						m_weapon_id = "benelli"
 						self._shotgunner = true
@@ -239,7 +240,7 @@ function CopBase:default_weapon_name(selection_name)
 			if not self._old_weapon then
 				self._old_weapon = weap_unit_names[i_weap_id]
 			end
-			
+
 			return weap_unit_names[i_weap_id]
 		end
 	end
@@ -263,7 +264,7 @@ function CopBase:_refresh_buff_total(name)
 			end
 		end
 	end
-	
+
 	if nega_sum > 0 then
 		if sum > 0 then
 			local pos_sum = 1 - (1 / (1 + sum))
@@ -292,11 +293,11 @@ function CopBase:change_buff_by_id(name, id, value)
 	if not buff_list then
 		return
 	end
-	
+
 	local old_value = buff_list.buffs[id]
 
 	buff_list.buffs[id] = value
-	
+
 	if old_value ~= value then
 		self:_refresh_buff_total(name)
 	end
@@ -320,33 +321,33 @@ function CopBase:change_and_sync_char_tweak(new_tweak_name)
 	local old_tweak_data = self._char_tweak
 	self._tweak_table = new_tweak_name
 	self._char_tweak = new_tweak_data
-	
+
 	if not Global.game_settings.single_player then
 		managers.network:session():send_to_peers_synched("sync_change_char_tweak", self._unit, new_tweak_name)
 	end
-	
+
 	self:_chk_call_tweak_data_changed_listeners(old_tweak_data, new_tweak_data)
 end
 
 local ids_movement = Idstring("movement")
 local civ_empty = Idstring("civilian/empty")
 
-Hooks:PostHook(CopBase, "chk_freeze_anims", "lies_prevent_softlock", function(self)	
+Hooks:PostHook(CopBase, "chk_freeze_anims", "lies_prevent_softlock", function(self)
 	if self._unit:anim_state_machine():segment_state(Idstring("base")) == civ_empty then
 		local full_body_action = self._ext_movement:get_action(1)
-		
+
 		if full_body_action and full_body_action:type() == "act" then
 			if not full_body_action:expired() then
 				full_body_action._expired = true
 			end
-			
+
 			if self._ext_movement._need_upd ~= true then
 				self._ext_movement._need_upd = true
-				 
+
 				self._unit:set_extension_update_enabled(ids_movement, self._ext_movement._need_upd)
 			end
 		end
-		
+
 		if not self._unit:brain()._logic_data or self._unit:brain()._logic_data.cool then
 			if not self._ext_movement:play_redirect("exit") then
 				self._ext_movement:play_redirect("idle")

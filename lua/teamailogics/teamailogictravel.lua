@@ -30,7 +30,8 @@ function TeamAILogicTravel.enter(data, new_logic_name, enter_params)
 	if not data.unit:movement():cool() then
 		my_data.detection_task_key = "TeamAILogicTravel._upd_enemy_detection" .. key_str
 
-		CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicTravel._upd_enemy_detection, data, data.t)
+		CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicTravel._upd_enemy_detection, data, data
+		.t)
 	end
 
 	my_data.advance_path_search_id = "TeamAILogicTravel_detailed" .. tostring(data.key)
@@ -55,7 +56,8 @@ function TeamAILogicTravel.enter(data, new_logic_name, enter_params)
 
 	data.unit:movement():set_allow_fire(false)
 
-	local w_td = alive(data.unit) and data.unit:inventory():equipped_unit() and data.unit:inventory():equipped_unit():base():weapon_tweak_data()
+	local w_td = alive(data.unit) and data.unit:inventory():equipped_unit() and
+	data.unit:inventory():equipped_unit():base():weapon_tweak_data()
 
 	if w_td then
 		local cw_td = data.char_tweak.weapon[w_td.usage]
@@ -74,7 +76,7 @@ function TeamAILogicTravel.enter(data, new_logic_name, enter_params)
 
 		data.unit:brain():action_request(new_action)
 	end
-	
+
 	my_data.criminal = true
 end
 
@@ -88,10 +90,11 @@ function TeamAILogicTravel._upd_enemy_detection(data)
 	end
 
 	local delay = CopLogicBase._upd_attention_obj_detection(data, AIAttentionObject.REACT_CURIOUS, max_reaction)
-	local new_attention, new_prio_slot, new_reaction = TeamAILogicIdle._get_priority_attention(data, data.detected_attention_objects, nil)
+	local new_attention, new_prio_slot, new_reaction = TeamAILogicIdle._get_priority_attention(data,
+		data.detected_attention_objects, nil)
 
 	TeamAILogicBase._set_attention_obj(data, new_attention, new_reaction)
-	
+
 	if new_attention and (new_attention.nearly_visible or new_attention.verified) and new_reaction and AIAttentionObject.REACT_COMBAT <= new_reaction and new_attention.dis < 2000 then
 		data.last_engage_t = data.t
 	end
@@ -117,11 +120,11 @@ function TeamAILogicTravel._upd_enemy_detection(data)
 			return
 		end
 	end
-	
+
 	if data.objective then
 		local objective = data.objective
 		local objective_is_revive = objective.type == "revive"
-	
+
 		if objective_is_revive or my_data.called or objective.type == "follow" and mvector3.distance_sq(objective.follow_unit:movement():m_pos(), data.m_pos) > 490000 then
 			if objective_is_revive or not new_prio_slot or new_prio_slot > 1 then
 				my_data.low_value_att = true
@@ -158,7 +161,8 @@ function TeamAILogicTravel._upd_enemy_detection(data)
 
 	TeamAILogicAssault._chk_request_combat_chatter(data, my_data)
 
-	CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicTravel._upd_enemy_detection, data, data.t + delay)
+	CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicTravel._upd_enemy_detection, data,
+		data.t + delay)
 end
 
 TeamAILogicTravel._pathing_complete_clbk = CopLogicTravel._pathing_complete_clbk

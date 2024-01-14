@@ -170,7 +170,8 @@ function EnemyManager:register_shield(shield_unit)
 
 			self:add_delayed_clbk(shield_disposal_id, callback(self, self, "_upd_shield_disposal_fast"), t)
 		else
-			self:add_delayed_clbk(shield_disposal_id, callback(self, self, "_upd_shield_disposal"), t + self._shield_disposal_lifetime)
+			self:add_delayed_clbk(shield_disposal_id, callback(self, self, "_upd_shield_disposal"),
+				t + self._shield_disposal_lifetime)
 		end
 	elseif not self._fast_shield_disposal and self:shield_limit() < nr_shields then
 		self._fast_shield_disposal = false
@@ -337,7 +338,7 @@ function EnemyManager:_upd_shield_disposal()
 		end
 
 		delay = delay + disposal_life_t
-		
+
 		self:add_delayed_clbk(self._shield_disposal_id, callback(self, self, "_upd_shield_disposal"), delay)
 	else
 		self._shield_disposal_id = nil
@@ -346,30 +347,30 @@ end
 
 function EnemyManager:_update_queued_tasks(t, dt)
 	local n_tasks = #self._queued_tasks
-	
+
 	if n_tasks > 0 then
 		local whisper = managers.groupai:state():whisper_mode()
 
 		if whisper then
 			while #self._queued_tasks > 0 do
 				local executed_task = nil
-				
+
 				for i_task = 1, #self._queued_tasks do
 					local task_data = self._queued_tasks[i_task]
 
 					if not task_data.t then
 						self:_execute_queued_task(i_task)
 						executed_task = true
-						
+
 						break
 					elseif task_data.asap and not self._queued_task_executed or task_data.t < t then
 						self:_execute_queued_task(i_task)
 						executed_task = true
-						
+
 						break
 					end
 				end
-				
+
 				if not executed_task then
 					break
 				end
@@ -378,11 +379,11 @@ function EnemyManager:_update_queued_tasks(t, dt)
 			local tick_rate = tweak_data.group_ai.ai_tick_rate
 			local max_buffer = tick_rate * n_tasks
 			self._queue_buffer = math.min(self._queue_buffer + dt, max_buffer)
-			
+
 			while tick_rate <= self._queue_buffer do
 				if #self._queued_tasks > 0 then
-					local best_i_task, best_task_t 
-					
+					local best_i_task, best_task_t
+
 					for i_task = 1, #self._queued_tasks do
 						local task_data = self._queued_tasks[i_task]
 
@@ -390,7 +391,7 @@ function EnemyManager:_update_queued_tasks(t, dt)
 							self:_execute_queued_task(i_task)
 
 							self._queue_buffer = self._queue_buffer - tick_rate
-							
+
 							break
 						elseif task_data.asap and not self._queued_task_executed or task_data.t < t then
 							if not best_task_t or task_data.t < best_task_t then
@@ -399,10 +400,10 @@ function EnemyManager:_update_queued_tasks(t, dt)
 							end
 						end
 					end
-						
+
 					if best_i_task then
 						self:_execute_queued_task(best_i_task)
-						
+
 						self._queue_buffer = self._queue_buffer - tick_rate
 					else
 						break
@@ -426,48 +427,48 @@ function EnemyManager:_update_queued_tasks(t, dt)
 end
 
 function EnemyManager:_execute_queued_task(i)
-    local new_task_table = {}
-    
+	local new_task_table = {}
+
 	--table.remove sucks, don't use it, instead, recreate the table with everything except the task we are executing to save performance
-    for task_i = 1, #self._queued_tasks do
-        if task_i < i or task_i > i then
-            new_task_table[#new_task_table + 1] = self._queued_tasks[task_i]
-        end
-    end
+	for task_i = 1, #self._queued_tasks do
+		if task_i < i or task_i > i then
+			new_task_table[#new_task_table + 1] = self._queued_tasks[task_i]
+		end
+	end
 
-    local task = self._queued_tasks[i]
-    self._queued_task_executed = true
+	local task = self._queued_tasks[i]
+	self._queued_task_executed = true
 
-    if task.data and task.data.unit and not alive(task.data.unit) then
-        print("[EnemyManager:_execute_queued_task] dead unit", inspect(task))
-        Application:stack_dump()
-    end
-	
+	if task.data and task.data.unit and not alive(task.data.unit) then
+		print("[EnemyManager:_execute_queued_task] dead unit", inspect(task))
+		Application:stack_dump()
+	end
+
 	self._queued_tasks = new_task_table
 
-    if task.v_cb then
-        task.v_cb(task.id)
-    end
+	if task.v_cb then
+		task.v_cb(task.id)
+	end
 
-    task.clbk(task.data) 
+	task.clbk(task.data)
 end
 
 function EnemyManager:unqueue_task(id)
-    local tasks = self._queued_tasks
-    local new_task_table = {}
-    local biffed = true
-    
-    for i = 1, #tasks do
-        if tasks[i].id ~= id then 
-            new_task_table[#new_task_table + 1] = self._queued_tasks[i]
-        else
-            biffed = nil
-        end
-    end
-    
-    self._queued_tasks = new_task_table
+	local tasks = self._queued_tasks
+	local new_task_table = {}
+	local biffed = true
 
-    if biffed then
-        debug_pause("[EnemyManager:unqueue_task] task", id, "was not queued!!!")
-    end
+	for i = 1, #tasks do
+		if tasks[i].id ~= id then
+			new_task_table[#new_task_table + 1] = self._queued_tasks[i]
+		else
+			biffed = nil
+		end
+	end
+
+	self._queued_tasks = new_task_table
+
+	if biffed then
+		debug_pause("[EnemyManager:unqueue_task] task", id, "was not queued!!!")
+	end
 end

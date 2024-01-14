@@ -23,7 +23,8 @@ function SecurityCamera:set_detection_enabled(state, settings, mission_element)
 			self._detection_delay = settings.detection_delay
 			self._range = settings.detection_range
 			self._suspicion_range = settings.suspicion_range
-			self._team = managers.groupai:state():team_data(settings.team_id or tweak_data.levels:get_default_team_ID("combatant"))
+			self._team = managers.groupai:state():team_data(settings.team_id or
+			tweak_data.levels:get_default_team_ID("combatant"))
 		end
 
 		self._detected_attention_objects = self._detected_attention_objects or {}
@@ -69,15 +70,18 @@ function SecurityCamera:_upd_detect_attention_objects(t)
 
 	for u_key, attention_info in pairs(detected_obj) do
 		if t >= attention_info.next_verify_t then
-			attention_info.next_verify_t = t + (attention_info.identified and attention_info.verified and attention_info.settings.verification_interval * 1.3 or attention_info.settings.verification_interval * 0.3)
+			attention_info.next_verify_t = t +
+			(attention_info.identified and attention_info.verified and attention_info.settings.verification_interval * 1.3 or attention_info.settings.verification_interval * 0.3)
 
 			if not attention_info.identified then
 				local noticable = nil
-				local angle, dis_multiplier = self:_detection_angle_and_dis_chk(my_pos, my_fwd, attention_info.handler, attention_info.settings, attention_info.handler:get_detection_m_pos())
+				local angle, dis_multiplier = self:_detection_angle_and_dis_chk(my_pos, my_fwd, attention_info.handler,
+					attention_info.settings, attention_info.handler:get_detection_m_pos())
 
 				if angle then
 					local attention_pos = attention_info.handler:get_detection_m_pos()
-					local vis_ray = self._unit:raycast("ray", my_pos, attention_pos, "slot_mask", self._visibility_slotmask, "ray_type", "ai_vision")
+					local vis_ray = self._unit:raycast("ray", my_pos, attention_pos, "slot_mask",
+						self._visibility_slotmask, "ray_type", "ai_vision")
 
 					if not vis_ray or vis_ray.unit:key() == u_key then
 						noticable = true
@@ -92,12 +96,12 @@ function SecurityCamera:_upd_detect_attention_objects(t)
 						if attention_info.is_husk_player then
 							local peer = managers.network:session():peer_by_unit(attention_info.unit)
 							local latency = peer and Network:qos(peer:rpc()).ping or nil
-							
+
 							if latency then
 								local ping = latency / 1000
-								
+
 								delta_prog = dt / ping + 0.02
-							end	
+							end
 						else
 							delta_prog = 1
 						end
@@ -105,33 +109,34 @@ function SecurityCamera:_upd_detect_attention_objects(t)
 						local min_delay = det_delay[1]
 						local max_delay = det_delay[2]
 						local angle_mul_mod = 0.15 * math.min(angle / self._cone_angle, 1)
-						local dis_mul_mod =  0.85 * dis_multiplier
+						local dis_mul_mod = 0.85 * dis_multiplier
 						local notice_delay_mul = attention_info.settings.notice_delay_mul or 1
 
 						if attention_info.settings.detection and attention_info.settings.detection.delay_mul then
 							if hhtacs then
 								local mul = attention_info.settings.detection.delay_mul
 								mul = math.lerp(mul, 1, 0.75) --detection risk affects detection rate 75% less
-								
+
 								notice_delay_mul = notice_delay_mul * mul
 							else
 								notice_delay_mul = notice_delay_mul * attention_info.settings.detection.delay_mul
 							end
 						end
-						
-						local notice_delay_modified = math.lerp(min_delay * notice_delay_mul, max_delay, dis_mul_mod + angle_mul_mod)
-						
+
+						local notice_delay_modified = math.lerp(min_delay * notice_delay_mul, max_delay,
+							dis_mul_mod + angle_mul_mod)
+
 						if attention_info.is_husk_player then
 							local peer = managers.network:session():peer_by_unit(attention_info.unit)
 							local latency = peer and Network:qos(peer:rpc()).ping or nil
-							
+
 							if latency then
 								local ping = latency / 1000
-								
+
 								notice_delay_modified = notice_delay_modified + ping + 0.02
-							end	
+							end
 						end
-						
+
 						delta_prog = notice_delay_modified > 0 and dt / notice_delay_modified or 1
 					end
 				else
@@ -160,7 +165,8 @@ function SecurityCamera:_upd_detect_attention_objects(t)
 					attention_info.prev_notice_chk_t = t
 
 					if AIAttentionObject.REACT_SCARED <= attention_info.settings.reaction then
-						managers.groupai:state():on_criminal_suspicion_progress(attention_info.unit, self._unit, noticable)
+						managers.groupai:state():on_criminal_suspicion_progress(attention_info.unit, self._unit,
+							noticable)
 					end
 				end
 
@@ -190,7 +196,8 @@ function SecurityCamera:_upd_detect_attention_objects(t)
 					local in_FOV = self:_detection_angle_chk(my_pos, my_fwd, detect_pos, 0.8)
 
 					if in_FOV then
-						vis_ray = self._unit:raycast("ray", my_pos, detect_pos, "slot_mask", self._visibility_slotmask, "ray_type", "ai_vision")
+						vis_ray = self._unit:raycast("ray", my_pos, detect_pos, "slot_mask", self._visibility_slotmask,
+							"ray_type", "ai_vision")
 
 						if not vis_ray or vis_ray.unit:key() == u_key then
 							verified = true
@@ -255,16 +262,16 @@ function SecurityCamera:_upd_suspicion(t)
 				local susp_settings = attention_data.unit:base():suspicion_settings()
 				local suspicion_range = self._suspicion_range
 				local susp_mul = susp_settings.range_mul
-				
+
 				if hhtacs then
 					susp_mul = math.lerp(susp_mul, 1, 0.75)
 				end
-				
+
 				local uncover_range = 0
 				local max_range = self._range
 
 				if attention_data.settings.uncover_range and dis < math.min(max_range, uncover_range) * susp_mul then
-					attention_data.unit:movement():on_suspicion(self._unit, true)	
+					attention_data.unit:movement():on_suspicion(self._unit, true)
 					managers.groupai:state():on_criminal_suspicion_progress(attention_data.unit, self._unit, true)
 					managers.groupai:state():criminal_spotted(attention_data.unit, true)
 
@@ -277,29 +284,30 @@ function SecurityCamera:_upd_suspicion(t)
 						local range_max = (suspicion_range - uncover_range) * susp_mul
 						local range_min = uncover_range
 						local mul = 1 - (dis - range_min) / range_max
-						
+
 						local settings_mul
-			
+
 						if hhtacs then
-							settings_mul = math.lerp(susp_settings.buildup_mul, 1, 0.5) / attention_data.settings.suspicion_duration
+							settings_mul = math.lerp(susp_settings.buildup_mul, 1, 0.5) /
+							attention_data.settings.suspicion_duration
 						else
 							settings_mul = susp_settings.buildup_mul
 						end
-						
+
 						local total_mul = mul * settings_mul
 
 						if attention_data.is_husk_player then
 							local peer = managers.network:session():peer_by_unit(attention_data.unit)
 							local latency = peer and Network:qos(peer:rpc()).ping or nil
-							
+
 							if latency then
 								local ping = latency / 1000
 								local ping_add = 1 + ping + 0.02
-								
+
 								total_mul = total_mul / ping_add
-							end	
+							end
 						end
-						
+
 						local progress = dt * 0.5 * total_mul
 						attention_data.uncover_progress = (attention_data.uncover_progress or 0) + progress
 						max_suspicion = math.max(max_suspicion, attention_data.uncover_progress)
@@ -352,11 +360,11 @@ function SecurityCamera:_detection_angle_and_dis_chk(my_pos, my_fwd, handler, se
 
 	if settings.detection and settings.detection.range_mul then
 		local mul = settings.detection.range_mul
-		
+
 		if LIES.settings.hhtacs then
 			mul = math.lerp(mul, 1, 0.75)
 		end
-		
+
 		max_dis = max_dis * mul
 	end
 
@@ -383,56 +391,56 @@ function SecurityCamera:_detect_criminals_loud(t, criminals)
 	if not criminals or self._invalid_camera then
 		return
 	end
-	
+
 	if not self._set_settings then
 		self._look_obj = self._unit:get_object(Idstring("CameraLens"))
 		self._yaw_obj = self._unit:get_object(Idstring("CameraYaw"))
-		
+
 		if not self._yaw_obj then
 			self._invalid_camera = true
-			
+
 			return
 		end
-		
+
 		self._pitch_obj = self._unit:get_object(Idstring("CameraPitch"))
 		self._pos = self._yaw_obj:position()
-		
+
 		local settings = {
-		  fov = 60,		  
-		  suspicion_range = 1500
+			fov = 60,
+			suspicion_range = 1500
 		}
-		
+
 		self._cone_angle = settings.fov
 		self._suspicion_range = settings.suspicion_range
-		
+
 		self._set_settings = true
 	end
-	
+
 	local mvec3_dis_sq = mvector3.distance_sq
 	local my_range = self._suspicion_range * self._suspicion_range
 	local my_cone = self._cone_angle
 	local my_pos = self._pos
 	local my_fwd = self._look_fwd
-	
+
 	if not my_fwd then
 		self._look_obj:m_rotation(tmp_rot1)
 
 		self._look_fwd = Vector3()
 
 		mrotation.y(tmp_rot1, self._look_fwd)
-		
+
 		my_fwd = self._look_fwd
 	end
-	
+
 	if not self._tmp_vec1 then
 		self._tmp_vec1 = Vector3()
 	end
-	
+
 	for c_key, c_data in pairs(criminals) do
 		if alive(c_data.unit) and t - c_data.det_t > 1 then
 			local c_unit = c_data.unit
 			local detection_pos = c_unit:movement():m_head_pos()
-			
+
 			if mvec3_dis_sq(my_pos, detection_pos) < my_range then
 				mvector3.direction(self._tmp_vec1, my_pos, detection_pos)
 				local angle = mvector3.angle(my_fwd, self._tmp_vec1)
@@ -440,7 +448,8 @@ function SecurityCamera:_detect_criminals_loud(t, criminals)
 				local angle_multiplier = angle / angle_max
 
 				if angle_multiplier < 1 then
-					local vis_ray = self._unit:raycast("ray", my_pos, detection_pos, "slot_mask", self._visibility_slotmask, "ray_type", "ai_vision")
+					local vis_ray = self._unit:raycast("ray", my_pos, detection_pos, "slot_mask",
+						self._visibility_slotmask, "ray_type", "ai_vision")
 
 					if not vis_ray or vis_ray.unit:key() == u_key then
 						local in_cone = true
@@ -449,7 +458,7 @@ function SecurityCamera:_detect_criminals_loud(t, criminals)
 							local dir = (detection_pos - my_pos):normalized()
 							in_cone = my_fwd:angle(dir) <= self._cone_angle * 0.5
 						end
-						
+
 						if in_cone then
 							managers.groupai:state():criminal_spotted(c_unit, true)
 						end

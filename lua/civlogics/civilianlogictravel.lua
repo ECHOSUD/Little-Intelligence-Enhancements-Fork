@@ -14,15 +14,15 @@ function CivilianLogicTravel.enter(data, new_logic_name, enter_params)
 	else
 		my_data.detection = data.char_tweak.detection.cbt
 	end
-	
+
 	data.unit:brain():set_update_enabled_state(true)
-	
+
 	CivilianLogicEscort._get_objective_path_data(data, my_data)
-	
+
 	--if data.objective.element and data.objective.type == "act" and data.char_tweak.is_escort then
-		--managers.groupai:state():print_objective(data.objective)
+	--managers.groupai:state():print_objective(data.objective)
 	--end
-	
+
 	local key_str = tostring(data.key)
 
 	if data.is_tied then
@@ -31,16 +31,17 @@ function CivilianLogicTravel.enter(data, new_logic_name, enter_params)
 		my_data.is_hostage = true
 	elseif not data.char_tweak.is_escort and not data.unit:base()._tweak_table == "drunk_pilot" then
 		data.unit:brain():set_update_enabled_state(false)
-		
+
 		my_data.upd_task_key = "CivilianLogicTravel_queued_update" .. key_str
 	end
-	
+
 	if not data.been_outlined and data.char_tweak.outline_on_discover then
 		my_data.outline_detection_task_key = "CivilianLogicIdle._upd_outline_detection" .. key_str
 
-		CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle._upd_outline_detection, data, data.t + 2)
+		CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle._upd_outline_detection,
+			data, data.t + 2)
 	end
-	
+
 	if not data.is_tied then
 		my_data.detection_task_key = "CivilianLogicTravel_upd_detection" .. key_str
 
@@ -86,7 +87,7 @@ function CivilianLogicTravel.enter(data, new_logic_name, enter_params)
 	data.unit:brain():set_attention_settings(attention_settings)
 
 	my_data.state_enter_t = TimerManager:game():time()
-	
+
 	if my_data.upd_task_key then
 		CivilianLogicTravel.queued_update(data, my_data)
 	end
@@ -108,7 +109,7 @@ function CivilianLogicTravel.action_complete_clbk(data, action)
 				my_data.coarse_path_index = my_data.coarse_path_index - 1
 			end
 		end
-	
+
 		my_data.old_action_advancing = nil
 		my_data.advancing = nil
 	elseif action_type == "act" and my_data.getting_up then
@@ -124,26 +125,26 @@ function CivilianLogicTravel.update(data)
 
 	if my_data.has_old_action or my_data.old_action_advancing then
 		CivilianLogicTravel._upd_stop_old_action(data, my_data)
-		
+
 		if my_data.has_old_action or my_data.old_action_advancing then
 			return
 		end
 	end
-	
+
 	if my_data.is_hostage then
 		CivilianLogicTravel._stop_for_criminal(data, my_data)
-		
+
 		if data.internal_data ~= my_data then
 			return
 		end
-		
+
 		CivilianLogicTravel._check_for_scare(data, my_data)
-		
+
 		if data.internal_data ~= my_data then
 			return
 		end
 	end
-	
+
 	if my_data.warp_pos then
 		local action_desc = {
 			body_part = 1,
@@ -157,7 +158,7 @@ function CivilianLogicTravel.update(data)
 		end
 	elseif my_data.processing_advance_path or my_data.processing_coarse_path then
 		CivilianLogicEscort._upd_pathing(data, my_data)
-		
+
 		if data.internal_data ~= my_data then
 			return
 		end
@@ -306,15 +307,15 @@ function CivilianLogicTravel.update(data)
 	end
 end
 
-function CivilianLogicTravel.queued_update(data,...)
+function CivilianLogicTravel.queued_update(data, ...)
 	local my_data = data.internal_data
-	
+
 	CivilianLogicTravel.update(data)
-	
+
 	if data.internal_data ~= my_data then
 		return
 	end
-	
+
 	CopLogicBase.queue_task(my_data, my_data.upd_task_key, CivilianLogicTravel.queued_update, data, data.t + 1)
 end
 
@@ -324,26 +325,26 @@ function CivilianLogicTravel._check_for_scare(data, my_data)
 	if not objective or objective.type ~= "follow" or data.unit:movement():chk_action_forbidden("walk") or data.unit:anim_data().act_idle then
 		return
 	end
-	
+
 	if not objective.follow_unit or not alive(objective.follow_unit) then
 		return
 	end
-	
+
 	local follow_unit = objective.follow_unit
-	
+
 	local follow_unit_far = true
 	local max_dis_sq = 1000000
 
 	if mvector3.distance_sq(follow_unit:movement():nav_tracker():position(), data.m_pos) < max_dis_sq then
 		follow_unit_far = nil
 	end
-	
+
 	if follow_unit_far then
 		managers.groupai:state():on_civilian_objective_failed(data.unit, data.objective)
-	
+
 		return
 	end
-	
+
 	local player_team_id = tweak_data.levels:get_default_team_ID("player")
 	local enemies_close = nil
 	local min_dis_sq = 250
@@ -358,10 +359,10 @@ function CivilianLogicTravel._check_for_scare(data, my_data)
 			end
 		end
 	end
-	
+
 	if enemies_close then
 		managers.groupai:state():on_civilian_objective_failed(data.unit, data.objective)
-	
+
 		return
 	end
 end
@@ -372,37 +373,37 @@ function CivilianLogicTravel._stop_for_criminal(data, my_data)
 	if not objective or objective.type ~= "follow" or data.unit:movement():chk_action_forbidden("walk") or data.unit:anim_data().act_idle then
 		return
 	end
-	
+
 	if not objective.follow_unit or not alive(objective.follow_unit) then
 		return
 	end
-	
+
 	if not my_data.coarse_path then
 		return
 	end
-	
+
 	local follow_unit = objective.follow_unit
 	local my_nav_seg_id = data.unit:movement():nav_tracker():nav_segment()
 	local my_areas = managers.groupai:state():get_areas_from_nav_seg_id(my_nav_seg_id)
 	local follow_unit_nav_seg_id = follow_unit:movement():nav_tracker():nav_segment()
-	
+
 	if mvector3.distance_sq(data.m_pos, follow_unit:movement():nav_tracker():field_position()) < 3600 then
 		objective.in_place = true
 
 		data.logic.on_new_objective(data)
-			
+
 		return
 	else
 		local obj_nav_seg = my_data.coarse_path[#my_data.coarse_path][1]
 		local obj_area = managers.groupai:state():get_area_from_nav_seg_id(obj_nav_seg)
 		local follow_unit_area = managers.groupai:state():get_area_from_nav_seg_id(follow_unit_nav_seg_id)
-		
+
 		if obj_area and follow_unit_area then
 			if mvector3.distance_sq(obj_area.pos, follow_unit_area.pos) > 10000 or math.abs(obj_area.pos.z - follow_unit:movement():nav_tracker():field_position().z) > 250 then
 				objective.in_place = nil
-				
+
 				data.logic.on_new_objective(data)
-		
+
 				return
 			end
 		end
@@ -414,19 +415,21 @@ function CivilianLogicTravel._determine_exact_destination(data, objective)
 		return objective.pos
 	elseif objective.type == "follow" then
 		local to_pos
-		
+
 		if not data.tied then
 			local follow_pos, follow_nav_seg = nil
 			follow_pos = objective.follow_unit:movement():nav_tracker():field_position()
 			follow_nav_seg = objective.follow_unit:movement():nav_tracker():nav_segment()
-			local distance = objective.distance and math.lerp(objective.distance * 0.5, objective.distance * 0.9, math.random()) or 700
+			local distance = objective.distance and
+			math.lerp(objective.distance * 0.5, objective.distance * 0.9, math.random()) or 700
 			to_pos = CopLogicTravel._get_pos_on_wall(follow_pos, distance, nil, nil, nil, data.pos_rsrv_id)
 		else
 			to_pos = mvector3.copy(objective.follow_unit:movement():nav_tracker():field_position())
 		end
-			
+
 		return to_pos
 	else
-		return CopLogicTravel._get_pos_on_wall(managers.navigation._nav_segments[objective.nav_seg].pos, 700, nil, nil, nil, data.pos_rsrv_id)
+		return CopLogicTravel._get_pos_on_wall(managers.navigation._nav_segments[objective.nav_seg].pos, 700, nil, nil,
+			nil, data.pos_rsrv_id)
 	end
 end

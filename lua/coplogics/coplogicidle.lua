@@ -31,12 +31,12 @@ function CopLogicIdle.enter(data, new_logic_name, enter_params)
 	if old_internal_data then
 		my_data.current_undetected_criminal_key = old_internal_data.current_undetected_criminal_key
 		my_data.detected_criminal = old_internal_data.detected_criminal
-		
+
 		if my_data.detected_criminal then --we're coming in from another logic, we should reset in case of chase
 			my_data.needs_logic_reset = true
 		end
-		
-		
+
+
 		my_data.turning = old_internal_data.turning
 
 		if old_internal_data.firing then
@@ -73,7 +73,7 @@ function CopLogicIdle.enter(data, new_logic_name, enter_params)
 	CopLogicBase.queue_task(my_data, my_data.detection_task_key, CopLogicIdle.queued_update, data, data.t)
 
 	local objective = data.objective
-	
+
 	if objective then
 		my_data.scan = objective.scan
 		my_data.rubberband_rotation = objective.rubberband_rotation and mvector3.copy(data.unit:movement():m_fwd())
@@ -101,11 +101,12 @@ function CopLogicIdle.enter(data, new_logic_name, enter_params)
 			cbt = true
 		})
 	end
-	
+
 	--enemies can come out of coplogicintimidated without a fucking gun for some goddamn reason
-	local usage = data.unit:inventory():equipped_unit() and alive(data.unit:inventory():equipped_unit()) and data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage
+	local usage = data.unit:inventory():equipped_unit() and alive(data.unit:inventory():equipped_unit()) and
+	data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage
 	my_data.weapon_range = usage and (data.char_tweak.weapon[usage] or {}).range
-	
+
 	if not my_data.weapon_range then
 		my_data.weapon_range = {
 			optimal = 2000,
@@ -115,11 +116,11 @@ function CopLogicIdle.enter(data, new_logic_name, enter_params)
 	end
 
 	data.unit:brain():set_update_enabled_state(false)
-	
+
 	if not my_data.detected_criminal then
 		CopLogicIdle._perform_objective_action(data, my_data, objective)
 	end
-	
+
 	data.unit:movement():set_allow_fire(false)
 
 	if my_data ~= data.internal_data then
@@ -132,7 +133,7 @@ function CopLogicIdle._chk_has_old_action(data, my_data)
 	my_data.has_old_action = anim_data.to_idle or anim_data.act
 	local lower_body_action = data.unit:movement()._active_actions[2]
 	my_data.advancing = lower_body_action and lower_body_action:type() == "walk" and lower_body_action
-	
+
 	if my_data.advancing then
 		my_data.old_action_advancing = my_data.advancing
 	end
@@ -148,18 +149,18 @@ function CopLogicIdle._on_player_slow_pos_rsrv_upd(data)
 
 				if my_data ~= data.internal_data then
 					CopLogicBase.cancel_queued_tasks(my_data)
-				
+
 					return
 				end
 			end
 		end
 	end
-	
+
 	if CopLogicIdle._chk_relocate(data) then
 		if my_data ~= data.internal_data then
 			CopLogicBase.cancel_queued_tasks(my_data)
 		end
-		
+
 		return
 	end
 end
@@ -178,9 +179,10 @@ function CopLogicIdle.queued_update(data)
 
 	if my_data.has_old_action or my_data.old_action_advancing then
 		CopLogicIdle._upd_stop_old_action(data, my_data, objective)
-		
+
 		if my_data.has_old_action or my_data.old_action_advancing then
-			CopLogicBase.queue_task(my_data, my_data.detection_task_key, CopLogicIdle.queued_update, data, data.t + delay, data.important and true)
+			CopLogicBase.queue_task(my_data, my_data.detection_task_key, CopLogicIdle.queued_update, data, data.t + delay,
+				data.important and true)
 
 			return
 		end
@@ -201,28 +203,28 @@ function CopLogicIdle.queued_update(data)
 	if CopLogicIdle._chk_exit_non_walkable_area(data) then
 		return
 	end
-	
+
 	if CopLogicIdle._chk_relocate(data) then
 		return
 	end
-	
+
 	CopLogicTravel._update_cover(nil, data)
-	
+
 	if data.cool then
 		if not my_data.detected_criminal and my_data.needs_logic_reset then
 			if my_data.action_expired then
 				data.objective_complete_clbk(data.unit, data.objective)
-				
+
 				CopLogicBase._report_detections(data.detected_attention_objects)
-				
+
 				return
 			else
 				if data.objective then
 					data.objective.in_place = nil
 				end
-				
+
 				CopLogicIdle.on_new_objective(data)
-				
+
 				if data.internal_data ~= my_data then
 					CopLogicBase._report_detections(data.detected_attention_objects)
 
@@ -235,17 +237,17 @@ function CopLogicIdle.queued_update(data)
 	else
 		CopLogicIdle._perform_objective_action(data, my_data, objective)
 	end
-		
+
 	CopLogicIdle._upd_stance_and_pose(data, my_data, objective)
 	CopLogicIdle._upd_pathing(data, my_data)
-	
+
 	CopLogicIdle._upd_scan(data, my_data)
-		
+
 	if my_data.action_started and my_data.action_started == true then
 		if not data.cool then
 			CopLogicIdle._check_needs_reload(data, my_data)
 		end
-		
+
 		CopLogicIdle._chk_start_action_move_out_of_the_way(data, my_data)
 	end
 
@@ -258,7 +260,7 @@ function CopLogicIdle.queued_update(data)
 
 		return
 	end
-	
+
 	if LIES.settings.extra_chatter and data.cool and not my_data.advancing and data.char_tweak.chatter and data.char_tweak.chatter.criminalhasgun then
 		if not data.last_calm_chatter_t or data.t - data.last_calm_chatter_t > (data.important and 45 or 120) then
 			if my_data.action_started ~= true then
@@ -271,7 +273,8 @@ function CopLogicIdle.queued_update(data)
 		end
 	end
 
-	CopLogicBase.queue_task(my_data, my_data.detection_task_key, CopLogicIdle.queued_update, data, data.t + delay, data.important and true)
+	CopLogicBase.queue_task(my_data, my_data.detection_task_key, CopLogicIdle.queued_update, data, data.t + delay,
+		data.important and true)
 end
 
 function CopLogicIdle._chk_start_action_move_out_of_the_way(data, my_data)
@@ -316,27 +319,25 @@ function CopLogicIdle._upd_pathing(data, my_data)
 	end
 
 	local path = my_data.chase_crim_path_id and data.pathing_results[my_data.chase_crim_path_id]
-	
+
 	if path then
 		data.pathing_results[my_data.chase_crim_path_id] = nil
 		my_data.chase_crim_path_id = nil
 
 		if path ~= "failed" then
 			my_data.chase_crim_path = path
-			
+
 			if data.cool and my_data.current_undetected_criminal_key and data.detected_attention_objects[my_data.current_undetected_criminal_key] then
 				local attention_info = data.detected_attention_objects[my_data.current_undetected_criminal_key]
-				
+
 				return CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention_info)
 			end
 		else
 			my_data.chase_crim_path_failed_t = data.t
 			my_data.chase_pos = nil
-			
+
 			--log("waaaa")	
 		end
-		
-	
 	end
 end
 
@@ -358,7 +359,7 @@ function CopLogicIdle.clbk_action_timeout(ignore_this, data)
 	if data.unit:anim_data().act and data.unit:anim_data().needs_idle and not data.unit:anim_data().to_idle then
 		CopLogicIdle._start_idle_action_from_act(data)
 	end
-	
+
 	if not my_data.detected_criminal then
 		data.objective_complete_clbk(data.unit, data.objective)
 	end
@@ -404,7 +405,7 @@ function CopLogicIdle._upd_scan(data, my_data)
 	if CopLogicIdle._chk_focus_on_attention_object(data, my_data) then
 		return
 	end
-	
+
 	if LIES.settings.hhtacs and CopLogicIdle._chk_focus_on_undetected_criminal(data, my_data) then
 		return
 	end
@@ -412,10 +413,11 @@ function CopLogicIdle._upd_scan(data, my_data)
 	if not data.logic.is_available_for_assignment(data) or data.unit:movement():chk_action_forbidden("walk") then
 		return
 	end
-	
+
 	if not my_data.stare_pos or not my_data.next_scan_t or data.t < my_data.next_scan_t then
 		if not my_data.turning and my_data.fwd_offset then
-			local return_spin = my_data.rubberband_rotation:to_polar_with_reference(data.unit:movement():m_fwd(), math.UP).spin
+			local return_spin = my_data.rubberband_rotation:to_polar_with_reference(data.unit:movement():m_fwd(), math
+			.UP).spin
 
 			if math.abs(return_spin) < 15 then
 				my_data.fwd_offset = nil
@@ -475,10 +477,10 @@ function CopLogicIdle._upd_scan(data, my_data)
 end
 
 function CopLogicIdle._chk_focus_on_undetected_criminal(data, my_data)
-	if not data.cool then		
+	if not data.cool then
 		my_data.current_undetected_criminal_key = nil
 		my_data.detected_criminal = nil
-		
+
 		my_data.chase_pos = nil
 		my_data.chase_crim_path = nil
 
@@ -493,25 +495,25 @@ function CopLogicIdle._chk_focus_on_undetected_criminal(data, my_data)
 
 			my_data.chase_crim_path_id = nil
 		end
-		
+
 		my_data.chasing = nil
-		
+
 		return
 	end
-		
+
 	if my_data.current_undetected_criminal_key and data.detected_attention_objects[my_data.current_undetected_criminal_key] then
 		local attention_info = data.detected_attention_objects[my_data.current_undetected_criminal_key]
-		
+
 		return CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention_info)
 	else
 		if my_data.detected_criminal then
 			my_data.needs_logic_reset = true
 		end
-	
+
 		my_data.current_undetected_criminal_key = nil
 		my_data.detected_criminal = nil
 		my_data.chasing = nil
-		
+
 		my_data.chase_pos = nil
 		my_data.chase_crim_path = nil
 
@@ -526,24 +528,24 @@ function CopLogicIdle._chk_focus_on_undetected_criminal(data, my_data)
 
 			my_data.chase_crim_path_id = nil
 		end
-	
+
 		local best_angle, best_dis, best_att_key
 		local fwd = data.unit:movement():m_rot():y()
 		local target_vec = temp_vec1
 		local my_pos = data.m_pos
-		
+
 		local function _get_spin(look_pos)
 			mvec3_dir(target_vec, my_pos, look_pos)
 			mvec3_set_z(target_vec, 0)
 			return target_vec:to_polar_with_reference(fwd, math.UP).spin
 		end
-		
+
 		for u_key, attention_info in pairs(data.detected_attention_objects) do
 			if not attention_info.identified and AIAttentionObject.REACT_SCARED <= attention_info.settings.reaction then
 				if attention_info.notice_t and data.t - attention_info.notice_t <= 10 and attention_info.notice_pos then
 					local attention_pos = attention_info.handler:get_detection_m_pos()
 					local angle = _get_spin(attention_pos)
-					
+
 					if not best_angle or math.abs(angle) < math.abs(best_angle) then
 						if not best_dis or attention_info.dis < best_dis then
 							best_angle = angle
@@ -554,11 +556,11 @@ function CopLogicIdle._chk_focus_on_undetected_criminal(data, my_data)
 				end
 			end
 		end
-		
+
 		if best_att_key then
 			my_data.current_undetected_criminal_key = best_att_key
 			local attention_info = data.detected_attention_objects[my_data.current_undetected_criminal_key]
-			
+
 			return CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention_info)
 		else
 			data.unit:movement():set_stance("ntl")
@@ -574,7 +576,7 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 	if attention_info.identified then
 		my_data.current_undetected_criminal_key = nil
 		my_data.detected_criminal = nil
-		
+
 		my_data.chase_pos = nil
 		my_data.chase_crim_path = nil
 
@@ -589,42 +591,44 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 
 			my_data.chase_crim_path_id = nil
 		end
-		
+
 		my_data.chasing = nil
-		
+
 		return
 	end
-	
+
 	local attention_pos = attention_info.last_notice_pos
 	local to_chase_pos = attention_info.notice_pos
 
 	local visible = attention_info.noticed
 	local visible_soft = visible
-	
+
 	if not visible_soft then
 		local attention_real_pos = attention_info.handler:get_detection_m_pos()
-	
+
 		local lerp = math.clamp(mvector3.distance(attention_real_pos, attention_info.last_notice_pos) / 400)
-						
+
 		if attention_info.notice_t and data.t - attention_info.notice_t < math.lerp(2, 0, lerp) then
 			visible_soft = true
 		end
 	end
-	
+
 	local should_turn = my_data.chasing or attention_info.notice_progress and attention_info.notice_progress > 0.25
-	local should_chase = my_data.chase_crim_path or attention_info.notice_progress and attention_info.notice_progress > 0.5 and mvec3_dis_sq(data.m_pos, attention_info.m_pos) < 1562500
+	local should_chase = my_data.chase_crim_path or
+	attention_info.notice_progress and attention_info.notice_progress > 0.5 and
+	mvec3_dis_sq(data.m_pos, attention_info.m_pos) < 1562500
 	local turn_to_real_pos
-	
+
 	local chase_pos
-	
+
 	if attention_info.notice_progress then
 		if attention_info.notice_progress > 0.5 then
 			local stance = "hos"
-	
+
 			if data.char_tweak.allowed_stances and not data.char_tweak.allowed_stances["hos"] then
 				stance = "cbt"
 			end
-			
+
 			local upper_body_action = data.unit:movement()._active_actions[3]
 
 			if not upper_body_action or upper_body_action:type() ~= "shoot" then
@@ -634,15 +638,15 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 			data.unit:movement():set_stance("ntl")
 		end
 	end
-	
+
 	if (not my_data.chase_duration or my_data.chase_duration < data.t) and not my_data.chasing_run then
 		attention_info.being_chased = nil
 	end
-	
+
 	if not my_data.chasing_run then
 		if should_chase and my_data.chase_crim_path and my_data.chase_pos then
 			local new_chase_pos = to_chase_pos
-			
+
 			if mvector3.distance(my_data.chase_pos, new_chase_pos) > 600 then
 				--log("chase reset 1")
 				my_data.chase_pos = nil
@@ -664,9 +668,9 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 				mvec3_set_z(temp_vec1, 0)
 				mvec3_dir(temp_vec2, data.m_pos, new_chase_pos)
 				mvec3_set_z(temp_vec2, 0)
-				
+
 				local dot = mvec3_dot(temp_vec1, temp_vec2)
-				
+
 				if dot < 0.34 then
 					--log("chase reset 2")
 					my_data.chase_pos = nil
@@ -686,12 +690,12 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 				end
 			end
 		end
-		
+
 		if should_chase and not my_data.chase_pos then
 			if math.abs(to_chase_pos.z - data.m_pos.z) < 250 then
 				chase_pos = managers.navigation:clamp_position_to_field(to_chase_pos)
 				local chase_pos_vis = chase_pos:with_z(attention_info.real_pos.z)
-				
+
 				if mvec3_dis_sq(data.m_pos, chase_pos) < 3600 or mvec3_dis_sq(data.unit:movement():m_head_pos(), chase_pos_vis) < 90000 and not data.unit:raycast("ray", data.unit:movement():m_head_pos(), chase_pos_vis, "slot_mask", data.visibility_slotmask, "ray_type", "ai_vision", "report") then
 					--log("chase failed 2")
 					should_chase = nil
@@ -703,15 +707,15 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 			end
 		end
 	end
-	
+
 	if not my_data.turning and not my_data.chasing and should_chase and not my_data.chasing_run and (chase_pos or my_data.chase_crim_path) and not data.unit:movement():chk_action_forbidden("walk") then
 		--log("chase")
 		my_data.detected_criminal = true
-		
+
 		if not attention_info.detected_criminal then
 			attention_info.detected_criminal = true
 		end
-		
+
 		if data.objective and data.objective.type ~= "free" and not data.objective.pos then
 			data.objective.pos = mvector3.copy(data.m_pos) --we can walk back to our position later when we're done dealing with this idiot
 		end
@@ -719,21 +723,21 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 		if my_data.chase_crim_path then
 			local chase_see_pos = my_data.chase_pos:with_z(attention_info.real_pos.z)
 			local path = my_data.chase_crim_path
-		
+
 			my_data.chase_pos = nil
 			my_data.chase_crim_path = nil
-			
+
 			if path then
 				--log("argh")
 				CopLogicAttack._correct_path_start_pos(data, path)
-				
+
 				local new_action_data = {
 					body_part = 2,
 					type = "walk",
 					nav_path = path,
 					variant = "walk"
 				}
-				
+
 				my_data.advancing = data.unit:brain():action_request(new_action_data)
 
 				if my_data.advancing then
@@ -744,9 +748,9 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 				end
 			end
 		elseif not my_data.chase_crim_path_id and (not my_data.chase_crim_path_failed_t or data.t - my_data.chase_crim_path_failed_t > 1) then
-			my_data.chase_pos = chase_pos			
+			my_data.chase_pos = chase_pos
 			my_data.chase_crim_path_id = "chase_crim" .. tostring(data.key)
-			
+
 			data.unit:brain():search_for_path(my_data.chase_crim_path_id, chase_pos, nil, nil, nil)
 		end
 
@@ -754,21 +758,22 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 	elseif not my_data.turning and (data.unit:anim_data().act_idle or data.unit:anim_data().idle) and not my_data.chasing_run and should_turn then
 		--log("turn")
 		my_data.detected_criminal = true
-		
+
 		if not attention_info.detected_criminal then
 			attention_info.detected_criminal = true
 		end
-		
+
 		if my_data.chasing and not turn_to_real_pos and not visible_soft and (not my_data.next_chase_turn_t or my_data.next_chase_turn_t < data.t) then
 			local vec_to_pos = attention_info.notice_pos - data.m_pos
 			mvec3_set_z(vec_to_pos, 0)
-			
+
 			local max_dis = math.lerp(700, 2000, math.random())
 
 			mvector3.set_length(vec_to_pos, max_dis)
 
-			local accross_positions = managers.navigation:find_walls_accross_tracker(data.unit:movement():nav_tracker(), vec_to_pos, 360, 8)
-			
+			local accross_positions = managers.navigation:find_walls_accross_tracker(data.unit:movement():nav_tracker(),
+				vec_to_pos, 360, 8)
+
 			if accross_positions then
 				local optimal_dis = max_dis
 				local best_error_dis, best_pos, best_is_hit, best_is_miss, best_has_too_much_error = nil
@@ -776,17 +781,18 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 				for _, accross_pos in ipairs(accross_positions) do
 					local hit_dis = mvector3.distance(accross_pos[1], data.m_pos)
 					--local too_much_error = error_dis / optimal_dis > 0.2
-					
+
 					if hit_dis > 400 then -- dont fuckin https://media.tenor.com/laSBfhRhTEYAAAAM/guy-arguing.gif the wall
-						local error_dis = math.abs(mvector3.distance(accross_pos[1], attention_info.notice_pos) - optimal_dis) * (0.5 + math.random())
-						
+						local error_dis = math.abs(mvector3.distance(accross_pos[1], attention_info.notice_pos) -
+						optimal_dis) * (0.5 + math.random())
+
 						if not best_error_dis or error_dis < best_error_dis then
 							best_pos = accross_pos[1]
 							best_error_dis = error_dis
 						end
 					end
 				end
-				
+
 				if best_pos then
 					mvec3_set_z(best_pos, best_pos.z + 140)
 					CopLogicBase._set_attention_on_pos(data, best_pos)
@@ -794,9 +800,9 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 					if data.unit:anim_data().act_idle and not data.unit:anim_data().to_idle then
 						CopLogicIdle._start_idle_action_from_act(data)
 					end
-				
+
 					local turn_angle = CopLogicIdle._chk_turn_needed(data, my_data, data.m_pos, best_pos)
-					
+
 					if turn_angle then
 						CopLogicIdle._turn_by_spin(data, my_data, turn_angle)
 
@@ -811,24 +817,24 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 			end
 		else
 			local turn_to_pos = attention_pos
-			
+
 			if turn_to_real_pos then
 				turn_to_pos = attention_info.real_pos
 			elseif mvec3_dis_sq(data.unit:movement():m_head_pos(), attention_info.real_pos) < 160000 and not data.unit:raycast("ray", data.unit:movement():m_head_pos(), attention_info.real_pos, "slot_mask", data.visibility_slotmask, "ray_type", "ai_vision", "report") then
 				turn_to_pos = attention_info.real_pos
 			end
-		
+
 			CopLogicBase._set_attention_on_pos(data, turn_to_pos)
-			
+
 			if data.unit:anim_data().act_idle and not data.unit:anim_data().to_idle then
 				CopLogicIdle._start_idle_action_from_act(data)
 			end
-		
+
 			local turn_angle = CopLogicIdle._chk_turn_needed(data, my_data, data.m_pos, turn_to_pos)
-			
+
 			if turn_angle then
 				CopLogicIdle._turn_by_spin(data, my_data, turn_angle)
-				
+
 				if my_data.turning then
 					if my_data.rubberband_rotation then
 						my_data.fwd_offset = true
@@ -836,11 +842,11 @@ function CopLogicIdle._upd_focus_on_undetected_criminal(data, my_data, attention
 				end
 			end
 		end
-		
+
 		return true
 	elseif not should_chase and not should_turn and not my_data.chasing_run and not my_data.chasing then
 		data.unit:movement():set_stance("ntl")
-		
+
 		return true
 	end
 end
@@ -920,9 +926,9 @@ function CopLogicIdle.is_available_for_assignment(data, objective)
 	if objective and objective.forced then
 		return true
 	end
-	
+
 	local my_data = data.internal_data
-	
+
 	if my_data.detected_criminal then
 		return
 	end
@@ -964,7 +970,7 @@ function CopLogicIdle.exit(data, new_logic_name, enter_params)
 	if my_data.nearest_cover then
 		managers.navigation:release_cover(my_data.nearest_cover[1])
 	end
-	
+
 	local current_attention = data.unit:movement():attention()
 
 	if current_attention then
@@ -984,17 +990,17 @@ function CopLogicIdle._check_needs_reload(data, my_data)
 	if data.unit:anim_data().reload then
 		return
 	end
-	
+
 	local weapon, weapon_base, ammo_max, ammo
 
 	if alive(data.unit) and data.unit:inventory() then
 		weapon = data.unit:inventory():equipped_unit()
-	
+
 		if weapon and alive(weapon) then
 			weapon_base = weapon and weapon:base()
 			ammo_max, ammo = weapon_base:ammo_info()
 			local state = data.name
-			
+
 			if ammo / ammo_max >= 0.5 then
 				if my_data.shooting then
 					local new_action = {
@@ -1004,28 +1010,28 @@ function CopLogicIdle._check_needs_reload(data, my_data)
 
 					data.unit:brain():action_request(new_action)
 				end
-				
+
 				return
 			end
 		end
 	end
-	
+
 	if not ammo then
 		return
 	end
-	
+
 	local needs_reload = nil
-	
+
 	if ammo / ammo_max < 0.5 then
 		needs_reload = true
 	end
-	
+
 	if needs_reload then
 		local ammo_base = weapon_base and weapon_base:ammo_base()
-		
+
 		if ammo_base then
 			ammo_base:set_ammo_remaining_in_clip(0)
-			
+
 			if not my_data.shooting then
 				local shoot_action = {
 					body_part = 3,
@@ -1047,14 +1053,15 @@ function CopLogicIdle._upd_enemy_detection(data)
 	local my_data = data.internal_data
 	local min_reaction = not data.cool and AIAttentionObject.REACT_SCARED
 	CopLogicBase._upd_attention_obj_detection(data, min_reaction, nil)
-	
+
 	local delay = 0
-	
+
 	if not managers.groupai:state():whisper_mode() then
 		delay = (data.unit:anim_data().hide or data.unit:anim_data().hide_loop) and 0.5 or data.important and 0.7 or 1.4
 	end
-	
-	local new_attention, new_prio_slot, new_reaction = CopLogicIdle._get_priority_attention(data, data.detected_attention_objects)
+
+	local new_attention, new_prio_slot, new_reaction = CopLogicIdle._get_priority_attention(data,
+		data.detected_attention_objects)
 
 	CopLogicBase._set_attention_obj(data, new_attention, new_reaction)
 
@@ -1110,14 +1117,14 @@ function CopLogicIdle._chk_reaction_to_attention_object(data, attention_data, st
 	local visible = attention_data.verified
 
 	if record.status == "dead" then
-		return math.min(attention_data.settings.reaction, AIAttentionObject.REACT_AIM)	
+		return math.min(attention_data.settings.reaction, AIAttentionObject.REACT_AIM)
 	elseif record.status == "disabled" then
 		if LIES.settings.hhtacs then
 			if data.tactics and data.tactics.murder then
 				return math.min(attention_data.settings.reaction, AIAttentionObject.REACT_COMBAT)
 			end
 		end
-	
+
 		if record.assault_t and record.assault_t - record.disabled_t > 0.6 then
 			return math.min(attention_data.settings.reaction, AIAttentionObject.REACT_COMBAT)
 		else
@@ -1141,7 +1148,7 @@ function CopLogicIdle._chk_reaction_to_attention_object(data, attention_data, st
 		end
 
 		if under_threat then
-			
+
 		elseif attention_data.dis < 2000 and visible then
 			return math.min(attention_data.settings.reaction, AIAttentionObject.REACT_ARREST)
 		else
@@ -1163,10 +1170,11 @@ local bosses = {
 }
 function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_func)
 	local best_target, best_target_priority_slot, best_target_priority, best_target_reaction = nil
-	
+
 	if data.is_converted or data.char_tweak.buddy then
-		best_target, best_target_priority_slot, best_target_reaction = TeamAILogicIdle._get_priority_attention(data, attention_objects, reaction_func)
-		
+		best_target, best_target_priority_slot, best_target_reaction = TeamAILogicIdle._get_priority_attention(data,
+			attention_objects, reaction_func)
+
 		return best_target, best_target_priority_slot, best_target_reaction
 	end
 
@@ -1178,23 +1186,29 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 			return data.attention_obj, 1, AIAttentionObject.REACT_SHOOT
 		end
 
-		local forced_attention_object = managers.groupai:state():get_AI_attention_object_by_unit(forced_attention_data.unit)
+		local forced_attention_object = managers.groupai:state():get_AI_attention_object_by_unit(forced_attention_data
+		.unit)
 
 		if forced_attention_object then
 			for u_key, attention_info in pairs(forced_attention_object) do
 				if forced_attention_data.ignore_vis_blockers then
-					local vis_ray = World:raycast("ray", data.unit:movement():m_head_pos(), attention_info.handler:get_detection_m_pos(), "slot_mask", data.visibility_slotmask, "ray_type", "ai_vision")
+					local vis_ray = World:raycast("ray", data.unit:movement():m_head_pos(),
+						attention_info.handler:get_detection_m_pos(), "slot_mask", data.visibility_slotmask, "ray_type",
+						"ai_vision")
 
 					if not vis_ray or vis_ray.unit:key() == u_key or not vis_ray.unit:visible() then
-						best_target = CopLogicBase._create_detected_attention_object_data(data.t, data.unit, u_key, attention_info, attention_info.handler:get_attention(data.SO_access), true)
+						best_target = CopLogicBase._create_detected_attention_object_data(data.t, data.unit, u_key,
+							attention_info, attention_info.handler:get_attention(data.SO_access), true)
 						best_target.verified = true
 					end
 				else
-					best_target = CopLogicBase._create_detected_attention_object_data(data.t, data.unit, u_key, attention_info, attention_info.handler:get_attention(data.SO_access), true)
+					best_target = CopLogicBase._create_detected_attention_object_data(data.t, data.unit, u_key,
+						attention_info, attention_info.handler:get_attention(data.SO_access), true)
 				end
 			end
 		else
-			Application:error("[CopLogicIdle._get_priority_attention] No attention object available for unit", inspect(forced_attention_data))
+			Application:error("[CopLogicIdle._get_priority_attention] No attention object available for unit",
+				inspect(forced_attention_data))
 		end
 
 		if best_target then
@@ -1227,7 +1241,7 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 									data.unit:sound():say("a07b", true)
 								end
 							end
-							
+
 							attention_data.reacted_to = true
 						end
 					elseif attention_data.reacted_to then
@@ -1242,28 +1256,32 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 				else
 					debug_pause_unit(data.unit, "[ CopLogicIdle._get_priority_attention] skipping attraction")
 
-					attention_data.pause_expire_t = data.t + math.lerp(attention_data.settings.pause[1], attention_data.settings.pause[2], math.random())
+					attention_data.pause_expire_t = data.t +
+					math.lerp(attention_data.settings.pause[1], attention_data.settings.pause[2], math.random())
 				end
 			end
 		elseif attention_data.stare_expire_t and attention_data.stare_expire_t < data.t then
 			if attention_data.settings.pause then
 				attention_data.stare_expire_t = nil
-				attention_data.pause_expire_t = data.t + math.lerp(attention_data.settings.pause[1], attention_data.settings.pause[2], math.random())
+				attention_data.pause_expire_t = data.t +
+				math.lerp(attention_data.settings.pause[1], attention_data.settings.pause[2], math.random())
 			end
 		else
 			local distance = attention_data.dis
 			local reaction = reaction_func(data, attention_data, not CopLogicAttack._can_move(data))
 
 			if data.cool and AIAttentionObject.REACT_SCARED <= reaction then
-				data.unit:movement():set_cool(false, managers.groupai:state().analyse_giveaway(data.unit:base()._tweak_table, att_unit))
-				
+				data.unit:movement():set_cool(false,
+					managers.groupai:state().analyse_giveaway(data.unit:base()._tweak_table, att_unit))
+
 				if data.char_tweak.chatter then
 					if crim_record and not crim_record.is_deployable then
 						if data.unit:base():has_tag("law") and data.char_tweak.chatter then
 							if not crim_record.det_t or data.t - crim_record.det_t > 15 or crim_record.gun_called_out then
 								data.unit:sound():say("a08", true)
 							elseif not crim_record.gun_called_out and data.char_tweak.chatter.criminalhasgun then
-								crim_record.gun_called_out = managers.groupai:state():chk_say_enemy_chatter(data.unit, data.m_pos, "criminalhasgun")
+								crim_record.gun_called_out = managers.groupai:state():chk_say_enemy_chatter(data.unit,
+									data.m_pos, "criminalhasgun")
 							end
 						else
 							if not crim_record.det_t or data.t - crim_record.det_t > 15 then
@@ -1295,7 +1313,8 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 			end
 
 			if not reaction_too_mild then
-				local aimed_at = CopLogicIdle.chk_am_i_aimed_at(data, attention_data, attention_data.aimed_at and 0.95 or 0.985)
+				local aimed_at = CopLogicIdle.chk_am_i_aimed_at(data, attention_data,
+					attention_data.aimed_at and 0.95 or 0.985)
 				attention_data.aimed_at = aimed_at
 				local alert_dt = attention_data.alert_t and data.t - attention_data.alert_t or 10000
 				local dmg_dt = attention_data.dmg_t and data.t - attention_data.dmg_t or 10000
@@ -1311,9 +1330,10 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 
 				if attention_data.is_local_player then
 					local cur_state = att_unit:movement():current_state()
-					
+
 					if not cur_state._moving and cur_state:ducking() then
-						weight_mul = (weight_mul or 1) * managers.player:upgrade_value("player", "stand_still_crouch_camouflage_bonus", 1)
+						weight_mul = (weight_mul or 1) *
+						managers.player:upgrade_value("player", "stand_still_crouch_camouflage_bonus", 1)
 					end
 
 					if managers.player:has_activate_temporary_upgrade("temporary", "chico_injector") and managers.player:upgrade_value("player", "chico_preferred_target", false) then
@@ -1321,10 +1341,11 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 					end
 
 					if _G.IS_VR and tweak_data.vr.long_range_damage_reduction_distance[1] < distance then
-						local mul = math.clamp(distance / tweak_data.vr.long_range_damage_reduction_distance[2] / 2, 0, 1) + 1
+						local mul = math.clamp(distance / tweak_data.vr.long_range_damage_reduction_distance[2] / 2, 0, 1) +
+						1
 						weight_mul = (weight_mul or 1) * mul
 					end
-					
+
 					if tactics_harass then
 						if cur_state:_is_reloading() or cur_state:_interacting() or cur_state:is_equipping() then
 							weight_mul = (weight_mul or 1) * 1.25
@@ -1338,7 +1359,8 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 					end
 				elseif att_unit:base() and att_unit:base().upgrade_value then
 					if att_unit:movement() and not att_unit:movement()._move_data and att_unit:movement()._pose_code and att_unit:movement()._pose_code == 2 then
-						weight_mul = (weight_mul or 1) * (att_unit:base():upgrade_value("player", "stand_still_crouch_camouflage_bonus") or 1)
+						weight_mul = (weight_mul or 1) *
+						(att_unit:base():upgrade_value("player", "stand_still_crouch_camouflage_bonus") or 1)
 					end
 
 					if att_unit:base().has_activate_temporary_upgrade and att_unit:base():has_activate_temporary_upgrade("temporary", "chico_injector") and att_unit:base():upgrade_value("player", "chico_preferred_target") then
@@ -1346,10 +1368,11 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 					end
 
 					if att_unit:movement().is_vr and att_unit:movement():is_vr() and tweak_data.vr.long_range_damage_reduction_distance[1] < distance then
-						local mul = math.clamp(distance / tweak_data.vr.long_range_damage_reduction_distance[2] / 2, 0, 1) + 1
+						local mul = math.clamp(distance / tweak_data.vr.long_range_damage_reduction_distance[2] / 2, 0, 1) +
+						1
 						weight_mul = (weight_mul or 1) * mul
 					end
-					
+
 					if tactics_harass and att_unit:anim_data() then
 						local att_anim_data = att_unit:anim_data()
 
@@ -1360,30 +1383,30 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 						weight_mul = (weight_mul or 1) * 0.75
 					end
 				end
-				
+
 				if hhtacs then
 					if status == "electrified" then
 						weight_mul = (weight_mul or 1) * 1.5
 					end
-				
+
 					if crim_record and attention_data.nav_tracker and AIAttentionObject.REACT_COMBAT <= reaction then
 						local hostages = 0
 						local hostage_blocked = false
-						
+
 						if not rescueable_hostages then
 							rescueable_hostages = managers.groupai:state():rescueable_hostages()
 						end
-						
+
 						for hos_key, hos_table in pairs(rescueable_hostages) do
 							local hos_area = hos_table.area
 							local hos_pos = hos_table.pos
-							
+
 							if hos_area.nav_segs[attention_data.nav_tracker:nav_segment()] or math.abs(hos_pos.z - attention_data.m_pos.z) < 250 and mvector3.distance_sq(attention_data.m_pos, hos_pos) < 250000 then
 								hostages = hostages + 1
-									
+
 								if hostages > 1 then
 									hostage_blocked = true
-									
+
 									break
 								end
 							end
@@ -1393,33 +1416,34 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 							if not all_civilians then
 								all_civilians = managers.enemy:all_civilians()
 							end
-						
+
 							for civ_key, civ_data in pairs(all_civilians) do
 								if not rescueable_hostages[civ_key] and alive(civ_data.unit) then
-									local civ_area = managers.groupai:state():get_area_from_nav_seg_id(civ_data.tracker:nav_segment())
-									
+									local civ_area = managers.groupai:state():get_area_from_nav_seg_id(civ_data.tracker
+									:nav_segment())
+
 									if civ_area.nav_segs[attention_data.nav_tracker:nav_segment()] or math.abs(civ_data.m_pos.z - attention_data.m_pos.z) < 250 and mvector3.distance_sq(attention_data.m_pos, civ_data.m_pos) < 250000 then
 										hostages = hostages + 1
-								
+
 										if hostages > 1 then
 											hostage_blocked = true
-											
+
 											break
 										end
 									end
 								end
 							end
 						end
-						
+
 						attention_data.hostage_blocked = hostage_blocked
 					elseif attention_data.hostage_blocked then
 						attention_data.hostage_blocked = nil
 					end
 				end
-				
+
 				if bosses[data.unit:base()._tweak_table] then
 					if not crim_record then
-						weight_mul = (weight_mul or 1) * 0.1 
+						weight_mul = (weight_mul or 1) * 0.1
 					end
 				end
 
@@ -1450,7 +1474,7 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 					else
 						target_priority_slot = 6
 					end
-					
+
 					if free_status and assault_reaction then
 						target_priority_slot = math.min(target_priority_slot, 3)
 					elseif has_damaged then
@@ -1458,22 +1482,22 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 					elseif has_alerted then
 						target_priority_slot = target_priority_slot - 1
 					end
-					
-					
+
+
 					local target_vec = temp_vec3
 					mvec3_dir(target_vec, data.m_pos, attention_data.m_pos)
 					mvec3_set_z(target_vec, 0)
 					local my_fwd = data.unit:movement():m_fwd()
 					local dot = mvec3_dot(target_vec, my_fwd)
-					
+
 					if dot < 0.6 then
 						target_priority_slot = target_priority_slot + 1
 					end
-					
+
 					if old_enemy then
 						target_priority_slot = target_priority_slot - 3
 					end
-					
+
 					if not data.logic._keep_player_focus_t and not visible then
 						target_priority_slot = target_priority_slot + 2
 					elseif data.logic._keep_player_focus_t and not attention_data.is_human_player then
@@ -1483,7 +1507,7 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 					target_priority_slot = math.clamp(target_priority_slot, 1, 10)
 				elseif free_status then
 					target_priority_slot = 11
-					
+
 					if old_enemy then
 						target_priority_slot = target_priority_slot - 3
 					elseif has_damaged then
@@ -1494,7 +1518,8 @@ function CopLogicIdle._get_priority_attention(data, attention_objects, reaction_
 				end
 
 				if reaction < AIAttentionObject.REACT_COMBAT then
-					target_priority_slot = 11 + target_priority_slot + math.max(0, AIAttentionObject.REACT_COMBAT - reaction)
+					target_priority_slot = 11 + target_priority_slot +
+					math.max(0, AIAttentionObject.REACT_COMBAT - reaction)
 				end
 
 				if target_priority_slot ~= 0 then
@@ -1602,7 +1627,8 @@ function CopLogicIdle.damage_clbk(data, damage_info)
 				data.logic.on_attention_obj_identified(data, enemy_key, enemy_data)
 			end
 		else
-			local attention_info = managers.groupai:state():get_AI_attention_objects_by_filter(data.SO_access_str)[enemy_key]
+			local attention_info = managers.groupai:state():get_AI_attention_objects_by_filter(data.SO_access_str)
+			[enemy_key]
 
 			if attention_info then
 				local settings = attention_info.handler:get_attention(data.SO_access, nil, nil, data.team)
@@ -1644,10 +1670,10 @@ function CopLogicIdle._chk_relocate(data)
 	if data.objective and data.objective.type == "follow" then
 		if not data.objective.follow_unit or not alive(data.objective.follow_unit) then
 			data.brain:set_objective(nil)
-			
+
 			return true
 		end
-	
+
 		if data.is_converted or data.unit:in_slot(16) then
 			if TeamAILogicIdle._check_should_relocate(data, data.internal_data, data.objective) then
 				data.objective.in_place = nil
@@ -1674,7 +1700,7 @@ function CopLogicIdle._chk_relocate(data)
 		if data.objective.relocated_to and mvector3.distance_sq(data.objective.relocated_to, follow_unit_pos) < 3600 then
 			return
 		end
-		
+
 		if data.is_tied and 60 < mvector3.distance(data.m_pos, follow_unit_pos) then
 			relocate = true
 		elseif data.objective.distance and data.objective.distance < mvector3.distance(data.m_pos, follow_unit_pos) then
@@ -1685,13 +1711,13 @@ function CopLogicIdle._chk_relocate(data)
 			local ray_params = {
 				pos_to = follow_unit_pos
 			}
-			
+
 			if data.objective.relocated_to then
 				ray_params.pos_from = data.objective.relocated_to
 			else
 				ray_params.tracker_from = data.unit:movement():nav_tracker()
 			end
-			
+
 			local ray_res = managers.navigation:raycast(ray_params)
 
 			if ray_res then
@@ -1718,7 +1744,8 @@ function CopLogicIdle.action_complete_clbk(data, action)
 		data.internal_data.turning = nil
 
 		if data.internal_data.fwd_offset then
-			local return_spin = data.internal_data.rubberband_rotation:to_polar_with_reference(data.unit:movement():m_fwd(), math.UP).spin
+			local return_spin = data.internal_data.rubberband_rotation:to_polar_with_reference(
+			data.unit:movement():m_fwd(), math.UP).spin
 
 			if math.abs(return_spin) < 15 then
 				data.internal_data.fwd_offset = nil
@@ -1729,7 +1756,8 @@ function CopLogicIdle.action_complete_clbk(data, action)
 
 		if my_data.action_started == action then
 			if my_data.scan and not my_data.exiting and (not my_data.queued_tasks or not my_data.queued_tasks[my_data.wall_stare_task_key]) and not my_data.stare_path_pos then
-				CopLogicBase.queue_task(my_data, my_data.wall_stare_task_key, CopLogicIdle._chk_stare_into_wall_1, data, data.t)
+				CopLogicBase.queue_task(my_data, my_data.wall_stare_task_key, CopLogicIdle._chk_stare_into_wall_1, data,
+					data.t)
 			end
 
 			if action:expired() then
@@ -1744,17 +1772,15 @@ function CopLogicIdle.action_complete_clbk(data, action)
 		end
 	elseif action_type == "shoot" then
 		data.internal_data.shooting = nil
-	elseif action_type == "walk" then		
+	elseif action_type == "walk" then
 		data.internal_data.advancing = nil
 		data.internal_data.old_action_advancing = nil
-		
+
 		if data.internal_data.chasing_run then
 			data.internal_data.chase_duration = data.t + 5
 		end
-		
+
 		data.internal_data.chasing_run = nil
-		
-		
 	elseif not data.is_converted and action_type == "hurt" and data.important and action:expired() then
 		CopLogicBase.chk_start_action_dodge(data, "hit")
 	end
@@ -1771,7 +1797,8 @@ function CopLogicIdle.on_alert(data, alert_data)
 	local was_cool = data.cool
 
 	if CopLogicBase.is_alert_aggressive(alert_type) then
-		data.unit:movement():set_cool(false, managers.groupai:state().analyse_giveaway(data.unit:base()._tweak_table, alert_data[5], alert_data))
+		data.unit:movement():set_cool(false,
+			managers.groupai:state().analyse_giveaway(data.unit:base()._tweak_table, alert_data[5], alert_data))
 	end
 
 	if alert_unit and alive(alert_unit) and alert_unit:in_slot(data.enemy_slotmask) then
@@ -1797,7 +1824,8 @@ function CopLogicIdle.on_alert(data, alert_data)
 			data.unit:brain():action_request(action_data)
 		elseif not is_new and att_obj_data.is_person and att_obj_data.verified and att_obj_data.crim_record and not att_obj_data.crim_record.gun_called_out and data.char_tweak.chatter.criminalhasgun then
 			if alert_type == "bullet" or alert_type == "aggression" or alert_type == "explosion" then
-				new_crim_rec.gun_called_out = managers.groupai:state():chk_say_enemy_chatter(data.unit, data.m_pos, "criminalhasgun")
+				new_crim_rec.gun_called_out = managers.groupai:state():chk_say_enemy_chatter(data.unit, data.m_pos,
+					"criminalhasgun")
 			end
 		end
 
@@ -1811,7 +1839,8 @@ function CopLogicIdle.on_alert(data, alert_data)
 			end
 		end
 	elseif was_cool and (alert_type == "footstep" or alert_type == "bullet" or alert_type == "aggression" or alert_type == "explosion" or alert_type == "vo_cbt" or alert_type == "vo_intimidate" or alert_type == "vo_distress") then
-		local attention_obj = alert_unit and alert_unit:brain() and alert_unit:brain()._logic_data and alert_unit:brain()._logic_data.attention_obj
+		local attention_obj = alert_unit and alert_unit:brain() and alert_unit:brain()._logic_data and
+		alert_unit:brain()._logic_data.attention_obj
 
 		if attention_obj then
 			local att_obj_data, is_new = CopLogicBase.identify_attention_obj_instant(data, attention_obj.u_key)
@@ -1825,11 +1854,11 @@ function CopLogicIdle._move_back_into_field_position(data, my_data)
 	end
 
 	local my_tracker = data.unit:movement():nav_tracker()
-	
+
 	if my_tracker:lost() then
 		local field_position = my_tracker:field_position()
-		
-		if mvector3.distance_sq(data.m_pos, field_position) > 900 then	
+
+		if mvector3.distance_sq(data.m_pos, field_position) > 900 then
 			local path = {
 				mvector3.copy(data.m_pos),
 				field_position

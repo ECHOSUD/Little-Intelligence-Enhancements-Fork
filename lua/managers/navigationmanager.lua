@@ -50,20 +50,20 @@ function NavigationManager:find_segment_doors_with_nav_links(from_seg_id, approv
 			end
 		end
 	end
-	
+
 	for nl_id, nl_element in pairs(all_navlink_elements) do
 		if nl_element then
-			local nl_tracker = self._quad_field:create_nav_tracker(nl_element:value("position"), true) 
-			
+			local nl_tracker = self._quad_field:create_nav_tracker(nl_element:value("position"), true)
+
 			if nl_tracker:nav_segment() == from_seg_id then
 				local fake_door = {
 					center = nl_element:value("position"),
 					end_pos = nl_element:nav_link_end_pos()
 				}
-				
+
 				table.insert(found_doors, fake_door)
 			end
-			
+
 			self:destroy_nav_tracker(nl_tracker)
 		else
 			self._LIES_navlink_elements[nl_id] = nil
@@ -77,12 +77,12 @@ function NavigationManager:draw_coarse_path(path, alt_color)
 	if not path then
 		return
 	end
-	
+
 	local all_nav_segs = self._nav_segments
-	
+
 	local line1 = Draw:brush(Color.red:with_alpha(0.5), 5)
 	local line2 = Draw:brush(Color.blue:with_alpha(0.5), 5)
-	
+
 	if alt_color then
 		for path_i = 1, #path do
 			local seg_pos = all_nav_segs[path[path_i][1]].pos
@@ -99,7 +99,7 @@ end
 function NavigationManager:generate_cover_fwd(tracker)
 	local all_nav_segs = self._nav_segments
 	local m_seg_id = tracker:nav_segment()
-	
+
 	if all_nav_segs[m_seg_id] then
 		local new_fwd = temp_vec1
 		local v3_dis_sq = mvec3_dis_sq
@@ -110,17 +110,17 @@ function NavigationManager:generate_cover_fwd(tracker)
 		local best_door_has_ray = nil
 		local best_door_is_navlink = nil
 		local second_best_pos = nil
-		
+
 		for i = 1, #doors do
 			local door = doors[i]
-			local door_on_z = door.center:with_z(field_pos.z)			
-			local dis = v3_dis_sq(field_pos, door_on_z)			
-			
-			local ray = door.end_pos and true or self:raycast({trace = false, pos_from = field_pos, pos_to = door_on_z})
-				
+			local door_on_z = door.center:with_z(field_pos.z)
+			local dis = v3_dis_sq(field_pos, door_on_z)
+
+			local ray = door.end_pos and true or self:raycast({ trace = false, pos_from = field_pos, pos_to = door_on_z })
+
 			if (not best_door_dis or dis < best_door_dis) and (not best_door_has_ray or ray) then
 				second_best_pos = best_door_pos
-				
+
 				if door.end_pos then
 					best_door_pos = door.end_pos:with_z(field_pos.z)
 					best_door_is_navlink = true
@@ -128,23 +128,23 @@ function NavigationManager:generate_cover_fwd(tracker)
 					best_door_pos = door_on_z
 					best_door_is_navlink = nil
 				end
-				
+
 				best_door_dis = dis
 				best_door_has_ray = ray
 			end
 		end
-		
+
 		mvec3_dir(new_fwd, field_pos, best_door_pos)
-		
+
 		local ray_params = {
 			pos_from = field_pos
 		}
 		local hits = {}
-		
+
 		local rot_with = mvector3.rotate_with
-		
+
 		local fwd_test = temp_vec2
-		
+
 		local nr_rotations = 12
 		local angle = 180 / nr_rotations
 		rot_with(new_fwd, Rotation(-90))
@@ -154,7 +154,7 @@ function NavigationManager:generate_cover_fwd(tracker)
 			mvec3_mul(fwd_test, 100)
 			mvec3_add(fwd_test, field_pos)
 			ray_params.pos_to = fwd_test
-			
+
 			if self:raycast(ray_params) then
 				local cover_pos = field_pos
 				local ray_from = temp_vec3
@@ -162,87 +162,87 @@ function NavigationManager:generate_cover_fwd(tracker)
 				mvec3_set(ray_from, math_up)
 				mvec3_mul(ray_from, 90)
 				mvec3_add(ray_from, cover_pos)
-				
+
 				local ray_to_pos = temp_vec4
-				
+
 				mvec3_set(ray_to_pos, math_up)
 				mvec3_mul(ray_to_pos, 90)
 				mvec3_add(ray_to_pos, fwd_test)
-				
+
 				if World:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report") then
 					if i == 6 then --perfect match.
 						return mvec3_cpy(new_fwd)
 					else
-						hits[#hits + 1] = {mvec3_cpy(new_fwd), angle * i}
+						hits[#hits + 1] = { mvec3_cpy(new_fwd), angle * i }
 					end
 				end
 			end
-			
+
 			if i < nr_rotations then
 				rot_with(new_fwd, Rotation(angle))
 			end
 		end
-		
+
 		local best_angle, best_hit
-		
+
 		if #hits > 0 then
 			for i = 1, #hits do
 				local hit = hits[i]
 				local diff = math_abs(hit[2])
-				
+
 				if not best_angle or diff < best_angle or diff == best_angle and math.random() <= 0.5 then
 					best_hit = hit[1]
 					best_angle = diff
 				end
 			end
-			
+
 			return best_hit
 		end
-		
+
 		if second_best_pos then
 			hits = {}
 			mvec3_dir(new_fwd, field_pos, second_best_pos)
 			rot_with(new_fwd, Rotation(-90))
-			
+
 			for i = 1, nr_rotations do
 				mvec3_set(fwd_test, new_fwd)
 				mvec3_mul(fwd_test, 100)
 				mvec3_add(fwd_test, field_pos)
 				ray_params.pos_to = fwd_test
-				
+
 				if self:raycast(ray_params) then
 					if i == 6 then --perfect match.
 						return mvec3_cpy(new_fwd)
 					else
-						hits[#hits + 1] = {mvec3_cpy(new_fwd), angle * i}
+						hits[#hits + 1] = { mvec3_cpy(new_fwd), angle * i }
 					end
 				end
-				
+
 				if i < nr_rotations then
 					rot_with(new_fwd, Rotation(angle))
 				end
 			end
-			
+
 			local best_angle, best_hit
-			
+
 			if #hits > 0 then
 				for i = 1, #hits do
 					local hit = hits[i]
 					local diff = math_abs(hit[2])
-					
+
 					if not best_angle or diff < best_angle or diff == best_angle and math.random() <= 0.5 then
 						best_hit = hit[1]
 						best_angle = diff
 					end
 				end
-				
+
 				return best_hit
 			end
 		end
-		
+
 		--literally nothing worked, just in case, return the original direction since it'll probably be the best
 		mvec3_dir(new_fwd, field_pos, best_door_pos)
-		
+
 		return mvec3_cpy(new_fwd)
 	end
 end
@@ -255,7 +255,7 @@ function NavigationManager:_draw_covers()
 	for i_cover, cover in ipairs(self._covers) do
 		local draw_pos = cover[1]
 		local tracker = cover[3]
-		
+
 		if tracker:lost() then
 			Application:draw_cone(draw_pos, draw_pos + cone_height, 30, 1, 0, 0)
 
@@ -306,7 +306,7 @@ function NavigationManager:register_cover_units()
 					fwd,
 					nav_tracker
 				}
-				
+
 				cover[2] = self:generate_cover_fwd(nav_tracker)
 
 				local location_script_data = self._quad_field:get_script_data(navseg_tracker, true)
@@ -317,7 +317,7 @@ function NavigationManager:register_cover_units()
 
 				t_ins(location_script_data.covers, cover)
 				t_ins(covers, cover)
-				
+
 				self:destroy_nav_tracker(navseg_tracker)
 			end
 		end
@@ -367,17 +367,20 @@ function NavigationManager:register_cover_units()
 			self:_safe_remove_unit(unit)
 		end
 	end
-	
+
 	if Network:is_server() then
-		local max_cover_points = #covers <= 0 and 2500 or math.round(#covers * (math_lerp(4, 1, math_clamp(#covers / 2500, 0, 1))))
-	
+		local max_cover_points = #covers <= 0 and 2500 or
+		math.round(#covers * (math_lerp(4, 1, math_clamp(#covers / 2500, 0, 1))))
+
 		max_cover_points = math_clamp(max_cover_points, 1, 2500)
-		
-		log("Map has " .. tostring(#covers) .. " cover points, setting generation limit to " .. tostring(max_cover_points) .. " cover points.")
-		
+
+		log("Map has " ..
+		tostring(#covers) ..
+		" cover points, setting generation limit to " .. tostring(max_cover_points) .. " cover points.")
+
 		if #covers < max_cover_points then
 			for key, res in pairs(self._nav_segments) do
-				if res.pos and res.neighbours and next(res.neighbours) then	
+				if res.pos and res.neighbours and next(res.neighbours) then
 					local tracker = self._quad_field:create_nav_tracker(res.pos, true)
 
 					local location_script_data = self._quad_field:get_script_data(tracker, true)
@@ -386,45 +389,45 @@ function NavigationManager:register_cover_units()
 						if not location_script_data.covers then
 							location_script_data.covers = {}
 						end
-			
+
 						for _, room in pairs(res.rooms) do
 							local c_tracker = nil
 							local room_pos = NavFieldBuilder._calculate_room_center(self, room)
 							local place_cover = true
-							
+
 							for i = 1, #covers do
 								local other_cover_pos = covers[i][1]
-								
+
 								if v3_dis_sq(room_pos, other_cover_pos) <= 8100 then
 									place_cover = nil
 								end
 							end
-							
+
 							if place_cover then
 								place_cover = self:check_cover_close_to_wall(room_pos)
-								
+
 								if not place_cover then
 									local across_vec = temp_vec1
 									mvec3_set_st(across_vec, room.borders.x_pos, room.borders.y_pos, 0)
 									mvec3_add(across_vec, room_pos)
 									c_tracker = self._quad_field:create_nav_tracker(room_pos, true)
 									local new_positions = self:find_walls_accross_tracker(c_tracker, across_vec, 360, 8)
-									
+
 									if new_positions then
 										for i = 1, #new_positions do
 											local good_cover = new_positions[i][2]
-											
+
 											if good_cover then
 												local try_pos = new_positions[i][1]
-												
+
 												for i = 1, #covers do
 													local other_cover_pos = covers[i][1]
-													
+
 													if v3_dis_sq(try_pos, other_cover_pos) <= 8100 then
 														good_cover = nil
 													end
 												end
-												
+
 												if good_cover and self:check_cover_close_to_wall(try_pos) then
 													if c_tracker:nav_segment() == key then
 														place_cover = true
@@ -440,23 +443,23 @@ function NavigationManager:register_cover_units()
 									end
 								end
 							end
-							
+
 							if place_cover then
 								if not c_tracker then
 									c_tracker = self._quad_field:create_nav_tracker(room_pos, true)
 								end
-								
+
 								local cover = {
 									c_tracker:field_position(),
 									nil,
 									c_tracker
 								}
-								
+
 								cover[2] = self:generate_cover_fwd(c_tracker)
-								
+
 								t_ins(location_script_data.covers, cover)
 								t_ins(covers, cover)
-								
+
 								if #location_script_data.covers >= 12 or #covers >= max_cover_points then
 									break
 								end
@@ -465,9 +468,9 @@ function NavigationManager:register_cover_units()
 							end
 						end
 					end
-					
+
 					self:destroy_nav_tracker(tracker)
-					
+
 					if #covers >= max_cover_points then
 						break
 					end
@@ -475,9 +478,9 @@ function NavigationManager:register_cover_units()
 			end
 		end
 	end
-	
+
 	self._covers = covers
-	
+
 	if not self.has_registered_cover_units_for_LIES then
 		if #self._covers > 0 then
 			self.has_registered_cover_units_for_LIES = true
@@ -487,39 +490,39 @@ function NavigationManager:register_cover_units()
 			log("LIES: Map has no cover points. ...How!?")
 		end
 	end
-	
+
 	self:_change_funcs()
 end
 
 --Hooks:PostHook(NavigationManager, "update", "lies_cover", function(self, t, dt)
-	--self:_draw_covers()
-	--self:_draw_rooms_LIES()
-	--self:_draw_doors_LIES()
-	--self:_draw_anim_nav_links()
-	--self:_draw_coarse_graph()
-	--self:_draw_coarse_graph_areas()
+--self:_draw_covers()
+--self:_draw_rooms_LIES()
+--self:_draw_doors_LIES()
+--self:_draw_anim_nav_links()
+--self:_draw_coarse_graph()
+--self:_draw_coarse_graph_areas()
 --end)
 
 function NavigationManager:_draw_coarse_graph_areas()
 	if not managers.groupai:state()._area_data then
-		return	
+		return
 	end
-	
-	local all_areas = managers.groupai:state()._area_data 
+
+	local all_areas = managers.groupai:state()._area_data
 	local cone_height = Vector3(0, 0, 50)
 	local color = {
 		0,
 		1,
 		1
 	}
-	
+
 	for area_id, area_data in pairs(all_areas) do
 		Application:draw_cone(area_data.pos, area_data.pos + cone_height, 40, unpack(color))
 		local neighbours = area_data.neighbours
 
 		for neighbour_id, neighbour_data in pairs(neighbours) do
 			local pos = neighbour_data.pos
-			
+
 			Application:draw_cone(pos, area_data.pos, 12, unpack(color))
 		end
 	end
@@ -528,21 +531,21 @@ end
 function NavigationManager:_draw_rooms_LIES()
 	if not self._rooms_to_draw then
 		self._rooms_to_draw = {}
-		
+
 		for seg_id, seg_info in pairs(self._nav_segments) do
 			if seg_info.rooms then
-				for room_i, room in pairs(seg_info.rooms) do				
+				for room_i, room in pairs(seg_info.rooms) do
 					self._rooms_to_draw[#self._rooms_to_draw + 1] = room.room_pos
 				end
 			end
 		end
 	end
-	
+
 	local rooms_to_draw = self._rooms_to_draw
-	
+
 	for i = 1, #rooms_to_draw do
 		local room_pos = rooms_to_draw[i]
-		
+
 		Application:draw_sphere(room_pos, 10, 1, 1, 1)
 	end
 end
@@ -550,24 +553,24 @@ end
 function NavigationManager:_draw_doors_LIES()
 	if not self._doors_to_draw then
 		self._doors_to_draw = {}
-		
+
 		for seg_id, seg_info in pairs(self._nav_segments) do
 			local doors = self:find_segment_doors_with_nav_links(seg_id)
-			
+
 			for i = 1, #doors do
 				self._doors_to_draw[#self._doors_to_draw + 1] = doors[i]
 			end
 		end
 	end
-	
+
 	local doors_to_draw = self._doors_to_draw
-	
+
 	for i = 1, #doors_to_draw do
 		local door = doors_to_draw[i]
 		local door_pos = door.center
-		
+
 		Application:draw_sphere(door_pos, 20, 1, 1, 1)
-		
+
 		if door.end_pos then
 			Application:draw_line(door_pos, door.end_pos, 0, 0, 1)
 			Application:draw_sphere(door.end_pos, 10, 0, 0, 1)
@@ -588,51 +591,54 @@ function NavigationManager:_change_funcs()
 		self.find_cover_in_cone_from_threat_pos_1 = self.find_cover_in_cone_from_threat_pos_1_LUA
 		self.find_cover_from_threat = self.find_cover_from_threat_LUA
 		self.find_cover_in_nav_seg_3 = self.find_cover_in_nav_seg_3_LUA
-		
+
 		if not self._vis_check_slotmask then
-			self._vis_check_slotmask = managers.slot:get_mask("AI_visibility") + managers.slot:get_mask("enemy_shield_check")
+			self._vis_check_slotmask = managers.slot:get_mask("AI_visibility") +
+			managers.slot:get_mask("enemy_shield_check")
 		end
 	end
 end
 
-function NavigationManager:_LIES_register_cover()	
+function NavigationManager:_LIES_register_cover()
 	for key, res in pairs(self._nav_segments) do
 		if res.pos then
 			local tracker = self._quad_field:create_nav_tracker(res.pos, true)
-			
+
 			local location_script_data = self._quad_field:get_script_data(tracker)
-			
+
 			if location_script_data and location_script_data.covers then
 				local covers = location_script_data.covers
-				
+
 				for i = 1, #covers do
 					local cover = covers[i]
-					
+
 					self._covers[#self._covers + 1] = cover
 				end
 			end
-			
+
 			self:destroy_nav_tracker(tracker)
 		end
 	end
-	
+
 	self.has_registered_cover_units_for_LIES = true
 end
 
-function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, furthest_pos, near_pos, search_from_pos, angle, min_dis, nav_seg, optimal_threat_dis, rsrv_filter)
+function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, furthest_pos, near_pos, search_from_pos,
+																	angle, min_dis, nav_seg, optimal_threat_dis,
+																	rsrv_filter)
 	local v3_dis_sq = mvec3_dis_sq
 	local world_g = World
 	min_dis = min_dis and min_dis * min_dis or 0
 	local nav_segs
-	
+
 	if type(nav_seg) == "table" then
 		nav_segs = nav_seg
 	elseif nav_seg then
-		nav_segs = {nav_seg}
+		nav_segs = { nav_seg }
 	end
-	
+
 	local best_cover, best_dist, best_l_ray, best_h_ray, best_has_good_dir
-	
+
 	local function _f_check_cover_rays(cover, threat_pos) --this is a visibility check. first checking for crouching positions, then standing.
 		local cover_pos = cover[1]
 		local ray_from = temp_vec1
@@ -640,55 +646,57 @@ function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, 
 		mvec3_set(ray_from, math_up)
 		mvec3_mul(ray_from, 90)
 		mvec3_add(ray_from, cover_pos)
-		
+
 		local ray_to_pos = temp_vec2
-		
+
 		mvec3_set(ray_to_pos, math_up)
 		mvec3_mul(ray_to_pos, 90)
 		mvec3_add(ray_to_pos, threat_pos)
 
-		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
+		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
+			"ai_vision", "report")
 		local high_ray = nil
 
 		if low_ray then
 			mvec3_set_z(ray_from, ray_from.z + 90)
 			mvec3_set_z(ray_to_pos, ray_to_pos.z + 90)
 
-			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
+			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
+				"ai_vision", "report")
 		end
 
 		return low_ray, high_ray
 	end
-	
+
 	for i = 1, #self._covers do
 		local cover = self._covers[i]
-		
+
 		if not cover[self.COVER_RESERVED] and self._quad_field:is_nav_segment_enabled(cover[3]:nav_segment()) and not cover[3]:obstructed() and not cover[3]:lost() then
 			if not nav_segs or nav_segs[cover[3]:nav_segment()] then
 				local cover_dis = mvec3_dis_sq(near_pos, cover[1])
 				local threat_dir = threat_pos - cover[1]
 				local threat_dist = mvec3_length(threat_dir)
 				threat_dist = threat_dist * threat_dist
-				
+
 				local threat_dir_norm = threat_dir:normalized()
-				
+
 				if min_dis < threat_dist then
 					if optimal_threat_dis then
 						cover_dis = cover_dis - optimal_threat_dis
 					end
-					
+
 					if not best_dist or cover_dis < best_dist then
 						if math.cos(cone_angle) > mvec3_dot(threat_dir_norm, furthest_pos) then
 							local has_good_rotation = mvec3_dot(threat_dir_norm, cover[2]) >= 0.7
-							
+
 							if has_good_rotation or not best_has_good_dir then
-								if self._quad_field:is_position_unreserved({radius = 40, position = cover[1], filter = rsrv_filter}) then
+								if self._quad_field:is_position_unreserved({ radius = 40, position = cover[1], filter = rsrv_filter }) then
 									local low_ray, high_ray
-								
+
 									if threat_pos then
 										low_ray, high_ray = _f_check_cover_rays(cover, threat_pos)
 									end
-									
+
 									if not best_l_ray or low_ray then
 										if not best_h_ray or high_ray then
 											best_l_ray = low_ray
@@ -696,7 +704,7 @@ function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, 
 											best_h_ray = high_ray
 											best_cover = cover
 											best_dist = cover_dis
-									
+
 											if cover_dis <= 10000 and best_l_ray and has_good_rotation then
 												break
 											end
@@ -710,7 +718,7 @@ function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, 
 			end
 		end
 	end
-	
+
 	if best_cover then
 		return best_cover
 	end
@@ -721,15 +729,15 @@ function NavigationManager:find_cover_from_threat_LUA(nav_seg_id, optimal_threat
 	local world_g = World
 	optimal_threat_dis = optimal_threat_dis and optimal_threat_dis * optimal_threat_dis or 0
 	local nav_segs
-	
+
 	if type(nav_seg_id) == "table" then
 		nav_segs = nav_seg_id
 	elseif nav_seg_id then
-		nav_segs = {nav_seg_id}
+		nav_segs = { nav_seg_id }
 	end
-	
+
 	local best_cover, best_dist, best_l_ray, best_h_ray, best_has_good_dir
-	
+
 	local function _f_check_cover_rays(cover, threat_pos) --this is a visibility check. first checking for crouching positions, then standing.
 		local cover_pos = cover[1]
 		local ray_from = temp_vec1
@@ -737,34 +745,36 @@ function NavigationManager:find_cover_from_threat_LUA(nav_seg_id, optimal_threat
 		mvec3_set(ray_from, math_up)
 		mvec3_mul(ray_from, 90)
 		mvec3_add(ray_from, cover_pos)
-		
+
 		local ray_to_pos = temp_vec2
-		
+
 		mvec3_set(ray_to_pos, math_up)
 		mvec3_mul(ray_to_pos, 90)
 		mvec3_add(ray_to_pos, threat_pos)
 
-		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
+		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
+			"ai_vision", "report")
 		local high_ray = nil
 
 		if low_ray then
 			mvec3_set_z(ray_from, ray_from.z + 90)
 			mvec3_set_z(ray_to_pos, ray_to_pos.z + 90)
 
-			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
+			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
+				"ai_vision", "report")
 		end
 
 		return low_ray, high_ray
 	end
-	
+
 	for i = 1, #self._covers do
 		local cover = self._covers[i]
-		
+
 		if not cover[self.COVER_RESERVED] and self._quad_field:is_nav_segment_enabled(cover[3]:nav_segment()) and not cover[3]:obstructed() and not cover[3]:lost() then
 			if not nav_segs or nav_segs[cover[3]:nav_segment()] then
 				local cover_dis = v3_dis_sq(near_pos, cover[1])
 				local threat_dist
-				
+
 				if threat_pos then
 					threat_dist = v3_dis_sq(cover[1], threat_pos)
 				end
@@ -772,24 +782,24 @@ function NavigationManager:find_cover_from_threat_LUA(nav_seg_id, optimal_threat
 				if threat_dist and optimal_threat_dis then
 					cover_dis = math.abs(threat_dist - optimal_threat_dis)
 				end
-					
+
 				if not best_dist or cover_dis < best_dist then
 					local threat_dir = temp_vec3
 					local has_good_rotation
-					
+
 					if threat_pos then
 						mvec3_dir(threat_dir, cover[1], threat_pos)
 						has_good_rotation = mvec3_dot(threat_dir, cover[2]) >= 0.7
 					end
-				
+
 					if has_good_rotation or not best_has_good_dir then
-						if self._quad_field:is_position_unreserved({radius = 40, position = cover[1], filter = rsrv_filter}) then
+						if self._quad_field:is_position_unreserved({ radius = 40, position = cover[1], filter = rsrv_filter }) then
 							local low_ray, high_ray
-							
+
 							if threat_pos then
 								low_ray, high_ray = _f_check_cover_rays(cover, threat_pos)
 							end
-							
+
 							if not best_l_ray or low_ray then
 								if not best_h_ray or high_ray then
 									best_l_ray = low_ray
@@ -797,7 +807,7 @@ function NavigationManager:find_cover_from_threat_LUA(nav_seg_id, optimal_threat
 									best_cover = cover
 									best_has_good_dir = has_good_rotation
 									best_dist = cover_dis
-							
+
 									if cover_dis <= 10000 and (not threat_pos or best_l_ray and has_good_rotation) then
 										break
 									end
@@ -809,7 +819,7 @@ function NavigationManager:find_cover_from_threat_LUA(nav_seg_id, optimal_threat
 			end
 		end
 	end
-	
+
 	if best_cover then
 		return best_cover
 	end
@@ -822,15 +832,15 @@ function NavigationManager:find_cover_in_nav_seg_3_LUA(nav_seg_id, max_near_dis,
 
 	max_near_dis = max_near_dis and max_near_dis * max_near_dis
 	local nav_segs
-	
+
 	if type(nav_seg_id) == "table" then
 		nav_segs = nav_seg_id
 	elseif nav_seg_id then
-		nav_segs = {nav_seg_id}
+		nav_segs = { nav_seg_id }
 	end
-	
+
 	local best_cover, best_dist, best_l_ray, best_h_ray, best_has_good_dir
-	
+
 	local function _f_check_cover_rays(cover, threat_pos) --this is a visibility check. first checking for crouching positions, then standing.
 		local cover_pos = cover[1]
 		local ray_from = temp_vec1
@@ -838,53 +848,55 @@ function NavigationManager:find_cover_in_nav_seg_3_LUA(nav_seg_id, max_near_dis,
 		mvec3_set(ray_from, math_up)
 		mvec3_mul(ray_from, 90)
 		mvec3_add(ray_from, cover_pos)
-		
+
 		local ray_to_pos = temp_vec2
-		
+
 		mvec3_set(ray_to_pos, math_up)
 		mvec3_mul(ray_to_pos, 90)
 		mvec3_add(ray_to_pos, threat_pos)
 
-		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
+		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
+			"ai_vision", "report")
 		local high_ray = nil
 
 		if low_ray then
 			mvec3_set_z(ray_from, ray_from.z + 90)
 			mvec3_set_z(ray_to_pos, ray_to_pos.z + 90)
 
-			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
+			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
+				"ai_vision", "report")
 		end
 
 		return low_ray, high_ray
 	end
-	
+
 	for i = 1, #self._covers do
 		local cover = self._covers[i]
-		
+
 		if not cover[self.COVER_RESERVED] and self._quad_field:is_nav_segment_enabled(cover[3]:nav_segment()) and not cover[3]:obstructed() and not cover[3]:lost() then
 			if not nav_segs or nav_segs[cover[3]:nav_segment()] then
 				local cover_dis = mvec3_dis_sq(near_pos, cover[1])
 				local threat_dist
-				
+
 				if threat_pos then
 					threat_dist = v3_dis_sq(cover[1], threat_pos)
 				end
-				
+
 				if not threat_dist or min_dis < threat_dist then
 					if not max_near_dis or cover_dis < max_near_dis then
 						if not best_dist or cover_dis < best_dist then
 							local threat_dir = temp_vec3
 							local has_good_rotation
-							
+
 							if threat_pos then
 								mvec3_dir(threat_dir, cover[1], threat_pos)
 								has_good_rotation = mvec3_dot(threat_dir, cover[2]) >= 0.7
 							end
-						
+
 							if has_good_rotation or not best_has_good_dir then
-								if self._quad_field:is_position_unreserved({radius = 40, position = cover[1], filter = rsrv_filter}) then
+								if self._quad_field:is_position_unreserved({ radius = 40, position = cover[1], filter = rsrv_filter }) then
 									local low_ray, high_ray
-								
+
 									if threat_pos then
 										low_ray, high_ray = _f_check_cover_rays(cover, threat_pos)
 									end
@@ -896,7 +908,7 @@ function NavigationManager:find_cover_in_nav_seg_3_LUA(nav_seg_id, max_near_dis,
 											best_cover = cover
 											best_dist = cover_dis
 											best_has_good_dir = has_good_rotation
-									
+
 											if cover_dis <= 10000 and (not threat_pos or best_l_ray and has_good_rotation) then
 												break
 											end
@@ -910,7 +922,7 @@ function NavigationManager:find_cover_in_nav_seg_3_LUA(nav_seg_id, max_near_dis,
 			end
 		end
 	end
-	
+
 	if best_cover then
 		return best_cover
 	end
@@ -920,11 +932,11 @@ function NavigationManager:clamp_position_to_field(position)
 	if not position then
 		return
 	end
-	
+
 	local position_tracker = self._quad_field:create_nav_tracker(position)
-	
+
 	local new_pos = position_tracker:field_position()
-	
+
 	self._quad_field:destroy_nav_tracker(position_tracker)
 
 	return new_pos
@@ -955,18 +967,18 @@ function NavigationManager:pad_out_position(position, nr_rays, dis)
 	local altered_pos = mvec3_cpy(position)
 	--local line = Draw:brush(Color.red:with_alpha(0.5), 2)
 	--local line2 = Draw:brush(Color.green:with_alpha(0.5), 2)
-	
+
 	for i = 1, nr_rays do
 		mvec3_rot(vec_to, ray_rot)
 		mvec3_set(pos_to, vec_to)
 		mvec3_add(pos_to, position)
 		local hit = self:raycast(ray_params)
-		
+
 		if hit then
 			if line then
 				line:cylinder(position, pos_to, 1)
 			end
-			
+
 			mvec3_dir(tmp_vec, pos_to, position)
 			mvec3_mul(tmp_vec, dis)
 			mvec3_add(altered_pos, tmp_vec)
@@ -974,18 +986,18 @@ function NavigationManager:pad_out_position(position, nr_rays, dis)
 			line2:cylinder(position, ray_params.trace[1]:with_z(position.z), 1)
 		end
 	end
-	
+
 	local altered_pos = altered_pos:with_z(position.z)
 	local position_tracker = self._quad_field:create_nav_tracker(altered_pos, true)
 	altered_pos = position_tracker:field_position()
 
 	self._quad_field:destroy_nav_tracker(position_tracker)
-	
+
 	if line and line2 then
 		line2:sphere(position, 10)
 		line:sphere(altered_pos, 10)
 	end
-	
+
 	return altered_pos
 end
 
@@ -1012,13 +1024,13 @@ function NavigationManager:check_cover_close_to_wall(position, nr_rays, dis)
 	local tmp_vec = temp_vec1
 	--local line = Draw:brush(Color.red:with_alpha(0.5), 2)
 	--local line2 = Draw:brush(Color.green:with_alpha(0.5), 2)
-	
+
 	for i = 1, nr_rays do
 		mvec3_rot(vec_to, ray_rot)
 		mvec3_set(pos_to, vec_to)
 		mvec3_add(pos_to, position)
 		local hit = self:raycast(ray_params)
-		
+
 		if hit then
 			return true
 		end
@@ -1050,16 +1062,16 @@ function NavigationManager:send_nav_field_to_engine()
 
 		for i_room, _ in pairs(vis_group.rooms) do
 			if self._nav_segments[vis_group.seg] and self._nav_segments[vis_group.seg].pos then
-				if not self._nav_segments[vis_group.seg].rooms then 
+				if not self._nav_segments[vis_group.seg].rooms then
 					self._nav_segments[vis_group.seg].rooms = {}
 				end
-				
+
 				self._nav_segments[vis_group.seg].rooms[i_room] = self._rooms[i_room]
 				--self._nav_segments[vis_group.seg].rooms[i_room].room_pos = NavFieldBuilder._calculate_room_center(self, self._rooms[i_room])
 			end
-		
+
 			if i_room <= nr_rooms then
-				t_ins(rooms, i_room)	
+				t_ins(rooms, i_room)
 			else
 				Application:error("[NavigationManager:send_nav_field_to_engine] Navgraph needs to be rebuilt!")
 			end
@@ -1137,7 +1149,6 @@ function NavigationManager:_strip_nav_field_for_gameplay()
 	self._covers = {}
 end
 
-
 function NavigationManager:_execute_coarce_search(search_data)
 	local search_id = search_data.id
 	local i = 0
@@ -1171,7 +1182,7 @@ function NavigationManager:_execute_coarce_search(search_data)
 					break
 				elseif i_door:check_access(search_data.access_pos, search_data.access_neg) and not i_door:is_obstructed() then
 					entry_found = true
-					
+
 					if not has_multiple_navlink_elements then
 						if nav_link_element then
 							has_multiple_navlink_elements = true
@@ -1220,10 +1231,11 @@ function NavigationManager:_execute_coarce_search(search_data)
 				return path
 			end
 		end
-		
+
 		local from_pos = next_search_seg.pos
 		local to_pos = search_data.to_pos
-		local new_segments = self:_sort_nav_segs_after_pos(to_pos, from_pos, next_search_i_seg, search_data.discovered_seg, search_data.verify_clbk, search_data.access_pos, search_data.access_neg)
+		local new_segments = self:_sort_nav_segs_after_pos(to_pos, from_pos, next_search_i_seg,
+			search_data.discovered_seg, search_data.verify_clbk, search_data.access_pos, search_data.access_neg)
 
 		if new_segments then
 			if search_data.access_pos then
@@ -1258,7 +1270,8 @@ function NavigationManager:_execute_coarce_search(search_data)
 	end
 end
 
-function NavigationManager:_sort_nav_segs_after_pos(to_pos, from_pos, i_seg, ignore_seg, verify_clbk, access_pos, access_neg)
+function NavigationManager:_sort_nav_segs_after_pos(to_pos, from_pos, i_seg, ignore_seg, verify_clbk, access_pos,
+													access_neg)
 	local all_segs = self._nav_segments
 	local all_doors = self._room_doors
 	local all_rooms = self._rooms
@@ -1306,7 +1319,8 @@ function NavigationManager:_sort_nav_segs_after_pos(to_pos, from_pos, i_seg, ign
 						ignore_seg[neighbour_seg_id] = true
 					end
 				elseif not alive(i_door) then
-					debug_pause("[NavigationManager:_sort_nav_segs_after_pos] dead nav_link! between NavSegments", i_seg, "-", neighbour_seg_id)
+					debug_pause("[NavigationManager:_sort_nav_segs_after_pos] dead nav_link! between NavSegments", i_seg,
+						"-", neighbour_seg_id)
 				elseif not i_door:is_obstructed() and i_door:check_access(access_pos, access_neg) then
 					local end_pos = i_door:script_data().element:nav_link_end_pos()
 					local my_weight = mvec3_dis(from_pos, end_pos) + mvec3_dis(end_pos, to_pos)

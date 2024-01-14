@@ -6,13 +6,13 @@ local blockade_ids = {
 		[100289] = false
 	},
 	street_new = { --whurr's heat street edit
-        [100570] = true,
-        [101293] = false,
-        [102736] = true,
-        [102852] = false,
-        [103198] = true,
-        [100271] = false
-    },
+		[100570] = true,
+		[101293] = false,
+		[102736] = true,
+		[102852] = false,
+		[103198] = true,
+		[100271] = false
+	},
 	glace = {
 		[103544] = false,
 		[100533] = true
@@ -29,7 +29,7 @@ Hooks:PostHook(MissionScriptElement, "on_executed", "lies_blockade", function(se
 
 	if blockade_ids[Global.level_data.level_id] then
 		local on_off = blockade_ids[Global.level_data.level_id]
-		
+
 		if on_off[self._id] ~= nil then
 			--log("AAAAAAAAAAAA")
 			managers.groupai:state()._blockade = on_off[self._id]

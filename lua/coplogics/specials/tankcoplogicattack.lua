@@ -22,7 +22,8 @@ function TankCopLogicAttack.enter(data, new_logic_name, enter_params)
 	CopLogicIdle._chk_has_old_action(data, my_data)
 
 	my_data.attitude = data.objective and data.objective.attitude or "avoid"
-	my_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+	my_data.weapon_range = data.char_tweak.weapon
+	[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 
 	data.unit:brain():set_update_enabled_state(true)
 	data.unit:movement():set_cool(false)
@@ -43,7 +44,7 @@ function TankCopLogicAttack.update(data)
 
 	if my_data.has_old_action or my_data.old_action_advancing then
 		CopLogicAttack._upd_stop_old_action(data, my_data)
-		
+
 		if my_data.has_old_action or my_data.old_action_advancing then
 			return
 		end
@@ -68,7 +69,8 @@ function TankCopLogicAttack.update(data)
 	local enemy_visible = focus_enemy.verified
 	my_data.attitude = data.objective and data.objective.attitude or "engage"
 	local engage = my_data.attitude == "engage"
-	local action_taken = my_data.turning or data.unit:movement():chk_action_forbidden("walk") or my_data.walking_to_chase_pos
+	local action_taken = my_data.turning or data.unit:movement():chk_action_forbidden("walk") or
+	my_data.walking_to_chase_pos
 
 	if action_taken then
 		return

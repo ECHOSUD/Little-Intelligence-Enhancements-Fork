@@ -1,20 +1,20 @@
 Hooks:PostHook(Drill, "on_sabotage_SO_administered", "lies_drillvoiceline", function(self, receiver_unit)
 	if self._saboteur and self._saboteur:key() == receiver_unit:key() then
 		local voiceline = nil
-		
+
 		if self.is_drill then
 			voiceline = "drillsabotage"
 		else
 			voiceline = "gearsabotage"
 		end
-	
-	
+
+
 		local brain = receiver_unit:brain()
-		
+
 		if brain._logic_data and brain._logic_data.group then
 			local m_key = receiver_unit:key()
-		
-			local group = brain._logic_data.group 
+
+			local group = brain._logic_data.group
 
 			for u_key, u_data in pairs(group.units) do
 				if u_key ~= m_key then
@@ -24,15 +24,15 @@ Hooks:PostHook(Drill, "on_sabotage_SO_administered", "lies_drillvoiceline", func
 				end
 			end
 		end
-		
+
 		local best_group = nil
 
 		for _, group in pairs(managers.groupai:state()._groups) do
 			local group_has_reenforce = group.objective.type == "reenforce_area"
-		
+
 			if not best_group or group_has_reenforce then
 				best_group = group
-				
+
 				if group_has_reenforce then
 					break
 				end
@@ -40,8 +40,8 @@ Hooks:PostHook(Drill, "on_sabotage_SO_administered", "lies_drillvoiceline", func
 				best_group = group
 			end
 		end
-		
-		
+
+
 		if best_group then
 			for u_key, u_data in pairs(best_group.units) do
 				if u_key ~= m_key then
@@ -69,7 +69,7 @@ Hooks:PostHook(Drill, "clbk_sabotage_SO_verification", "lies_tacs_drill", functi
 	if not LIES.settings.hhtacs then
 		return
 	end
-	
+
 	if candidate_unit:movement():cool() then
 		return
 	end

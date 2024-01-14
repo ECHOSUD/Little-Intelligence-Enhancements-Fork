@@ -41,11 +41,12 @@ function CivilianLogicSurrender.enter(data, new_logic_name, enter_params)
 	my_data.last_upd_t = data.t
 	my_data.nr_random_screams = 0
 	data.run_away_next_chk_t = nil
-	
+
 	if not my_data.is_hostage then
 		data.unit:brain():set_update_enabled_state(false)
 		data.unit:movement():set_allow_fire(false)
-		managers.groupai:state():add_to_surrendered(data.unit, callback(CivilianLogicSurrender, CivilianLogicSurrender, "queued_update", data))
+		managers.groupai:state():add_to_surrendered(data.unit,
+			callback(CivilianLogicSurrender, CivilianLogicSurrender, "queued_update", data))
 		my_data.surrender_clbk_registered = true
 	end
 
@@ -68,7 +69,8 @@ function CivilianLogicSurrender.enter(data, new_logic_name, enter_params)
 	if not data.been_outlined and data.char_tweak.outline_on_discover then
 		my_data.outline_detection_task_key = "CivilianLogicIdle._upd_outline_detection" .. tostring(data.key)
 
-		CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle._upd_outline_detection, data, data.t + 2)
+		CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle._upd_outline_detection,
+			data, data.t + 2)
 	end
 
 	if data.objective and not force_lie_down then
@@ -80,7 +82,8 @@ function CivilianLogicSurrender.enter(data, new_logic_name, enter_params)
 					managers.groupai:state():register_fleeing_civilian(data.key, data.unit)
 				end
 
-				CivilianLogicSurrender._do_initial_act(data, data.objective.amount, data.objective.aggressor_unit, data.objective.initial_act)
+				CivilianLogicSurrender._do_initial_act(data, data.objective.amount, data.objective.aggressor_unit,
+					data.objective.initial_act)
 			end
 		end
 	elseif force_lie_down then
@@ -110,7 +113,6 @@ function CivilianLogicSurrender.enter(data, new_logic_name, enter_params)
 		end
 	end
 end
-
 
 local tmp_vec1 = Vector3()
 
@@ -142,17 +144,18 @@ function CivilianLogicSurrender.update(data)
 		if CopLogicIdle._chk_relocate(data) then
 			return
 		end
-		
+
 		if data.unit:anim_data().drop then
 			data.unit:brain():set_update_enabled_state(false)
 			CivilianLogicFlee._chk_add_delayed_rescue_SO(data, my_data)
-			
+
 			if my_data == data.internal_data then
-				managers.groupai:state():add_to_surrendered(data.unit, callback(CivilianLogicSurrender, CivilianLogicSurrender, "queued_update", data))
+				managers.groupai:state():add_to_surrendered(data.unit,
+					callback(CivilianLogicSurrender, CivilianLogicSurrender, "queued_update", data))
 				my_data.surrender_clbk_registered = true
 			end
 		end
-	end	
+	end
 end
 
 function CivilianLogicSurrender.queued_update(rubbish, data)
@@ -183,17 +186,18 @@ function CivilianLogicSurrender.queued_update(rubbish, data)
 		if CopLogicIdle._chk_relocate(data) then
 			return
 		end
-		
+
 		if data.unit:anim_data().drop then
 			data.unit:brain():set_update_enabled_state(false)
 			CivilianLogicFlee._chk_add_delayed_rescue_SO(data, my_data)
-			
+
 			if my_data == data.internal_data then
-				managers.groupai:state():add_to_surrendered(data.unit, callback(CivilianLogicSurrender, CivilianLogicSurrender, "queued_update", data))
+				managers.groupai:state():add_to_surrendered(data.unit,
+					callback(CivilianLogicSurrender, CivilianLogicSurrender, "queued_update", data))
 				my_data.surrender_clbk_registered = true
 			end
 		end
-	end	
+	end
 end
 
 function CivilianLogicSurrender._update_enemy_detection(data, my_data)
@@ -210,32 +214,33 @@ function CivilianLogicSurrender._update_enemy_detection(data, my_data)
 	local mvec3_dir = mvector3.direction
 	local mvec3_dis_sq = mvector3.distance_sq
 	local mvec3_cpy = mvector3.copy
-	
+
 	if not my_data.criminal_pos_list then
 		my_data.criminal_pos_list = {}
 	end
-	
+
 	for e_key, u_data in pairs(enemies) do
 		if not u_data.is_deployable then
 			local enemy_unit = u_data.unit
 			local enemy_pos = u_data.m_det_pos
-			
+
 			if not my_data.criminal_pos_list[e_key] then
 				my_data.criminal_pos_list[e_key] = {
 					seen = false,
 					verified_pos = nil
 				}
 			end
-			
+
 			local crim_pos_entry = my_data.criminal_pos_list[e_key]
-			
+
 			if not crim_pos_entry.seen or crim_pos_entry.verified_pos and mvec3_dis_sq(crim_pos_entry.verified_pos, enemy_pos) > 10000 then
-				local vis_ray = World:raycast("ray", my_pos, enemy_pos, "slot_mask", data.visibility_slotmask, "ray_type", "ai_vision", "report")
-				
+				local vis_ray = World:raycast("ray", my_pos, enemy_pos, "slot_mask", data.visibility_slotmask, "ray_type",
+					"ai_vision", "report")
+
 				crim_pos_entry.seen = not vis_ray
 				crim_pos_entry.verified_pos = mvec3_cpy(enemy_pos)
 			end
-			
+
 			if crim_pos_entry.seen then
 				local my_vec = tmp_vec1
 				local dis = mvector3.direction(my_vec, enemy_pos, my_pos)
@@ -258,13 +263,14 @@ function CivilianLogicSurrender._update_enemy_detection(data, my_data)
 					my_data.inside_intimidate_aura = true
 				elseif dis < 700 then
 					local look_vec
-				
+
 					if enemy_unit:base().is_local_player then
 						look_vec = enemy_unit:movement():m_head_rot():y()
 					else
 						if enemy_unit:inventory() and enemy_unit:inventory():equipped_unit() then
 							if enemy_unit:movement()._stance.values[3] >= 0.6 then
-								local weapon_fire_obj = enemy_unit:inventory():equipped_unit():get_object(Idstring("fire"))
+								local weapon_fire_obj = enemy_unit:inventory():equipped_unit():get_object(Idstring(
+								"fire"))
 
 								if alive(weapon_fire_obj) then
 									look_vec = weapon_fire_obj:rotation():y()
@@ -276,13 +282,13 @@ function CivilianLogicSurrender._update_enemy_detection(data, my_data)
 							look_vec = enemy_unit:movement():m_head_rot():z()
 						end
 					end
-					
+
 					if look_vec then
 						mvector3.normalize(look_vec)
 					end
 
 					local focus = my_vec:dot(look_vec)
-					
+
 					if focus > 0.65 then
 						visible = true
 					end

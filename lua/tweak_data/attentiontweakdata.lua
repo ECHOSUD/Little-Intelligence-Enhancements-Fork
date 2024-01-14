@@ -93,64 +93,64 @@ function AttentionTweakData:setup_hhtacs()
 
 	local difficulty = Global.game_settings and Global.game_settings.difficulty or "normal"
 	local difficulty_index = tweak_data:difficulty_to_index(difficulty)
-	
+
 	--player heister attention object states start here
 	if difficulty_index > 6 then
 		self.settings.pl_mask_off_foe_combatant.turn_around_range = 500
 	end
-	
+
 	self.settings.pl_mask_on_foe_combatant_whisper_mode_stand.delay_override = {
 		0.3,
 		5
 	}
 	self.settings.pl_mask_on_foe_combatant_whisper_mode_stand.max_range = 3000
-	
+
 	self.settings.pl_mask_on_foe_non_combatant_whisper_mode_stand.delay_override = {
 		0.3,
 		5
 	}
 	self.settings.pl_mask_on_foe_non_combatant_whisper_mode_stand.max_range = 3000
 	self.settings.pl_mask_on_foe_non_combatant_whisper_mode_stand.notice_delay_mul = 2
-	
+
 	self.settings.pl_mask_on_foe_combatant_whisper_mode_crouch.delay_override = {
 		0.3,
 		5
 	}
 	self.settings.pl_mask_on_foe_combatant_whisper_mode_crouch.max_range = 2000
-	
+
 	self.settings.pl_mask_on_foe_non_combatant_whisper_mode_crouch.delay_override = {
 		0.3,
 		5
 	}
 	self.settings.pl_mask_on_foe_non_combatant_whisper_mode_crouch.max_range = 2000
 	self.settings.pl_mask_on_foe_non_combatant_whisper_mode_crouch.notice_delay_mul = 2
-	
+
 	--civilian attention object states start here
 	self.settings.civ_enemy_corpse_sneak.max_range = 1200
 	self.settings.civ_enemy_corpse_sneak.notice_delay_mul = 2
-	
+
 	self.settings.civ_civ_cbt.max_range = 1200
 	self.settings.civ_civ_cbt.notice_delay_mul = 3
-		
+
 	--enemy attention object states start here
 	self.settings.enemy_law_corpse_sneak = self.settings.civ_enemy_corpse_sneak
 	self.settings.enemy_team_corpse_sneak = self.settings.civ_enemy_corpse_sneak
-	
+
 	self.settings.enemy_civ_cbt.max_range = 1200
 	self.settings.enemy_civ_cbt.verification_interval = 0.1
 	self.settings.enemy_civ_cbt.notice_delay_mul = 3
-	
+
 	self.settings.enemy_enemy_cbt.max_range = 1200
 	self.settings.enemy_enemy_cbt.verification_interval = 0.1
 	self.settings.enemy_enemy_cbt.notice_delay_mul = 3
-	
+
 
 	--prop attention object states start here
 	self.settings.drill_civ_ene_ntl.max_range = 1100
 	self.settings.drill_silent_civ_ene_ntl.max_range = 1000
 	self.settings.prop_carry_bag.max_range = 800
 	self.settings.prop_carry_bodybag.max_range = 800
-	
+
 	--mission attention object states start here
 	self.settings.no_staff_ene_ntl = {
 		uncover_range = 100,
