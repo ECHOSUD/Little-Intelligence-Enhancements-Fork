@@ -76,8 +76,7 @@ function CopBase:default_weapon_name(selection_name)
 			LIES.smg_groups["tac_swat_smg"] = true
 		end
 
-		local group_type = self._unit:brain()._logic_data and self._unit:brain()._logic_data.group and
-			self._unit:brain()._logic_data.group.type
+		local group_type = self._unit:brain()._logic_data and self._unit:brain()._logic_data.group and self._unit:brain()._logic_data.group.type
 
 		if difficulty == "sm_wish" then
 			if m_weapon_id == "dmr" then

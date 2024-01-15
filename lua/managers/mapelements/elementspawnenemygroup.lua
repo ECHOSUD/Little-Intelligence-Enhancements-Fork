@@ -54,8 +54,7 @@ function ElementSpawnEnemyGroup:on_executed(instigator)
 		if self._group_data.spawn_type == "group" then
 			local spawn_group_data = managers.groupai:state():create_spawn_group(self._id, self, self._spawn_points)
 
-			local has_spawned_group = managers.groupai:state():force_spawn_group(spawn_group_data,
-																				 self._values.preferred_spawn_groups)
+			local has_spawned_group = managers.groupai:state():force_spawn_group(spawn_group_data, self._values.preferred_spawn_groups)
 
 			if has_spawned_group then
 				local spawn_task = managers.groupai:state()._spawning_groups[1]

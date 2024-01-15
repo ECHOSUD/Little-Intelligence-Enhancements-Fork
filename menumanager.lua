@@ -23,8 +23,7 @@ if RequiredScript == "lib/managers/menumanager" then
 			hhtacs = false
 		}
 	}
-	LIES.update_url =
-	"https://raw.githubusercontent.com/fuglore/Little-Intelligence-Enhancements/auto-updates/autoupdate.json"
+	LIES.update_url = "https://raw.githubusercontent.com/fuglore/Little-Intelligence-Enhancements/auto-updates/autoupdate.json"
 
 	function LIES:tprint(tbl, indent, depth)
 		depth = depth or 2
@@ -92,12 +91,10 @@ if RequiredScript == "lib/managers/menumanager" then
 
 	local mvec3_cpy = mvector3.copy
 
-	function LIES:find_cover_in_cone_from_threat_pos_1(threat_pos, furthest_pos, near_pos, search_from_pos, angle,
-													   min_dis, nav_seg, optimal_threat_dis, rsrv_filter)
+	function LIES:find_cover_in_cone_from_threat_pos_1(threat_pos, furthest_pos, near_pos, search_from_pos, angle, min_dis, nav_seg, optimal_threat_dis, rsrv_filter)
 		local copied_threat_pos = threat_pos and mvec3_cpy(threat_pos) or nil
 
-		return managers.navigation:_find_cover_through_lua(copied_threat_pos, near_pos, furthest_pos, min_dis,
-														   search_from_pos)
+		return managers.navigation:_find_cover_through_lua(copied_threat_pos, near_pos, furthest_pos, min_dis, search_from_pos)
 	end
 
 	function LIES:find_cover_in_nav_seg_3(nav_seg_id, max_near_dis, near_pos, threat_pos)
@@ -115,8 +112,7 @@ if RequiredScript == "lib/managers/menumanager" then
 	function LIES:find_cover_near_pos_1(near_pos, threat_pos, max_near_dis, min_threat_dis, allow_fwd)
 		local copied_threat_pos = threat_pos and mvec3_cpy(threat_pos) or nil
 
-		return managers.navigation:_find_cover_through_lua(copied_threat_pos, near_pos, nil, min_threat_dis, nil,
-														   max_near_dis)
+		return managers.navigation:_find_cover_through_lua(copied_threat_pos, near_pos, nil, min_threat_dis, nil, max_near_dis)
 	end
 
 	function LIES:find_cover_away_from_pos(near_pos, threat_pos, nav_seg_id)
@@ -214,8 +210,7 @@ if RequiredScript == "lib/managers/menumanager" then
 		self:_assign_assault_groups_to_retire()
 
 		local target_pos = task_data.target_area.pos
-		local nr_wanted = self:_get_difficulty_dependent_value(self._tweak_data.recon.force) -
-			self:_count_police_force("recon")
+		local nr_wanted = self:_get_difficulty_dependent_value(self._tweak_data.recon.force) - self:_count_police_force("recon")
 
 		if nr_wanted <= 0 then
 			return
@@ -237,12 +232,7 @@ if RequiredScript == "lib/managers/menumanager" then
 			if next(self._spawning_groups) then
 				used_group = true
 			else
-				local spawn_group, spawn_group_type = self:_find_spawn_group_near_area(task_data.target_area,
-																					   self._tweak_data.recon.groups, nil,
-																					   nil,
-																					   callback(self, self,
-																						   "_verify_anticipation_spawn_point"),
-																					   "recon")
+				local spawn_group, spawn_group_type = self:_find_spawn_group_near_area(task_data.target_area, self._tweak_data.recon.groups, nil, nil, callback(self, self, "_verify_anticipation_spawn_point"), "recon")
 
 				if spawn_group then
 					local grp_objective = {
@@ -264,9 +254,7 @@ if RequiredScript == "lib/managers/menumanager" then
 		if used_event or used_spawn_points or reassigned then
 			table.remove(self._task_data.recon.tasks, 1)
 
-			self._task_data.recon.next_dispatch_t = t +
-				math.ceil(self:_get_difficulty_dependent_value(self._tweak_data.recon.interval)) +
-				math.random() * self._tweak_data.recon.interval_variation
+			self._task_data.recon.next_dispatch_t = t + math.ceil(self:_get_difficulty_dependent_value(self._tweak_data.recon.interval)) + math.random() * self._tweak_data.recon.interval_variation
 		end
 	end
 
@@ -314,8 +302,7 @@ if RequiredScript == "lib/managers/menumanager" then
 
 		self:_assign_recon_groups_to_retire()
 
-		local force_pool = self:_get_difficulty_dependent_value(self._tweak_data.assault.force_pool) *
-			self:_get_balancing_multiplier(self._tweak_data.assault.force_pool_balance_mul)
+		local force_pool = self:_get_difficulty_dependent_value(self._tweak_data.assault.force_pool) * self:_get_balancing_multiplier(self._tweak_data.assault.force_pool_balance_mul)
 		local task_spawn_allowance = force_pool - (self._hunt_mode and 0 or task_data.force_spawned)
 
 		if task_data.phase == "anticipation" then
@@ -367,11 +354,7 @@ if RequiredScript == "lib/managers/menumanager" then
 				task_data.phase = "fade"
 				task_data.phase_end_t = t + self._tweak_data.assault.fade_duration
 			elseif task_data.phase_end_t < t or self._drama_data.zone == "high" then
-				local sustain_duration = math.lerp(
-						self:_get_difficulty_dependent_value(self._tweak_data.assault.sustain_duration_min),
-						self:_get_difficulty_dependent_value(self._tweak_data.assault.sustain_duration_max),
-						math.random()) *
-					self:_get_balancing_multiplier(self._tweak_data.assault.sustain_duration_balance_mul)
+				local sustain_duration = math.lerp(self:_get_difficulty_dependent_value(self._tweak_data.assault.sustain_duration_min), self:_get_difficulty_dependent_value(self._tweak_data.assault.sustain_duration_max), math.random()) * self:_get_balancing_multiplier(self._tweak_data.assault.sustain_duration_balance_mul)
 
 				managers.modifiers:run_func("OnEnterSustainPhase", sustain_duration)
 
@@ -380,8 +363,7 @@ if RequiredScript == "lib/managers/menumanager" then
 			end
 		elseif task_data.phase == "sustain" then
 			local end_t = self:assault_phase_end_time()
-			task_spawn_allowance = managers.modifiers:modify_value("GroupAIStateBesiege:SustainSpawnAllowance",
-																   task_spawn_allowance, force_pool)
+			task_spawn_allowance = managers.modifiers:modify_value("GroupAIStateBesiege:SustainSpawnAllowance", task_spawn_allowance, force_pool)
 
 			if task_spawn_allowance <= 0 then
 				task_data.phase = "fade"
@@ -533,8 +515,7 @@ if RequiredScript == "lib/managers/menumanager" then
 				task_data.old_target_pos_t = 0
 			elseif nearest_pos then
 				local t_since_upd = self._t - self._last_upd_t
-				task_data.old_target_pos_t = task_data.old_target_pos_t and task_data.old_target_pos_t + t_since_upd or
-					t_since_upd
+				task_data.old_target_pos_t = task_data.old_target_pos_t and task_data.old_target_pos_t + t_since_upd or t_since_upd
 			else --all players invalid for this, so lets empty it
 				task_data.old_target_pos = nil
 				task_data.old_target_pos_t = nil
@@ -564,10 +545,7 @@ if RequiredScript == "lib/managers/menumanager" then
 				else
 					self:_check_spawn_timed_groups(primary_target_area, task_data)
 
-					local spawn_group, spawn_group_type = self:_find_spawn_group_near_area(primary_target_area,
-																						   self._tweak_data.assault
-																						   .groups, nil, nil, nil,
-																						   "assault")
+					local spawn_group, spawn_group_type = self:_find_spawn_group_near_area(primary_target_area, self._tweak_data.assault.groups, nil, nil, nil, "assault")
 
 					if spawn_group then
 						local grp_objective = {

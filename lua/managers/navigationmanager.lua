@@ -369,14 +369,11 @@ function NavigationManager:register_cover_units()
 	end
 
 	if Network:is_server() then
-		local max_cover_points = #covers <= 0 and 2500 or
-			math.round(#covers * (math_lerp(4, 1, math_clamp(#covers / 2500, 0, 1))))
+		local max_cover_points = #covers <= 0 and 2500 or math.round(#covers * (math_lerp(4, 1, math_clamp(#covers / 2500, 0, 1))))
 
 		max_cover_points = math_clamp(max_cover_points, 1, 2500)
 
-		log("Map has " ..
-			tostring(#covers) ..
-			" cover points, setting generation limit to " .. tostring(max_cover_points) .. " cover points.")
+		log("Map has " .. tostring(#covers) .. " cover points, setting generation limit to " .. tostring(max_cover_points) .. " cover points.")
 
 		if #covers < max_cover_points then
 			for key, res in pairs(self._nav_segments) do
@@ -593,8 +590,7 @@ function NavigationManager:_change_funcs()
 		self.find_cover_in_nav_seg_3 = self.find_cover_in_nav_seg_3_LUA
 
 		if not self._vis_check_slotmask then
-			self._vis_check_slotmask = managers.slot:get_mask("AI_visibility") +
-				managers.slot:get_mask("enemy_shield_check")
+			self._vis_check_slotmask = managers.slot:get_mask("AI_visibility") + managers.slot:get_mask("enemy_shield_check")
 		end
 	end
 end
@@ -623,9 +619,7 @@ function NavigationManager:_LIES_register_cover()
 	self.has_registered_cover_units_for_LIES = true
 end
 
-function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, furthest_pos, near_pos, search_from_pos,
-																	angle, min_dis, nav_seg, optimal_threat_dis,
-																	rsrv_filter)
+function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, furthest_pos, near_pos, search_from_pos, angle, min_dis, nav_seg, optimal_threat_dis, rsrv_filter)
 	local v3_dis_sq = mvec3_dis_sq
 	local world_g = World
 	min_dis = min_dis and min_dis * min_dis or 0
@@ -653,16 +647,14 @@ function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, 
 		mvec3_mul(ray_to_pos, 90)
 		mvec3_add(ray_to_pos, threat_pos)
 
-		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-										"ai_vision", "report")
+		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
 		local high_ray = nil
 
 		if low_ray then
 			mvec3_set_z(ray_from, ray_from.z + 90)
 			mvec3_set_z(ray_to_pos, ray_to_pos.z + 90)
 
-			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-									   "ai_vision", "report")
+			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
 		end
 
 		return low_ray, high_ray
@@ -752,16 +744,14 @@ function NavigationManager:find_cover_from_threat_LUA(nav_seg_id, optimal_threat
 		mvec3_mul(ray_to_pos, 90)
 		mvec3_add(ray_to_pos, threat_pos)
 
-		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-										"ai_vision", "report")
+		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
 		local high_ray = nil
 
 		if low_ray then
 			mvec3_set_z(ray_from, ray_from.z + 90)
 			mvec3_set_z(ray_to_pos, ray_to_pos.z + 90)
 
-			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-									   "ai_vision", "report")
+			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
 		end
 
 		return low_ray, high_ray
@@ -855,16 +845,14 @@ function NavigationManager:find_cover_in_nav_seg_3_LUA(nav_seg_id, max_near_dis,
 		mvec3_mul(ray_to_pos, 90)
 		mvec3_add(ray_to_pos, threat_pos)
 
-		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-										"ai_vision", "report")
+		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
 		local high_ray = nil
 
 		if low_ray then
 			mvec3_set_z(ray_from, ray_from.z + 90)
 			mvec3_set_z(ray_to_pos, ray_to_pos.z + 90)
 
-			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-									   "ai_vision", "report")
+			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type", "ai_vision", "report")
 		end
 
 		return low_ray, high_ray
@@ -1234,9 +1222,7 @@ function NavigationManager:_execute_coarce_search(search_data)
 
 		local from_pos = next_search_seg.pos
 		local to_pos = search_data.to_pos
-		local new_segments = self:_sort_nav_segs_after_pos(to_pos, from_pos, next_search_i_seg,
-														   search_data.discovered_seg, search_data.verify_clbk,
-														   search_data.access_pos, search_data.access_neg)
+		local new_segments = self:_sort_nav_segs_after_pos(to_pos, from_pos, next_search_i_seg, search_data.discovered_seg, search_data.verify_clbk, search_data.access_pos, search_data.access_neg)
 
 		if new_segments then
 			if search_data.access_pos then
@@ -1271,8 +1257,7 @@ function NavigationManager:_execute_coarce_search(search_data)
 	end
 end
 
-function NavigationManager:_sort_nav_segs_after_pos(to_pos, from_pos, i_seg, ignore_seg, verify_clbk, access_pos,
-													access_neg)
+function NavigationManager:_sort_nav_segs_after_pos(to_pos, from_pos, i_seg, ignore_seg, verify_clbk, access_pos, access_neg)
 	local all_segs = self._nav_segments
 	local all_doors = self._room_doors
 	local all_rooms = self._rooms
@@ -1320,8 +1305,7 @@ function NavigationManager:_sort_nav_segs_after_pos(to_pos, from_pos, i_seg, ign
 						ignore_seg[neighbour_seg_id] = true
 					end
 				elseif not alive(i_door) then
-					debug_pause("[NavigationManager:_sort_nav_segs_after_pos] dead nav_link! between NavSegments", i_seg,
-								"-", neighbour_seg_id)
+					debug_pause("[NavigationManager:_sort_nav_segs_after_pos] dead nav_link! between NavSegments", i_seg, "-", neighbour_seg_id)
 				elseif not i_door:is_obstructed() and i_door:check_access(access_pos, access_neg) then
 					local end_pos = i_door:script_data().element:nav_link_end_pos()
 					local my_weight = mvec3_dis(from_pos, end_pos) + mvec3_dis(end_pos, to_pos)

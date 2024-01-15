@@ -11,8 +11,7 @@ function TeamAILogicAssault.enter(data, new_logic_name, enter_params)
 	data.internal_data = my_data
 	my_data.detection = data.char_tweak.detection.combat
 	my_data.cover_chk_t = 0
-	my_data.weapon_range = data.char_tweak.weapon
-		[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+	my_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 
 	if old_internal_data then
 		my_data.turning = old_internal_data.turning
@@ -37,8 +36,7 @@ function TeamAILogicAssault.enter(data, new_logic_name, enter_params)
 	data.unit:movement():set_cool(false)
 	data.unit:movement():set_stance("hos")
 
-	my_data.weapon_range = data.char_tweak.weapon
-		[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+	my_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 	my_data.cover_test_step = 0
 end
 
@@ -73,8 +71,7 @@ function TeamAILogicAssault.update(data)
 		focus_enemy = data.attention_obj
 	end
 
-	local action_taken = my_data.advancing or my_data.turning or data.unit:movement():chk_action_forbidden("walk") or
-		my_data.moving_to_cover or my_data.walking_to_cover_shoot_pos or my_data._turning_to_intimidate
+	local action_taken = my_data.advancing or my_data.turning or data.unit:movement():chk_action_forbidden("walk") or my_data.moving_to_cover or my_data.walking_to_cover_shoot_pos or my_data._turning_to_intimidate
 
 	local enemy_visible = focus_enemy.verified
 
@@ -186,9 +183,7 @@ function TeamAILogicAssault._upd_enemy_detection(data, is_synchronous)
 	end
 
 	local delay = CopLogicBase._upd_attention_obj_detection(data, min_reaction, max_reaction)
-	local new_attention, new_prio_slot, new_reaction = TeamAILogicIdle._get_priority_attention(data,
-																							   data.detected_attention_objects,
-																							   nil)
+	local new_attention, new_prio_slot, new_reaction = TeamAILogicIdle._get_priority_attention(data, data.detected_attention_objects, nil)
 	local old_att_obj = data.attention_obj
 
 	TeamAILogicBase._set_attention_obj(data, new_attention, new_reaction)
@@ -227,8 +222,7 @@ function TeamAILogicAssault._upd_enemy_detection(data, is_synchronous)
 	if not my_data._intimidate_t or my_data._intimidate_t + 2 < data.t and not my_data._turning_to_intimidate and data.unit:character_damage():health_ratio() > 0.5 then
 		local can_turn = not data.unit:movement():chk_action_forbidden("turn") and new_prio_slot and new_prio_slot > 7
 		local is_assault = managers.groupai:state():get_assault_mode()
-		local civ = TeamAILogicIdle.find_civilian_to_intimidate(data.unit, can_turn and 180 or 60,
-																is_assault and 800 or 1200)
+		local civ = TeamAILogicIdle.find_civilian_to_intimidate(data.unit, can_turn and 180 or 60, is_assault and 800 or 1200)
 
 		if civ then
 			my_data._intimidate_t = data.t
@@ -258,8 +252,7 @@ function TeamAILogicAssault._upd_enemy_detection(data, is_synchronous)
 	TeamAILogicAssault._chk_request_combat_chatter(data, my_data)
 
 	if not is_synchronous then
-		CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicAssault._upd_enemy_detection, data,
-								data.t + delay)
+		CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicAssault._upd_enemy_detection, data, data.t + delay)
 	end
 end
 
@@ -280,9 +273,7 @@ function TeamAILogicAssault.find_enemy_to_mark(data)
 				elseif data.attention_obj.is_deployable and data.attention_obj.unit:contour() then
 					local contour_ext = data.attention_obj.unit:contour()
 
-					local callout = not data.unit:brain()._last_mark_shout or
-						tweak_data.sound.criminal_sound.ai_callout_cooldown <
-						TimerManager:game():time() - data.unit:brain()._last_mark_shout
+					local callout = not data.unit:brain()._last_mark_shout or tweak_data.sound.criminal_sound.ai_callout_cooldown < TimerManager:game():time() - data.unit:brain()._last_mark_shout
 
 					if callout then
 						data.unit:sound():say("f44x_any", true)
@@ -293,8 +284,7 @@ function TeamAILogicAssault.find_enemy_to_mark(data)
 						local redir_name = "cmd_point"
 
 						if data.unit:movement():play_redirect(redir_name) then
-							managers.network:session():send_to_peers_synched("play_distance_interact_redirect", data
-																			 .unit, redir_name)
+							managers.network:session():send_to_peers_synched("play_distance_interact_redirect", data.unit, redir_name)
 						end
 					end
 
@@ -319,9 +309,7 @@ end
 
 function TeamAILogicAssault.mark_enemy(data, criminal, to_mark, play_sound, play_action)
 	if play_sound then
-		local callout = not criminal:brain()._last_mark_shout or
-			tweak_data.sound.criminal_sound.ai_callout_cooldown <
-			TimerManager:game():time() - criminal:brain()._last_mark_shout
+		local callout = not criminal:brain()._last_mark_shout or tweak_data.sound.criminal_sound.ai_callout_cooldown < TimerManager:game():time() - criminal:brain()._last_mark_shout
 
 		if callout then
 			criminal:sound():say(to_mark:base():char_tweak().priority_shout .. "x_any", true)

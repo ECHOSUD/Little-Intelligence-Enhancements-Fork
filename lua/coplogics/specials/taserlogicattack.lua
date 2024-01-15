@@ -23,8 +23,7 @@ function TaserLogicAttack.enter(data, new_logic_name, enter_params)
 	local key_str = tostring(data.key)
 	my_data.update_task_key = "TaserLogicAttack.queued_update" .. key_str
 
-	CopLogicBase.queue_task(my_data, my_data.update_task_key, TaserLogicAttack.queued_update, data, data.t,
-							data.important)
+	CopLogicBase.queue_task(my_data, my_data.update_task_key, TaserLogicAttack.queued_update, data, data.t, data.important)
 	data.unit:brain():set_update_enabled_state(false)
 	CopLogicIdle._chk_has_old_action(data, my_data)
 
@@ -32,10 +31,8 @@ function TaserLogicAttack.enter(data, new_logic_name, enter_params)
 
 	my_data.attitude = "engage"
 
-	my_data.weapon_range = data.char_tweak.weapon
-		[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
-	my_data.wanted_attack_range = data.char_tweak.weapon
-		[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].tase_distance or 1500
+	my_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+	my_data.wanted_attack_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].tase_distance or 1500
 	my_data.cover_test_step = 1
 	data.tase_delay_t = data.tase_delay_t or -1
 
@@ -63,8 +60,7 @@ function TaserLogicAttack.queued_update(data)
 	elseif not data.attention_obj then
 		delay = 0.5 + delay * 1.5
 
-		CopLogicBase.queue_task(my_data, my_data.update_task_key, TaserLogicAttack.queued_update, data, data.t + delay,
-								data.important)
+		CopLogicBase.queue_task(my_data, my_data.update_task_key, TaserLogicAttack.queued_update, data, data.t + delay, data.important)
 		CopLogicBase._report_detections(data.detected_attention_objects)
 
 		return
@@ -74,8 +70,7 @@ function TaserLogicAttack.queued_update(data)
 		CopLogicAttack._upd_stop_old_action(data, my_data)
 
 		if my_data.has_old_action or my_data.old_action_advancing then
-			CopLogicBase.queue_task(my_data, my_data.update_task_key, TaserLogicAttack.queued_update, data,
-									data.t + delay, data.important)
+			CopLogicBase.queue_task(my_data, my_data.update_task_key, TaserLogicAttack.queued_update, data, data.t + delay, data.important)
 
 			return
 		end
@@ -90,8 +85,7 @@ function TaserLogicAttack.queued_update(data)
 	local unit = data.unit
 	local objective = data.objective
 	local focus_enemy = data.attention_obj
-	local action_taken = my_data.turning or data.unit:movement():chk_action_forbidden("walk") or my_data.moving_to_cover or
-		my_data.walking_to_cover_shoot_pos or my_data.acting or my_data.tasing
+	local action_taken = my_data.turning or data.unit:movement():chk_action_forbidden("walk") or my_data.moving_to_cover or my_data.walking_to_cover_shoot_pos or my_data.acting or my_data.tasing
 
 	if my_data.tasing then
 		if data.logic.chk_should_turn(data, my_data) then
@@ -100,8 +94,7 @@ function TaserLogicAttack.queued_update(data)
 			CopLogicAttack._chk_request_action_turn_to_enemy(data, my_data, data.m_pos, enemy_pos)
 		end
 
-		CopLogicBase.queue_task(my_data, my_data.update_task_key, TaserLogicAttack.queued_update, data, data.t + delay,
-								data.important)
+		CopLogicBase.queue_task(my_data, my_data.update_task_key, TaserLogicAttack.queued_update, data, data.t + delay, data.important)
 		CopLogicBase._report_detections(data.detected_attention_objects)
 
 		return
@@ -123,8 +116,7 @@ function TaserLogicAttack.queued_update(data)
 		end
 	end
 
-	CopLogicBase.queue_task(my_data, my_data.update_task_key, TaserLogicAttack.queued_update, data, data.t + delay,
-							data.important)
+	CopLogicBase.queue_task(my_data, my_data.update_task_key, TaserLogicAttack.queued_update, data, data.t + delay, data.important)
 	CopLogicBase._report_detections(data.detected_attention_objects)
 end
 
@@ -193,8 +185,7 @@ function TaserLogicAttack._upd_aim(data, my_data, reaction)
 
 	if focus_enemy then
 		if tase then
-			local has_walk_actions = my_data.advancing or my_data.walking_to_cover_shoot_pos or my_data.moving_to_cover or
-				my_data.surprised
+			local has_walk_actions = my_data.advancing or my_data.walking_to_cover_shoot_pos or my_data.moving_to_cover or my_data.surprised
 
 			if has_walk_actions and not data.unit:movement():chk_action_forbidden("walk") then
 				local new_action = {
@@ -336,9 +327,7 @@ function TaserLogicAttack._upd_enemy_detection(data)
 		return delay
 	end
 
-	local new_attention, new_prio_slot, new_reaction = CopLogicIdle._get_priority_attention(data,
-																							data.detected_attention_objects,
-																							TaserLogicAttack._chk_reaction_to_attention_object)
+	local new_attention, new_prio_slot, new_reaction = CopLogicIdle._get_priority_attention(data, data.detected_attention_objects, TaserLogicAttack._chk_reaction_to_attention_object)
 	local old_att_obj = data.attention_obj
 
 	CopLogicBase._set_attention_obj(data, new_attention, new_reaction)

@@ -63,8 +63,7 @@ function CopLogicTravel.enter(data, new_logic_name, enter_params)
 	my_data.cover_update_task_key = "CopLogicTravel._update_cover" .. key_str
 
 	if my_data.nearest_cover or my_data.best_cover then
-		CopLogicBase.add_delayed_clbk(my_data, my_data.cover_update_task_key,
-									  callback(CopLogicTravel, CopLogicTravel, "_update_cover", data), data.t + 1)
+		CopLogicBase.add_delayed_clbk(my_data, my_data.cover_update_task_key, callback(CopLogicTravel, CopLogicTravel, "_update_cover", data), data.t + 1)
 	end
 
 	my_data.advance_path_search_id = "CopLogicTravel_detailed" .. tostring(data.key)
@@ -146,9 +145,7 @@ function CopLogicTravel.enter(data, new_logic_name, enter_params)
 	end
 
 	if data.attention_obj and AIAttentionObject.REACT_AIM < data.attention_obj.reaction then
-		data.unit:movement():set_cool(false,
-									  managers.groupai:state().analyse_giveaway(data.unit:base()._tweak_table,
-																				data.attention_obj.unit))
+		data.unit:movement():set_cool(false, managers.groupai:state().analyse_giveaway(data.unit:base()._tweak_table, data.attention_obj.unit))
 	end
 
 	if is_cool then
@@ -162,10 +159,8 @@ function CopLogicTravel.enter(data, new_logic_name, enter_params)
 	end
 
 	my_data.attitude = data.objective.attitude or "avoid"
-	my_data.weapon_range = data.char_tweak.weapon
-		[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
-	my_data.path_safely = my_data.attitude == "avoid" and data.team.foes
-		[tweak_data.levels:get_default_team_ID("player")]
+	my_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+	my_data.path_safely = my_data.attitude == "avoid" and data.team.foes[tweak_data.levels:get_default_team_ID("player")]
 	my_data.path_ahead = data.objective.path_ahead or data.team.id == tweak_data.levels:get_default_team_ID("player")
 	my_data.allow_long_path = my_data.path_ahead and true or LIES.settings.enemy_travel_level > 3
 
@@ -185,8 +180,7 @@ function CopLogicTravel.queue_detection_update(data, my_data, delay)
 		delay = 0
 	end
 
-	CopLogicBase.queue_task(my_data, my_data.detection_task_key, CopLogicTravel.queued_detection_update, data,
-							data.t + delay, data.important and true)
+	CopLogicBase.queue_task(my_data, my_data.detection_task_key, CopLogicTravel.queued_detection_update, data, data.t + delay, data.important and true)
 end
 
 function CopLogicTravel.queued_detection_update(data)
@@ -231,8 +225,7 @@ function CopLogicTravel._chk_close_to_criminal(data, my_data)
 		my_data.close_to_criminal = false
 		local my_area = managers.groupai:state():get_area_from_nav_seg_id(data.unit:movement():nav_tracker():nav_segment())
 		local all_criminals = managers.groupai:state():all_char_criminals()
-		local next_seg = my_data.coarse_path_index and my_data.coarse_path[my_data.coarse_path_index + 1] and
-			my_data.coarse_path[my_data.coarse_path_index + 1][1]
+		local next_seg = my_data.coarse_path_index and my_data.coarse_path[my_data.coarse_path_index + 1] and my_data.coarse_path[my_data.coarse_path_index + 1][1]
 		local next_area = next_seg and managers.groupai:state():get_area_from_nav_seg_id(next_seg)
 		local closest_crim_u_data, closest_crim_dis = nil
 
@@ -564,8 +557,7 @@ function CopLogicTravel._chk_begin_advance(data, my_data)
 	end
 
 	local pose = nil
-	pose = not data.char_tweak.crouch_move and "stand" or
-		data.char_tweak.allowed_poses and not data.char_tweak.allowed_poses.stand and "crouch" or "stand"
+	pose = not data.char_tweak.crouch_move and "stand" or data.char_tweak.allowed_poses and not data.char_tweak.allowed_poses.stand and "crouch" or "stand"
 
 	if not data.unit:anim_data()[pose] then
 		CopLogicAttack["_chk_request_action_" .. pose](data)
@@ -903,16 +895,13 @@ function CopLogicTravel._upd_enemy_detection(data)
 	--this prevents units from looking at broken glass or other dumb things while in loud, and saves performance a decent bit
 	local min_reaction = not data.cool and AIAttentionObject.REACT_AIM
 	CopLogicBase._upd_attention_obj_detection(data, min_reaction, nil)
-	local new_attention, new_prio_slot, new_reaction = CopLogicIdle._get_priority_attention(data,
-																							data.detected_attention_objects,
-																							nil)
+	local new_attention, new_prio_slot, new_reaction = CopLogicIdle._get_priority_attention(data, data.detected_attention_objects, nil)
 	local old_att_obj = data.attention_obj
 
 	local delay = 0 --whisper mode updates need to be as CONSTANT as possible to keep units moving smoothly and predictably
 
 	if not managers.groupai:state():whisper_mode() then
-		delay = data.important and 0.5 or
-			1 --units in travel update less often than units in attack, i can run a lot of stuff through action_complete_clbk and single-update states
+		delay = data.important and 0.5 or 1 --units in travel update less often than units in attack, i can run a lot of stuff through action_complete_clbk and single-update states
 	end
 
 	CopLogicBase._set_attention_obj(data, new_attention, new_reaction)
@@ -929,8 +918,7 @@ function CopLogicTravel._upd_enemy_detection(data)
 			end
 
 			if my_data == data.internal_data and not objective.is_default then
-				debug_pause_unit(data.unit, "[CopLogicTravel._upd_enemy_detection] exiting without discarding objective",
-								 data.unit, inspect(objective))
+				debug_pause_unit(data.unit, "[CopLogicTravel._upd_enemy_detection] exiting without discarding objective", data.unit, inspect(objective))
 				CopLogicBase._exit(data.unit, wanted_state)
 			end
 
@@ -1062,9 +1050,7 @@ function CopLogicTravel._upd_focus_on_undetected_criminal(data, my_data, attenti
 	end
 
 	local should_turn = my_data.chasing or attention_info.notice_progress and attention_info.notice_progress > 0.25
-	local should_chase = my_data.chase_crim_path or
-		attention_info.notice_progress and attention_info.notice_progress > 0.5 and
-		mvec3_dis_sq(data.m_pos, attention_info.m_pos) < 1562500
+	local should_chase = my_data.chase_crim_path or attention_info.notice_progress and attention_info.notice_progress > 0.5 and mvec3_dis_sq(data.m_pos, attention_info.m_pos) < 1562500
 	local turn_to_real_pos
 
 	local chase_pos
@@ -1131,8 +1117,7 @@ function CopLogicTravel._upd_focus_on_undetected_criminal(data, my_data, attenti
 
 			mvector3.set_length(vec_to_pos, max_dis)
 
-			local accross_positions = managers.navigation:find_walls_accross_tracker(data.unit:movement():nav_tracker(),
-																					 vec_to_pos, 360, 8)
+			local accross_positions = managers.navigation:find_walls_accross_tracker(data.unit:movement():nav_tracker(), vec_to_pos, 360, 8)
 
 			if accross_positions then
 				local optimal_dis = max_dis
@@ -1143,8 +1128,7 @@ function CopLogicTravel._upd_focus_on_undetected_criminal(data, my_data, attenti
 					--local too_much_error = error_dis / optimal_dis > 0.2
 
 					if hit_dis > 400 then -- dont fuckin https://media.tenor.com/laSBfhRhTEYAAAAM/guy-arguing.gif the wall
-						local error_dis = math.abs(mvector3.distance(accross_pos[1], attention_info.notice_pos) -
-							optimal_dis) * (0.5 + math.random())
+						local error_dis = math.abs(mvector3.distance(accross_pos[1], attention_info.notice_pos) - optimal_dis) * (0.5 + math.random())
 
 						if not best_error_dis or error_dis < best_error_dis then
 							best_pos = accross_pos[1]
@@ -1230,10 +1214,7 @@ function CopLogicTravel._determine_destination_occupation(data, objective)
 				radius = objective.radius
 			}
 		else
-			local near_pos = objective.follow_unit and alive(objective.follow_unit) and
-				objective.follow_unit:movement():nav_tracker():field_position() or
-				data.internal_data.coarse_path[#data.internal_data.coarse_path][2] or
-				managers.navigation._nav_segments[objective.nav_seg].pos
+			local near_pos = objective.follow_unit and alive(objective.follow_unit) and objective.follow_unit:movement():nav_tracker():field_position() or data.internal_data.coarse_path[#data.internal_data.coarse_path][2] or managers.navigation._nav_segments[objective.nav_seg].pos
 			local cover = CopLogicTravel._find_cover(data, objective.nav_seg, near_pos)
 
 			if cover then
@@ -1277,8 +1258,7 @@ function CopLogicTravel._determine_destination_occupation(data, objective)
 		}
 	elseif objective.type == "follow" then
 		local my_data = data.internal_data
-		local follow_tracker = objective.follow_unit and alive(objective.follow_unit) and
-			objective.follow_unit:movement():nav_tracker()
+		local follow_tracker = objective.follow_unit and alive(objective.follow_unit) and objective.follow_unit:movement():nav_tracker()
 		local dest_nav_seg_id = my_data.coarse_path[#my_data.coarse_path][1]
 		local dest_area = managers.groupai:state():get_area_from_nav_seg_id(dest_nav_seg_id)
 		local follow_pos = follow_tracker and follow_tracker:field_position()
@@ -1486,8 +1466,7 @@ function CopLogicTravel.action_complete_clbk(data, action)
 
 				if not data.objective.forced and LIES.settings.enemy_aggro_level < 3 then
 					if data.attention_obj and AIAttentionObject.REACT_COMBAT <= data.attention_obj.reaction or data.is_suppressed then
-						local cover_wait_time = my_data.coarse_path_index == #my_data.coarse_path - 1 and 0.3 or
-							0.6 + 0.4 * math.random()
+						local cover_wait_time = my_data.coarse_path_index == #my_data.coarse_path - 1 and 0.3 or 0.6 + 0.4 * math.random()
 
 						my_data.cover_leave_t = data.t + cover_wait_time
 					end
@@ -1562,10 +1541,7 @@ function CopLogicTravel.action_complete_clbk(data, action)
 				end
 
 				if my_data == data.internal_data then
-					debug_pause_unit(data.unit,
-									 "[CopLogicTravel.action_complete_clbk] exiting without discarding objective",
-									 data.unit,
-									 inspect(data.objective))
+					debug_pause_unit(data.unit, "[CopLogicTravel.action_complete_clbk] exiting without discarding objective", data.unit, inspect(data.objective))
 					CopLogicBase._exit(data.unit, wanted_state)
 				end
 			end
@@ -1694,8 +1670,7 @@ function CopLogicTravel._find_cover(data, search_nav_seg, near_pos)
 	local optimal_threat_dis, threat_pos = nil
 
 	if not data.internal_data.weapon_range and data.char_tweak.weapon then
-		data.internal_data.weapon_range = data.char_tweak.weapon
-			[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+		data.internal_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 
 		if not data.internal_data.range then
 			data.internal_data.weapon_range = {
@@ -1725,8 +1700,7 @@ function CopLogicTravel._find_cover(data, search_nav_seg, near_pos)
 	near_pos = near_pos or search_area.pos
 
 	if data.internal_data.criminal or data.unit:in_slot(16) then
-		threat_pos = data.attention_obj and AIAttentionObject.REACT_COMBAT <= data.attention_obj.reaction and
-			data.attention_obj.m_head_pos
+		threat_pos = data.attention_obj and AIAttentionObject.REACT_COMBAT <= data.attention_obj.reaction and data.attention_obj.m_head_pos
 	else
 		local all_criminals = managers.groupai:state():all_char_criminals()
 		local closest_crim_u_data, closest_crim_dis = nil
@@ -2004,8 +1978,7 @@ function CopLogicTravel.queue_update(data, my_data, delay)
 		delay = math.min(my_data.waiting_for_navlink - data.t, delay)
 	end
 
-	CopLogicBase.queue_task(my_data, my_data.upd_task_key, CopLogicTravel.queued_update, data, data.t + delay,
-							data.important and true)
+	CopLogicBase.queue_task(my_data, my_data.upd_task_key, CopLogicTravel.queued_update, data, data.t + delay, data.important and true)
 
 	my_data.waiting_for_navlink = nil
 end

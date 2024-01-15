@@ -29,8 +29,7 @@ function CopLogicArrest.enter(data, new_logic_name, enter_params)
 		cbt = true
 	})
 	my_data.next_action_delay_t = data.t + 0.5
-	my_data.weapon_range = data.char_tweak.weapon
-		[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+	my_data.weapon_range = data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 
 	if (not data.char_tweak.allowed_poses or data.char_tweak.allowed_poses.stand) and not data.unit:anim_data().stand then
 		CopLogicAttack._chk_request_action_stand(data)
@@ -61,8 +60,7 @@ function CopLogicArrest._mark_call_in_event(data, my_data, attention_obj)
 		local unit_brain = attention_obj.unit:brain()
 
 		if attention_obj.unit:in_slot(17) then
-			my_data.call_in_event = managers.enemy:get_corpse_unit_data_from_key(attention_obj.unit:key()).is_civilian and
-				"dead_civ" or "dead_cop"
+			my_data.call_in_event = managers.enemy:get_corpse_unit_data_from_key(attention_obj.unit:key()).is_civilian and "dead_civ" or "dead_cop"
 		elseif attention_obj.unit:in_slot(managers.slot:get_mask("enemies")) then
 			my_data.call_in_event = "w_hot"
 		elseif unit_brain and unit_brain.is_hostage and unit_brain:is_hostage() then
@@ -122,8 +120,7 @@ function CopLogicArrest._upd_enemy_detection(data)
 
 	CopLogicArrest._verify_arrest_targets(data, my_data)
 
-	local new_attention, new_prio_slot, new_reaction = CopLogicArrest._get_priority_attention(data,
-																							  data.detected_attention_objects)
+	local new_attention, new_prio_slot, new_reaction = CopLogicArrest._get_priority_attention(data, data.detected_attention_objects)
 	local old_att_obj = data.attention_obj
 
 	CopLogicBase._set_attention_obj(data, new_attention, new_reaction)
@@ -222,8 +219,7 @@ function CopLogicArrest.queued_update(data)
 		CopLogicAttack._upd_stop_old_action(data, my_data)
 
 		if my_data.has_old_action or my_data.old_action_advancing then
-			CopLogicBase.queue_task(my_data, my_data.update_task_key, CopLogicArrest.queued_update, data, data.t + delay,
-									data.important)
+			CopLogicBase.queue_task(my_data, my_data.update_task_key, CopLogicArrest.queued_update, data, data.t + delay, data.important)
 			CopLogicBase._report_detections(data.detected_attention_objects)
 
 			return
@@ -292,8 +288,7 @@ function CopLogicArrest.queued_update(data)
 	end
 
 	CopLogicArrest._upd_cover(data)
-	CopLogicBase.queue_task(my_data, my_data.update_task_key, CopLogicArrest.queued_update, data, data.t + delay,
-							data.important)
+	CopLogicBase.queue_task(my_data, my_data.update_task_key, CopLogicArrest.queued_update, data, data.t + delay, data.important)
 	CopLogicBase._report_detections(data.detected_attention_objects)
 end
 

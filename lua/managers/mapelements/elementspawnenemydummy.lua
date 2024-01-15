@@ -74,8 +74,7 @@ function ElementSpawnEnemyDummy:value(name)
 	end
 
 	if self._values.instance_name and self._values.instance_var_names and self._values.instance_var_names[name] then
-		local value = managers.world_instance:get_instance_param(self._values.instance_name,
-																 self._values.instance_var_names[name])
+		local value = managers.world_instance:get_instance_param(self._values.instance_name, self._values.instance_var_names[name])
 
 		if value then
 			return value

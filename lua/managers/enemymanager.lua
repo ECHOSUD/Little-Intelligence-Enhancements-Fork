@@ -170,8 +170,7 @@ function EnemyManager:register_shield(shield_unit)
 
 			self:add_delayed_clbk(shield_disposal_id, callback(self, self, "_upd_shield_disposal_fast"), t)
 		else
-			self:add_delayed_clbk(shield_disposal_id, callback(self, self, "_upd_shield_disposal"),
-								  t + self._shield_disposal_lifetime)
+			self:add_delayed_clbk(shield_disposal_id, callback(self, self, "_upd_shield_disposal"), t + self._shield_disposal_lifetime)
 		end
 	elseif not self._fast_shield_disposal and self:shield_limit() < nr_shields then
 		self._fast_shield_disposal = false

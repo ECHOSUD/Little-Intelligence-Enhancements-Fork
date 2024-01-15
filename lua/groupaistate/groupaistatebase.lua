@@ -246,8 +246,7 @@ function GroupAIStateBase:register_criminal(unit)
 
 	if is_AI then
 		self._ai_criminals[u_key] = u_sighting
-		u_sighting.so_access = managers.navigation:convert_access_flag(tweak_data.character[unit:base()._tweak_table]
-			.access)
+		u_sighting.so_access = managers.navigation:convert_access_flag(tweak_data.character[unit:base()._tweak_table].access)
 	elseif not is_deployable then
 		self._player_criminals[u_key] = u_sighting
 	end
@@ -609,8 +608,7 @@ function GroupAIStateBase:print_objective(objective)
 		end
 
 		if objective.action then
-			log("objective has action type " .. tostring(objective.action.type) ..
-				":" .. tostring(objective.action.variant))
+			log("objective has action type " .. tostring(objective.action.type) .. ":" .. tostring(objective.action.variant))
 		end
 
 		if objective.element then
@@ -681,8 +679,7 @@ function GroupAIStateBase:print_objective(objective)
 		log("objective has followup objective")
 
 		if followup_objective.type then
-			local followup_objective_type_str = followup_objective.type and tostring(followup_objective.type) or
-				"lmao what"
+			local followup_objective_type_str = followup_objective.type and tostring(followup_objective.type) or "lmao what"
 
 			log("f. objective has type: " .. followup_objective_type_str .. "")
 		end

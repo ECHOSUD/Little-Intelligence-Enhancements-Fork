@@ -618,16 +618,14 @@ function CopBrain:_chk_use_cover_grenade(unit)
 			local duration_tweak = self._logic_data.char_tweak.dodge_with_grenade.smoke.duration
 			local duration = math.lerp(duration_tweak[1], duration_tweak[2], math.random())
 
-			managers.groupai:state():detonate_smoke_grenade(self._logic_data.m_pos + math.UP * 10,
-															self._unit:movement():m_head_pos(), duration, false)
+			managers.groupai:state():detonate_smoke_grenade(self._logic_data.m_pos + math.UP * 10, self._unit:movement():m_head_pos(), duration, false)
 
 			self._next_grenade_use_t = t + duration
 		elseif self._logic_data.char_tweak.dodge_with_grenade.flash then
 			local duration_tweak = self._logic_data.char_tweak.dodge_with_grenade.flash.duration
 			local duration = math.lerp(duration_tweak[1], duration_tweak[2], math.random())
 
-			managers.groupai:state():detonate_smoke_grenade(self._logic_data.m_pos + math.UP * 10,
-															self._unit:movement():m_head_pos(), duration, true)
+			managers.groupai:state():detonate_smoke_grenade(self._logic_data.m_pos + math.UP * 10, self._unit:movement():m_head_pos(), duration, true)
 
 			self._next_grenade_use_t = t + duration
 		end

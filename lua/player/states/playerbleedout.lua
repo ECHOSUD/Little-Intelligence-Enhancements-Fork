@@ -72,8 +72,7 @@ end
 
 function PlayerBleedOut:on_rescue_SO_administered(revive_SO_data, receiver_unit)
 	if revive_SO_data.rescuer then
-		debug_pause("[PlayerBleedOut:on_rescue_SO_administered] Already had a rescuer!!!!", receiver_unit,
-					revive_SO_data.rescuer)
+		debug_pause("[PlayerBleedOut:on_rescue_SO_administered] Already had a rescuer!!!!", receiver_unit, revive_SO_data.rescuer)
 	end
 
 	revive_SO_data.rescuer = receiver_unit
@@ -86,8 +85,7 @@ function PlayerBleedOut:on_rescue_SO_administered(revive_SO_data, receiver_unit)
 
 		if tweak_data.carry.types[tweak_data.carry[receiver_unit:movement():carry_id()].type] then
 			can_run = tweak_data.carry.types[tweak_data.carry[receiver_unit:movement():carry_id()].type].can_run
-			speed_mul = tweak_data.carry.types[tweak_data.carry[receiver_unit:movement():carry_id()].type]
-				.move_speed_modifier
+			speed_mul = tweak_data.carry.types[tweak_data.carry[receiver_unit:movement():carry_id()].type].move_speed_modifier
 		end
 
 		if not can_run then

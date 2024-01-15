@@ -41,8 +41,7 @@ if not Iter then
 		if not data.been_outlined and data.char_tweak.outline_on_discover then
 			my_data.outline_detection_task_key = "CivilianLogicIdle._upd_outline_detection" .. tostring(data.key)
 
-			CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle
-									._upd_outline_detection, data, data.t)
+			CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle._upd_outline_detection, data, data.t)
 		end
 
 		local attention_settings = {
