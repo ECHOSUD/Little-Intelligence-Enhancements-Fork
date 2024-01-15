@@ -35,7 +35,7 @@ local AI_REACT_SHOOT = AIAttentionObject.REACT_SHOOT
 local AI_REACT_COMBAT = AIAttentionObject.REACT_COMBAT
 local AI_REACT_SPECIAL_ATTACK = AIAttentionObject.REACT_SPECIAL_ATTACK
 LIESBossLogicAttack = LIESBossLogicAttack or
-class(BossLogicAttack)                                              --for custom maps who override things, i need to make sure i override their overrides for common units
+	class(BossLogicAttack) --for custom maps who override things, i need to make sure i override their overrides for common units
 
 LIESBossLogicAttack._global_throwable_delays = {}
 
@@ -109,7 +109,7 @@ function LIESBossLogicAttack.enter(data, new_logic_name, enter_params)
 		objective.action_timeout_t = action_timeout_t
 
 		CopLogicBase.add_delayed_clbk(new_internal_data, new_internal_data.action_timeout_clbk_id,
-			callback(CopLogicIdle, CopLogicIdle, "clbk_action_timeout", data), action_timeout_t)
+									  callback(CopLogicIdle, CopLogicIdle, "clbk_action_timeout", data), action_timeout_t)
 	end
 
 	brain_ext:set_attention_settings({
@@ -161,7 +161,7 @@ function LIESBossLogicAttack.queue_update(data, my_data)
 	end
 
 	CopLogicBase.queue_task(my_data, my_data.update_queue_id, LIESBossLogicAttack.queued_update, data, data.t + delay,
-		true)
+							true)
 end
 
 function LIESBossLogicAttack.update(data)
@@ -506,7 +506,8 @@ function LIESBossLogicAttack._upd_combat_movement(data, my_data)
 					local max_walk_dis = 400
 					local vis_required = nil
 					local retreat_to, is_fail = CopLogicAttack._find_retreat_position(data, from_pos, focus_enemy.m_pos,
-						threat_head_pos, threat_tracker, max_walk_dis, nil)
+																					  threat_head_pos, threat_tracker,
+																					  max_walk_dis, nil)
 
 					if retreat_to then
 						local to_pos = retreat_to
@@ -514,7 +515,11 @@ function LIESBossLogicAttack._upd_combat_movement(data, my_data)
 
 						if is_fail then
 							second_retreat_pos, retry_is_fail = CopLogicAttack._find_retreat_position(data, retreat_to,
-								focus_enemy.m_pos, threat_head_pos, threat_tracker, max_walk_dis, vis_required)
+																									  focus_enemy.m_pos,
+																									  threat_head_pos,
+																									  threat_tracker,
+																									  max_walk_dis,
+																									  vis_required)
 
 							to_pos = second_retreat_pos
 						end
@@ -557,7 +562,7 @@ function LIESBossLogicAttack._upd_combat_movement(data, my_data)
 
 							while my_data.cover_test_step < 3 do
 								local shoot_from_pos = CopLogicAttack._peek_for_pos_sideways(data, my_data, my_tracker,
-									aim_pos, 165, true)
+																							 aim_pos, 165, true)
 
 								if shoot_from_pos then
 									local path = {
@@ -696,7 +701,7 @@ function LIESBossLogicAttack._confirm_retreat_position_visless(retreat_pos, thre
 
 	local slotmask = managers.slot:get_mask("AI_visibility") + managers.slot:get_mask("enemy_shield_check")
 	local ray_res = World:raycast("ray", retreat_head_pos, threat_head_pos, "slot_mask", slotmask, "ray_type",
-		"ai_vision", "report")
+								  "ai_vision", "report")
 
 	if ray_res then
 		return true
@@ -871,7 +876,7 @@ function LIESBossLogicAttack._chk_use_throwable(data, my_data, focus, ...)
 	else
 		mvec3_set_z(last_seen_pos, last_seen_pos.z + 15)
 		obstructed = data.unit:raycast("ray", throw_from, last_seen_pos, "sphere_cast_radius", 15, "slot_mask", slotmask,
-			"report")
+									   "report")
 	end
 
 	if obstructed then
@@ -893,7 +898,7 @@ function LIESBossLogicAttack._chk_use_throwable(data, my_data, focus, ...)
 
 	if data.char_tweak.global_delay then
 		LIESBossLogicAttack._global_throwable_delays[data.unit:base()._tweak_table] = data.t +
-		data.char_tweak.global_delay
+			data.char_tweak.global_delay
 	end
 
 	data.used_throwable_t = data.t + delay
@@ -916,7 +921,8 @@ function LIESBossLogicAttack._upd_enemy_detection(data, is_synchronous)
 	local min_reaction = AI_REACT_AIM
 	local delay = CopLogicBase._upd_attention_obj_detection(data, min_reaction, nil)
 	local new_attention, new_prio_slot, new_reaction = CopLogicIdle._get_priority_attention(data,
-		data.detected_attention_objects, nil)
+																							data.detected_attention_objects,
+																							nil)
 	local old_att_obj = data.attention_obj
 
 	CopLogicBase._set_attention_obj(data, new_attention, new_reaction)
@@ -942,7 +948,7 @@ function LIESBossLogicAttack._upd_enemy_detection(data, is_synchronous)
 
 	if not is_synchronous then
 		CopLogicBase.queue_task(my_data, my_data.detection_task_key, LIESBossLogicAttack._upd_enemy_detection, data,
-			data.t + delay, true)
+								data.t + delay, true)
 	end
 
 	CopLogicBase._report_detections(data.detected_attention_objects)

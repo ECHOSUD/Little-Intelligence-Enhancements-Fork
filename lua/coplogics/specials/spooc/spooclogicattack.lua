@@ -30,7 +30,7 @@ function SpoocLogicAttack.enter(data, new_logic_name, enter_params)
 	my_data.attitude = "engage"
 
 	my_data.weapon_range = data.char_tweak.weapon
-	[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+		[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 	my_data.wanted_attack_range = 1500
 
 	data.unit:movement():set_cool(false)
@@ -275,7 +275,7 @@ function SpoocLogicAttack.action_complete_clbk(data, action)
 		end
 	elseif action_type == "spooc" then
 		data.spooc_attack_timeout_t = TimerManager:game():time() +
-		math.lerp(data.char_tweak.spooc_attack_timeout[1], data.char_tweak.spooc_attack_timeout[2], math.random())
+			math.lerp(data.char_tweak.spooc_attack_timeout[1], data.char_tweak.spooc_attack_timeout[2], math.random())
 
 		data.brain:_chk_use_cover_grenade(unit)
 

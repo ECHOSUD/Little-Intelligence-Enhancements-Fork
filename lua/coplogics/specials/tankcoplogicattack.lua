@@ -23,7 +23,7 @@ function TankCopLogicAttack.enter(data, new_logic_name, enter_params)
 
 	my_data.attitude = data.objective and data.objective.attitude or "avoid"
 	my_data.weapon_range = data.char_tweak.weapon
-	[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+		[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 
 	data.unit:brain():set_update_enabled_state(true)
 	data.unit:movement():set_cool(false)
@@ -70,7 +70,7 @@ function TankCopLogicAttack.update(data)
 	my_data.attitude = data.objective and data.objective.attitude or "engage"
 	local engage = my_data.attitude == "engage"
 	local action_taken = my_data.turning or data.unit:movement():chk_action_forbidden("walk") or
-	my_data.walking_to_chase_pos
+		my_data.walking_to_chase_pos
 
 	if action_taken then
 		return

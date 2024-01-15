@@ -39,7 +39,7 @@ function CivilianLogicTravel.enter(data, new_logic_name, enter_params)
 		my_data.outline_detection_task_key = "CivilianLogicIdle._upd_outline_detection" .. key_str
 
 		CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle._upd_outline_detection,
-			data, data.t + 2)
+								data, data.t + 2)
 	end
 
 	if not data.is_tied then
@@ -421,7 +421,7 @@ function CivilianLogicTravel._determine_exact_destination(data, objective)
 			follow_pos = objective.follow_unit:movement():nav_tracker():field_position()
 			follow_nav_seg = objective.follow_unit:movement():nav_tracker():nav_segment()
 			local distance = objective.distance and
-			math.lerp(objective.distance * 0.5, objective.distance * 0.9, math.random()) or 700
+				math.lerp(objective.distance * 0.5, objective.distance * 0.9, math.random()) or 700
 			to_pos = CopLogicTravel._get_pos_on_wall(follow_pos, distance, nil, nil, nil, data.pos_rsrv_id)
 		else
 			to_pos = mvector3.copy(objective.follow_unit:movement():nav_tracker():field_position())
@@ -430,6 +430,6 @@ function CivilianLogicTravel._determine_exact_destination(data, objective)
 		return to_pos
 	else
 		return CopLogicTravel._get_pos_on_wall(managers.navigation._nav_segments[objective.nav_seg].pos, 700, nil, nil,
-			nil, data.pos_rsrv_id)
+											   nil, data.pos_rsrv_id)
 	end
 end

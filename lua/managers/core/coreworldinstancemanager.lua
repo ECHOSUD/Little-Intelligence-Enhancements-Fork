@@ -36,7 +36,7 @@ function CoreWorldInstanceManager:prepare_mission_data(instance)
 		for _, element in ipairs(script_data.elements) do
 			element.values.instance_name = instance.name
 			convert_list[element.id] = continent_data.base_id + self:_get_mod_id(element.id) + self._start_offset_index +
-			start_index
+				start_index
 			element.id = convert_list[element.id]
 
 			if element.values.rotation then
@@ -49,7 +49,7 @@ function CoreWorldInstanceManager:prepare_mission_data(instance)
 
 			if element.class == "ElementSpecialObjective" then
 				element.values.search_position = instance.position +
-				element.values.search_position:rotate_with(instance.rotation)
+					element.values.search_position:rotate_with(instance.rotation)
 			elseif element.class == "ElementLootBag" then
 				if element.values.spawn_dir then
 					element.values.spawn_dir = element.values.spawn_dir:rotate_with(instance.rotation)

@@ -37,7 +37,7 @@ function SkirmishTweakData:setup_hhtacs()
 
 		for group_id, group_type in pairs(weights) do
 			if not tweak_data.group_ai.enemy_spawn_groups[group_id] then
-				weights[group_id] = { 0, 0, 0 }
+				weights[group_id] = {0, 0, 0}
 			end
 		end
 	end

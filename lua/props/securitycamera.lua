@@ -24,7 +24,7 @@ function SecurityCamera:set_detection_enabled(state, settings, mission_element)
 			self._range = settings.detection_range
 			self._suspicion_range = settings.suspicion_range
 			self._team = managers.groupai:state():team_data(settings.team_id or
-			tweak_data.levels:get_default_team_ID("combatant"))
+				tweak_data.levels:get_default_team_ID("combatant"))
 		end
 
 		self._detected_attention_objects = self._detected_attention_objects or {}
@@ -71,17 +71,19 @@ function SecurityCamera:_upd_detect_attention_objects(t)
 	for u_key, attention_info in pairs(detected_obj) do
 		if t >= attention_info.next_verify_t then
 			attention_info.next_verify_t = t +
-			(attention_info.identified and attention_info.verified and attention_info.settings.verification_interval * 1.3 or attention_info.settings.verification_interval * 0.3)
+				(attention_info.identified and attention_info.verified and attention_info.settings.verification_interval * 1.3 or attention_info.settings.verification_interval * 0.3)
 
 			if not attention_info.identified then
 				local noticable = nil
 				local angle, dis_multiplier = self:_detection_angle_and_dis_chk(my_pos, my_fwd, attention_info.handler,
-					attention_info.settings, attention_info.handler:get_detection_m_pos())
+																				attention_info.settings,
+																				attention_info.handler
+																				:get_detection_m_pos())
 
 				if angle then
 					local attention_pos = attention_info.handler:get_detection_m_pos()
 					local vis_ray = self._unit:raycast("ray", my_pos, attention_pos, "slot_mask",
-						self._visibility_slotmask, "ray_type", "ai_vision")
+													   self._visibility_slotmask, "ray_type", "ai_vision")
 
 					if not vis_ray or vis_ray.unit:key() == u_key then
 						noticable = true
@@ -124,7 +126,7 @@ function SecurityCamera:_upd_detect_attention_objects(t)
 						end
 
 						local notice_delay_modified = math.lerp(min_delay * notice_delay_mul, max_delay,
-							dis_mul_mod + angle_mul_mod)
+																dis_mul_mod + angle_mul_mod)
 
 						if attention_info.is_husk_player then
 							local peer = managers.network:session():peer_by_unit(attention_info.unit)
@@ -166,7 +168,7 @@ function SecurityCamera:_upd_detect_attention_objects(t)
 
 					if AIAttentionObject.REACT_SCARED <= attention_info.settings.reaction then
 						managers.groupai:state():on_criminal_suspicion_progress(attention_info.unit, self._unit,
-							noticable)
+																				noticable)
 					end
 				end
 
@@ -197,7 +199,7 @@ function SecurityCamera:_upd_detect_attention_objects(t)
 
 					if in_FOV then
 						vis_ray = self._unit:raycast("ray", my_pos, detect_pos, "slot_mask", self._visibility_slotmask,
-							"ray_type", "ai_vision")
+													 "ray_type", "ai_vision")
 
 						if not vis_ray or vis_ray.unit:key() == u_key then
 							verified = true
@@ -289,7 +291,7 @@ function SecurityCamera:_upd_suspicion(t)
 
 						if hhtacs then
 							settings_mul = math.lerp(susp_settings.buildup_mul, 1, 0.5) /
-							attention_data.settings.suspicion_duration
+								attention_data.settings.suspicion_duration
 						else
 							settings_mul = susp_settings.buildup_mul
 						end
@@ -449,7 +451,7 @@ function SecurityCamera:_detect_criminals_loud(t, criminals)
 
 				if angle_multiplier < 1 then
 					local vis_ray = self._unit:raycast("ray", my_pos, detection_pos, "slot_mask",
-						self._visibility_slotmask, "ray_type", "ai_vision")
+													   self._visibility_slotmask, "ray_type", "ai_vision")
 
 					if not vis_ray or vis_ray.unit:key() == u_key then
 						local in_cone = true

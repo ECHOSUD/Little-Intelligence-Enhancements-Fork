@@ -116,7 +116,7 @@ function NavigationManager:generate_cover_fwd(tracker)
 			local door_on_z = door.center:with_z(field_pos.z)
 			local dis = v3_dis_sq(field_pos, door_on_z)
 
-			local ray = door.end_pos and true or self:raycast({ trace = false, pos_from = field_pos, pos_to = door_on_z })
+			local ray = door.end_pos and true or self:raycast({trace = false, pos_from = field_pos, pos_to = door_on_z})
 
 			if (not best_door_dis or dis < best_door_dis) and (not best_door_has_ray or ray) then
 				second_best_pos = best_door_pos
@@ -173,7 +173,7 @@ function NavigationManager:generate_cover_fwd(tracker)
 					if i == 6 then --perfect match.
 						return mvec3_cpy(new_fwd)
 					else
-						hits[#hits + 1] = { mvec3_cpy(new_fwd), angle * i }
+						hits[#hits + 1] = {mvec3_cpy(new_fwd), angle * i}
 					end
 				end
 			end
@@ -214,7 +214,7 @@ function NavigationManager:generate_cover_fwd(tracker)
 					if i == 6 then --perfect match.
 						return mvec3_cpy(new_fwd)
 					else
-						hits[#hits + 1] = { mvec3_cpy(new_fwd), angle * i }
+						hits[#hits + 1] = {mvec3_cpy(new_fwd), angle * i}
 					end
 				end
 
@@ -370,13 +370,13 @@ function NavigationManager:register_cover_units()
 
 	if Network:is_server() then
 		local max_cover_points = #covers <= 0 and 2500 or
-		math.round(#covers * (math_lerp(4, 1, math_clamp(#covers / 2500, 0, 1))))
+			math.round(#covers * (math_lerp(4, 1, math_clamp(#covers / 2500, 0, 1))))
 
 		max_cover_points = math_clamp(max_cover_points, 1, 2500)
 
 		log("Map has " ..
-		tostring(#covers) ..
-		" cover points, setting generation limit to " .. tostring(max_cover_points) .. " cover points.")
+			tostring(#covers) ..
+			" cover points, setting generation limit to " .. tostring(max_cover_points) .. " cover points.")
 
 		if #covers < max_cover_points then
 			for key, res in pairs(self._nav_segments) do
@@ -594,7 +594,7 @@ function NavigationManager:_change_funcs()
 
 		if not self._vis_check_slotmask then
 			self._vis_check_slotmask = managers.slot:get_mask("AI_visibility") +
-			managers.slot:get_mask("enemy_shield_check")
+				managers.slot:get_mask("enemy_shield_check")
 		end
 	end
 end
@@ -634,7 +634,7 @@ function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, 
 	if type(nav_seg) == "table" then
 		nav_segs = nav_seg
 	elseif nav_seg then
-		nav_segs = { nav_seg }
+		nav_segs = {nav_seg}
 	end
 
 	local best_cover, best_dist, best_l_ray, best_h_ray, best_has_good_dir
@@ -654,7 +654,7 @@ function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, 
 		mvec3_add(ray_to_pos, threat_pos)
 
 		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-			"ai_vision", "report")
+										"ai_vision", "report")
 		local high_ray = nil
 
 		if low_ray then
@@ -662,7 +662,7 @@ function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, 
 			mvec3_set_z(ray_to_pos, ray_to_pos.z + 90)
 
 			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-				"ai_vision", "report")
+									   "ai_vision", "report")
 		end
 
 		return low_ray, high_ray
@@ -690,7 +690,7 @@ function NavigationManager:find_cover_in_cone_from_threat_pos_1_LUA(threat_pos, 
 							local has_good_rotation = mvec3_dot(threat_dir_norm, cover[2]) >= 0.7
 
 							if has_good_rotation or not best_has_good_dir then
-								if self._quad_field:is_position_unreserved({ radius = 40, position = cover[1], filter = rsrv_filter }) then
+								if self._quad_field:is_position_unreserved({radius = 40, position = cover[1], filter = rsrv_filter}) then
 									local low_ray, high_ray
 
 									if threat_pos then
@@ -733,7 +733,7 @@ function NavigationManager:find_cover_from_threat_LUA(nav_seg_id, optimal_threat
 	if type(nav_seg_id) == "table" then
 		nav_segs = nav_seg_id
 	elseif nav_seg_id then
-		nav_segs = { nav_seg_id }
+		nav_segs = {nav_seg_id}
 	end
 
 	local best_cover, best_dist, best_l_ray, best_h_ray, best_has_good_dir
@@ -753,7 +753,7 @@ function NavigationManager:find_cover_from_threat_LUA(nav_seg_id, optimal_threat
 		mvec3_add(ray_to_pos, threat_pos)
 
 		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-			"ai_vision", "report")
+										"ai_vision", "report")
 		local high_ray = nil
 
 		if low_ray then
@@ -761,7 +761,7 @@ function NavigationManager:find_cover_from_threat_LUA(nav_seg_id, optimal_threat
 			mvec3_set_z(ray_to_pos, ray_to_pos.z + 90)
 
 			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-				"ai_vision", "report")
+									   "ai_vision", "report")
 		end
 
 		return low_ray, high_ray
@@ -793,7 +793,7 @@ function NavigationManager:find_cover_from_threat_LUA(nav_seg_id, optimal_threat
 					end
 
 					if has_good_rotation or not best_has_good_dir then
-						if self._quad_field:is_position_unreserved({ radius = 40, position = cover[1], filter = rsrv_filter }) then
+						if self._quad_field:is_position_unreserved({radius = 40, position = cover[1], filter = rsrv_filter}) then
 							local low_ray, high_ray
 
 							if threat_pos then
@@ -836,7 +836,7 @@ function NavigationManager:find_cover_in_nav_seg_3_LUA(nav_seg_id, max_near_dis,
 	if type(nav_seg_id) == "table" then
 		nav_segs = nav_seg_id
 	elseif nav_seg_id then
-		nav_segs = { nav_seg_id }
+		nav_segs = {nav_seg_id}
 	end
 
 	local best_cover, best_dist, best_l_ray, best_h_ray, best_has_good_dir
@@ -856,7 +856,7 @@ function NavigationManager:find_cover_in_nav_seg_3_LUA(nav_seg_id, max_near_dis,
 		mvec3_add(ray_to_pos, threat_pos)
 
 		local low_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-			"ai_vision", "report")
+										"ai_vision", "report")
 		local high_ray = nil
 
 		if low_ray then
@@ -864,7 +864,7 @@ function NavigationManager:find_cover_in_nav_seg_3_LUA(nav_seg_id, max_near_dis,
 			mvec3_set_z(ray_to_pos, ray_to_pos.z + 90)
 
 			high_ray = world_g:raycast("ray", ray_from, ray_to_pos, "slot_mask", self._vis_check_slotmask, "ray_type",
-				"ai_vision", "report")
+									   "ai_vision", "report")
 		end
 
 		return low_ray, high_ray
@@ -894,7 +894,7 @@ function NavigationManager:find_cover_in_nav_seg_3_LUA(nav_seg_id, max_near_dis,
 							end
 
 							if has_good_rotation or not best_has_good_dir then
-								if self._quad_field:is_position_unreserved({ radius = 40, position = cover[1], filter = rsrv_filter }) then
+								if self._quad_field:is_position_unreserved({radius = 40, position = cover[1], filter = rsrv_filter}) then
 									local low_ray, high_ray
 
 									if threat_pos then
@@ -1235,7 +1235,8 @@ function NavigationManager:_execute_coarce_search(search_data)
 		local from_pos = next_search_seg.pos
 		local to_pos = search_data.to_pos
 		local new_segments = self:_sort_nav_segs_after_pos(to_pos, from_pos, next_search_i_seg,
-			search_data.discovered_seg, search_data.verify_clbk, search_data.access_pos, search_data.access_neg)
+														   search_data.discovered_seg, search_data.verify_clbk,
+														   search_data.access_pos, search_data.access_neg)
 
 		if new_segments then
 			if search_data.access_pos then
@@ -1320,7 +1321,7 @@ function NavigationManager:_sort_nav_segs_after_pos(to_pos, from_pos, i_seg, ign
 					end
 				elseif not alive(i_door) then
 					debug_pause("[NavigationManager:_sort_nav_segs_after_pos] dead nav_link! between NavSegments", i_seg,
-						"-", neighbour_seg_id)
+								"-", neighbour_seg_id)
 				elseif not i_door:is_obstructed() and i_door:check_access(access_pos, access_neg) then
 					local end_pos = i_door:script_data().element:nav_link_end_pos()
 					local my_weight = mvec3_dis(from_pos, end_pos) + mvec3_dis(end_pos, to_pos)

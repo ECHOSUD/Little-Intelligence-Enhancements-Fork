@@ -15,7 +15,7 @@ function CopLogicPhalanxMinion.queued_update(data)
 
 		if my_data.has_old_action then
 			CopLogicBase.queue_task(my_data, my_data.detection_task_key, CopLogicPhalanxMinion.queued_update, data,
-				data.t + delay, data.important and true)
+									data.t + delay, data.important and true)
 
 			return
 		end
@@ -41,7 +41,7 @@ function CopLogicPhalanxMinion.queued_update(data)
 	delay = data.important and 0 or delay or 0.3
 
 	CopLogicBase.queue_task(my_data, my_data.detection_task_key, CopLogicPhalanxMinion.queued_update, data,
-		data.t + delay, data.important and true)
+							data.t + delay, data.important and true)
 end
 
 function CopLogicPhalanxMinion.is_available_for_assignment(data, objective)

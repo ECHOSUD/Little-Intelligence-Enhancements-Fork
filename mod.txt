@@ -5,8 +5,7 @@
 	"blt_version": 2,
 	"priority": 100,
 	"image": "logo.png",
-	"hooks": [
-		{
+	"hooks": [{
 			"hook_id": "lib/managers/menumanager",
 			"script_path": "menumanager.lua"
 		},

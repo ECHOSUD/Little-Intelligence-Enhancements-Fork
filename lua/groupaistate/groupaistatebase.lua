@@ -247,7 +247,7 @@ function GroupAIStateBase:register_criminal(unit)
 	if is_AI then
 		self._ai_criminals[u_key] = u_sighting
 		u_sighting.so_access = managers.navigation:convert_access_flag(tweak_data.character[unit:base()._tweak_table]
-		.access)
+			.access)
 	elseif not is_deployable then
 		self._player_criminals[u_key] = u_sighting
 	end
@@ -440,7 +440,7 @@ Hooks:PostHook(GroupAIStateBase, "register_rescueable_hostage", "lies_hrt_reg", 
 	local rescue_area = rescue_area or self:get_area_from_nav_seg_id(unit:movement():nav_tracker():nav_segment())
 
 	local rescueable_hostages = self._rescueable_hostages or {}
-	rescueable_hostages[u_key] = { area = rescue_area, pos = position }
+	rescueable_hostages[u_key] = {area = rescue_area, pos = position}
 	self._rescueable_hostages = rescueable_hostages
 end)
 
@@ -610,7 +610,7 @@ function GroupAIStateBase:print_objective(objective)
 
 		if objective.action then
 			log("objective has action type " .. tostring(objective.action.type) ..
-			":" .. tostring(objective.action.variant))
+				":" .. tostring(objective.action.variant))
 		end
 
 		if objective.element then
@@ -682,7 +682,7 @@ function GroupAIStateBase:print_objective(objective)
 
 		if followup_objective.type then
 			local followup_objective_type_str = followup_objective.type and tostring(followup_objective.type) or
-			"lmao what"
+				"lmao what"
 
 			log("f. objective has type: " .. followup_objective_type_str .. "")
 		end

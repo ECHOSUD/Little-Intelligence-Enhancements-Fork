@@ -68,7 +68,7 @@ Hooks:PostHook(ElementSpecialObjective, "_finalize_values", "lies_send_navlink_e
 
 			if params.override_access_filter then
 				self._values.SO_access = managers.navigation:convert_access_filter_to_number(params
-				.override_access_filter)
+					.override_access_filter)
 			end
 
 			--log("SCRONGBONGLED")

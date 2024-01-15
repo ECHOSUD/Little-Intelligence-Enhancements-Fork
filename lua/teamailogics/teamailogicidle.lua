@@ -90,7 +90,7 @@ function TeamAILogicIdle.on_new_objective(data, old_objective)
 		end
 	else
 		debug_pause("[TeamAILogicIdle.on_new_objective] Already exiting", data.name, data.unit,
-			old_objective and inspect(old_objective), new_objective and inspect(new_objective))
+					old_objective and inspect(old_objective), new_objective and inspect(new_objective))
 	end
 
 	if new_objective and new_objective.stance then
@@ -164,7 +164,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 			if attention_data.settings.pause then
 				attention_data.stare_expire_t = nil
 				attention_data.pause_expire_t = data.t +
-				math.lerp(attention_data.settings.pause[1], attention_data.settings.pause[2], math.random())
+					math.lerp(attention_data.settings.pause[1], attention_data.settings.pause[2], math.random())
 			end
 		else
 			local distance = mvector3.distance(data.m_pos, attention_data.m_pos)
@@ -179,7 +179,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 			if not reaction_too_mild then
 				local aimed_at = TeamAILogicIdle.chk_am_i_aimed_at(data, attention_data,
-					attention_data.aimed_at and 0.95 or 0.985)
+																   attention_data.aimed_at and 0.95 or 0.985)
 				attention_data.aimed_at = aimed_at
 				local dangerous_special = nil
 
@@ -203,7 +203,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 
 				if visible then
 					local is_shielded = TeamAILogicIdle._ignore_shield and
-					TeamAILogicIdle._ignore_shield(data.unit, attention_data) or nil
+						TeamAILogicIdle._ignore_shield(data.unit, attention_data) or nil
 
 					if is_shielded then
 						target_priority_slot = 10
@@ -234,8 +234,8 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 								end
 							elseif attention_unit:base():has_tag("spooc") then
 								local trying_to_kick_criminal = attention_unit:brain()._logic_data and
-								attention_unit:brain()._logic_data.internal_data and
-								attention_unit:brain()._logic_data.internal_data.spooc_attack
+									attention_unit:brain()._logic_data.internal_data and
+									attention_unit:brain()._logic_data.internal_data.spooc_attack
 
 								if distance < 1500 or trying_to_kick_criminal then
 									dangerous_special = true
@@ -264,8 +264,8 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 								end
 							elseif attention_unit:base():has_tag("taser") then
 								local trying_to_tase_criminal = att_unit:brain()._logic_data and
-								att_unit:brain()._logic_data.internal_data and
-								att_unit:brain()._logic_data.internal_data.tasing
+									att_unit:brain()._logic_data.internal_data and
+									att_unit:brain()._logic_data.internal_data.tasing
 
 								if trying_to_tase_criminal or distance < 1500 then
 									dangerous_special = true
@@ -330,7 +330,7 @@ function TeamAILogicIdle._get_priority_attention(data, attention_objects, reacti
 				if reaction < AIAttentionObject.REACT_COMBAT then
 					target_priority = target_priority * 10
 					target_priority_slot = 11 + target_priority_slot +
-					math.max(0, AIAttentionObject.REACT_COMBAT - reaction)
+						math.max(0, AIAttentionObject.REACT_COMBAT - reaction)
 				end
 
 				if target_priority_slot ~= 0 then
@@ -379,7 +379,7 @@ function TeamAILogicIdle.action_complete_clbk(data, action)
 			my_data.wall_stare_task_key = "CopLogicIdle._chk_stare_into_wall" .. tostring(data.key)
 
 			CopLogicBase.queue_task(my_data, my_data.wall_stare_task_key, CopLogicIdle._chk_stare_into_wall_1, data,
-				data.t)
+									data.t)
 		end
 
 		if my_data.performing_act_objective then
@@ -434,7 +434,8 @@ function TeamAILogicIdle._upd_enemy_detection(data)
 
 	local delay = CopLogicBase._upd_attention_obj_detection(data, nil, max_reaction)
 	local new_attention, new_prio_slot, new_reaction = TeamAILogicIdle._get_priority_attention(data,
-		data.detected_attention_objects, nil)
+																							   data.detected_attention_objects,
+																							   nil)
 
 	TeamAILogicBase._set_attention_obj(data, new_attention, new_reaction)
 
@@ -487,10 +488,10 @@ function TeamAILogicIdle._upd_enemy_detection(data)
 	if not data.cool and not my_data.performing_act_objective and not my_data.acting then
 		if not my_data._intimidate_t or my_data._intimidate_t + 2 < data.t and not my_data._turning_to_intimidate then
 			local can_turn = not data.unit:movement():chk_action_forbidden("turn") and
-			(not new_prio_slot or new_prio_slot > 7)
+				(not new_prio_slot or new_prio_slot > 7)
 			local is_assault = managers.groupai:state():get_assault_mode()
 			local civ = TeamAILogicIdle.find_civilian_to_intimidate(data.unit, can_turn and 180 or 60,
-				is_assault and 800 or 1200)
+																	is_assault and 800 or 1200)
 
 			if civ then
 				my_data._intimidate_t = data.t
@@ -512,7 +513,7 @@ function TeamAILogicIdle._upd_enemy_detection(data)
 	end
 
 	CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicIdle._upd_enemy_detection, data,
-		data.t + delay)
+							data.t + delay)
 end
 
 function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_shout_shape, max_angle, max_dis)
@@ -531,11 +532,11 @@ function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_sh
 
 			if not tweak_data.character[unit:base()._tweak_table].is_escort and tweak_data.character[unit:base()._tweak_table].intimidateable and not unit:base().unintimidateable and not unit:anim_data().unintimidateable and not unit:brain():is_tied() and not unit:unit_data().disable_shout then
 				local unit_is_not_drop = unit:anim_data().run or unit:anim_data().stand or unit:anim_data().halt or
-				unit:anim_data().panic or unit:anim_data().react or unit:anim_data().react_enter
+					unit:anim_data().panic or unit:anim_data().react or unit:anim_data().react_enter
 
 				local does_not_need_intimidation = not unit_is_not_drop and unit:brain()._logic_data and
-				unit:brain()._logic_data.internal_data and unit:brain()._logic_data.internal_data.submission_meter and
-				unit:brain()._logic_data.internal_data.submission_meter > 20
+					unit:brain()._logic_data.internal_data and unit:brain()._logic_data.internal_data.submission_meter and
+					unit:brain()._logic_data.internal_data.submission_meter > 20
 
 				if not does_not_need_intimidation then
 					local u_head_pos = unit:movement():m_head_pos() + math.UP * 30
@@ -551,7 +552,7 @@ function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_sh
 					if dis < close_dis or dis < max_dis and angle < max_angle then
 						local slotmask = managers.slot:get_mask("AI_visibility")
 						local ray = World:raycast("ray", head_pos, u_head_pos, "slot_mask", slotmask, "ray_type",
-							"ai_vision")
+												  "ai_vision")
 
 						if not ray then
 							local inv_wgt = dis * dis * (1 - vec:dot(look_vec))
@@ -760,7 +761,7 @@ function TeamAILogicIdle.intimidate_others(data, my_data, can_turn)
 	if best_unit then
 		if can_turn then
 			CopLogicAttack._chk_request_action_turn_to_enemy(data, my_data, data.unit:movement():m_pos(),
-				best_unit:movement():m_pos())
+															 best_unit:movement():m_pos())
 		end
 
 		if is_escort then
@@ -771,7 +772,7 @@ function TeamAILogicIdle.intimidate_others(data, my_data, can_turn)
 
 				if data.unit:movement():play_redirect(redir_name) then
 					managers.network:session():send_to_peers_synched("play_distance_interact_redirect", data.unit,
-						redir_name)
+																	 redir_name)
 				end
 			end
 
@@ -796,7 +797,7 @@ function TeamAILogicIdle.intimidate_others(data, my_data, can_turn)
 			if not data.unit:movement():chk_action_forbidden("action") then
 				if data.unit:movement():play_redirect(redir_name) then
 					managers.network:session():send_to_peers_synched("play_distance_interact_redirect", data.unit,
-						redir_name)
+																	 redir_name)
 				end
 			end
 
@@ -865,7 +866,7 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary)
 		if data.unit:movement():carrying_bag() and not data.unit:movement()._should_stay then
 			local carry_type_tweak = data.unit:movement():carry_type_tweak()
 			local throw_distance = tweak_data.ai_carry.throw_distance *
-			(carry_type_tweak and carry_type_tweak.throw_distance_multiplier or 1)
+				(carry_type_tweak and carry_type_tweak.throw_distance_multiplier or 1)
 			local dist = data.unit:position() - other_unit:position()
 			local throw_bag = mvector3.dot(dist, dist) < throw_distance * throw_distance
 
@@ -960,7 +961,7 @@ function TeamAILogicIdle.on_long_dis_interacted(data, other_unit, secondary)
 
 			if tweak_data.carry.types[tweak_data.carry[data.unit:movement():carry_id()].type] then
 				speed_mul = tweak_data.carry.types[tweak_data.carry[data.unit:movement():carry_id()].type]
-				.move_speed_modifier
+					.move_speed_modifier
 				can_run = tweak_data.carry.types[tweak_data.carry[data.unit:movement():carry_id()].type].can_run
 			end
 

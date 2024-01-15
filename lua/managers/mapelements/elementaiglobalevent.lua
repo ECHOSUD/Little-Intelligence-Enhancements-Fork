@@ -51,9 +51,9 @@ function ElementAiGlobalEvent:on_executed(instigator)
 			}))
 		elseif AI_event == "gangster_weapons_hot" then
 			managers.groupai:state():on_gangster_weapons_hot(managers.groupai:state().analyse_giveaway(blame, instigator,
-				{
-					"vo_cbt"
-				}))
+																									   {
+																										   "vo_cbt"
+																									   }))
 		end
 	end
 

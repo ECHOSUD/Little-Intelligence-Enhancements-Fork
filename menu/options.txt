@@ -3,8 +3,7 @@
 	"parent_menu_id": "blt_options",
 	"title": "menu_lies_title",
 	"back_callback": "callback_lies_close",
-	"items": [
-		{
+	"items": [{
 			"type": "multiple_choice",
 			"id": "lies_lua_cover",
 			"title": "menu_lies_lua_cover_title",

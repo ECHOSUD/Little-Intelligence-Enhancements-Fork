@@ -48,7 +48,8 @@ function CivilianLogicIdle.enter(data, new_logic_name, enter_params)
 			local action_timeout_t = data.t + objective.action_duration
 
 			CopLogicBase.add_delayed_clbk(my_data, my_data.action_timeout_clbk_id,
-				callback(CivilianLogicIdle, CivilianLogicIdle, "clbk_action_timeout", data), action_timeout_t)
+										  callback(CivilianLogicIdle, CivilianLogicIdle, "clbk_action_timeout", data),
+										  action_timeout_t)
 		end
 	end
 
@@ -68,7 +69,7 @@ function CivilianLogicIdle.enter(data, new_logic_name, enter_params)
 		my_data.outline_detection_task_key = "CivilianLogicIdle._upd_outline_detection" .. tostring(data.key)
 
 		CopLogicBase.queue_task(my_data, my_data.outline_detection_task_key, CivilianLogicIdle._upd_outline_detection,
-			data, data.t + 2)
+								data, data.t + 2)
 	end
 
 	if not data.unit:movement():cool() then
@@ -100,7 +101,7 @@ end
 
 function CivilianLogicIdle._objective_can_be_interrupted(data)
 	return data.objective and
-	(data.objective.interrupt_dis or data.objective.interrupt_suppression or data.objective.interrupt_health)
+		(data.objective.interrupt_dis or data.objective.interrupt_suppression or data.objective.interrupt_health)
 end
 
 function CivilianLogicIdle._upd_detection(data)
@@ -167,7 +168,7 @@ function CivilianLogicIdle._upd_detection(data)
 
 	if managers.groupai:state():whisper_mode() or not managers.groupai:state():enemy_weapons_hot() or not my_data.acting or CivilianLogicIdle._objective_can_be_interrupted(data) then
 		CopLogicBase.queue_task(my_data, my_data.detection_task_key, CivilianLogicIdle._upd_detection, data,
-			data.t + delay)
+								data.t + delay)
 	else
 		my_data.detection_task_key = nil
 	end
@@ -213,7 +214,8 @@ function CivilianLogicIdle.on_alert(data, alert_data)
 		end
 
 		data.unit:movement():set_cool(false,
-			managers.groupai:state().analyse_giveaway(data.unit:base()._tweak_table, alert_data[5], alert_data))
+									  managers.groupai:state().analyse_giveaway(data.unit:base()._tweak_table,
+																				alert_data[5], alert_data))
 		data.unit:movement():set_stance(data.is_tied and "cbt" or "hos")
 	end
 
@@ -233,10 +235,10 @@ function CivilianLogicIdle.on_alert(data, alert_data)
 			my_data.delayed_alert_id = "alert" .. tostring(data.key)
 
 			CopLogicBase.add_delayed_clbk(my_data, my_data.delayed_alert_id,
-				callback(CivilianLogicIdle, CivilianLogicIdle, "_delayed_alert_clbk", {
-					data = data,
-					alert_data = clone(alert_data)
-				}), TimerManager:game():time() + alert_delay)
+										  callback(CivilianLogicIdle, CivilianLogicIdle, "_delayed_alert_clbk", {
+											  data = data,
+											  alert_data = clone(alert_data)
+										  }), TimerManager:game():time() + alert_delay)
 		end
 	end
 end
@@ -256,10 +258,10 @@ function CivilianLogicIdle._delayed_alert_clbk(ignore_this, params)
 		my_data.delayed_alert_id = "alert" .. tostring(data.key)
 
 		CopLogicBase.add_delayed_clbk(my_data, my_data.delayed_alert_id,
-			callback(CivilianLogicIdle, CivilianLogicIdle, "_delayed_alert_clbk", {
-				data = data,
-				alert_data = clone(alert_data)
-			}), TimerManager:game():time() + 1)
+									  callback(CivilianLogicIdle, CivilianLogicIdle, "_delayed_alert_clbk", {
+										  data = data,
+										  alert_data = clone(alert_data)
+									  }), TimerManager:game():time() + 1)
 
 		return
 	end

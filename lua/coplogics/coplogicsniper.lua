@@ -63,7 +63,7 @@ function CopLogicSniper.enter(data, new_logic_name, enter_params)
 	})
 
 	my_data.weapon_range = data.char_tweak.weapon
-	[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
+		[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].range
 
 	if data.char_tweak.weapon[data.unit:inventory():equipped_unit():base():weapon_tweak_data().usage].use_laser then
 		data.unit:inventory():equipped_unit():base():set_laser_enabled(true)
@@ -72,7 +72,7 @@ function CopLogicSniper.enter(data, new_logic_name, enter_params)
 
 		data.unit:base():prevent_main_bones_disabling(true)
 		managers.network:session():send_to_peers_synched("sync_unit_event_id_16", data.unit, "brain",
-			HuskCopBrain._NET_EVENTS.weapon_laser_on)
+														 HuskCopBrain._NET_EVENTS.weapon_laser_on)
 	end
 end
 
@@ -83,7 +83,7 @@ function CopLogicSniper._upd_aim(data, my_data)
 
 	if focus_enemy then
 		enemy_pos = focus_enemy.verified and focus_enemy.m_head_pos or focus_enemy.last_verified_pos or
-		focus_enemy.verified_pos
+			focus_enemy.verified_pos
 
 		if focus_enemy.verified then
 			shoot = true
@@ -260,7 +260,8 @@ function CopLogicSniper._upd_enemy_detection(data)
 	local min_reaction = AIAttentionObject.REACT_AIM
 	local delay = CopLogicBase._upd_attention_obj_detection(data, min_reaction, nil)
 	local new_attention, new_prio_slot, new_reaction = CopLogicIdle._get_priority_attention(data,
-		data.detected_attention_objects, CopLogicSniper._chk_reaction_to_attention_object)
+																							data.detected_attention_objects,
+																							CopLogicSniper._chk_reaction_to_attention_object)
 	local old_att_obj = data.attention_obj
 
 	CopLogicBase._set_attention_obj(data, new_attention, new_reaction)
@@ -294,7 +295,7 @@ function CopLogicSniper._upd_enemy_detection(data)
 	delay = data.important and 0 or delay
 
 	CopLogicBase.queue_task(my_data, my_data.detection_task_key, CopLogicSniper._upd_enemy_detection, data,
-		data.t + delay)
+							data.t + delay)
 	CopLogicBase._report_detections(data.detected_attention_objects)
 end
 

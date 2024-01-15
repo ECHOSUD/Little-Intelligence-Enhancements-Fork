@@ -98,7 +98,8 @@ function CopActionWalk:_init()
 	else
 		local good_pos = mvector3.copy(common_data.pos)
 		self._simplified_path = self._calculate_simplified_path(good_pos, self._nav_path,
-			(not self._sync or self._common_data.stance.name == "ntl") and 3 or 2, self._sync, true)
+																(not self._sync or self._common_data.stance.name == "ntl") and
+																3 or 2, self._sync, true)
 	end
 
 	if not self._simplified_path[2].x then
@@ -162,7 +163,8 @@ function CopActionWalk:_init()
 		end
 
 		self._ext_network:send("action_walk_start", self._nav_point_pos(next_nav_point), 1, 0, false, sync_haste,
-			sync_yaw, self._no_walk and true or false, self._no_strafe and true or false, pose_code, end_pose_code)
+							   sync_yaw, self._no_walk and true or false, self._no_strafe and true or false, pose_code,
+							   end_pose_code)
 	else
 		local pose = action_desc.pose
 
@@ -232,13 +234,13 @@ function CopActionWalk._apply_padding_to_simplified_path(path)
 				mvec3_lerp(offset, offset, trace[1], 0.5)
 
 				local ray_fwd = CopActionWalk._chk_shortcut_pos_to_pos(offset,
-					CopActionWalk._nav_point_pos(path[index + 1]))
+																	   CopActionWalk._nav_point_pos(path[index + 1]))
 
 				if ray_fwd then
 					break
 				else
 					local ray_bwd = CopActionWalk._chk_shortcut_pos_to_pos(offset,
-						CopActionWalk._nav_point_pos(path[index - 1]))
+																		   CopActionWalk._nav_point_pos(path[index - 1]))
 
 					if ray_bwd then
 						break

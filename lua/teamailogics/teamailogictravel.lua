@@ -31,7 +31,7 @@ function TeamAILogicTravel.enter(data, new_logic_name, enter_params)
 		my_data.detection_task_key = "TeamAILogicTravel._upd_enemy_detection" .. key_str
 
 		CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicTravel._upd_enemy_detection, data, data
-		.t)
+			.t)
 	end
 
 	my_data.advance_path_search_id = "TeamAILogicTravel_detailed" .. tostring(data.key)
@@ -57,7 +57,7 @@ function TeamAILogicTravel.enter(data, new_logic_name, enter_params)
 	data.unit:movement():set_allow_fire(false)
 
 	local w_td = alive(data.unit) and data.unit:inventory():equipped_unit() and
-	data.unit:inventory():equipped_unit():base():weapon_tweak_data()
+		data.unit:inventory():equipped_unit():base():weapon_tweak_data()
 
 	if w_td then
 		local cw_td = data.char_tweak.weapon[w_td.usage]
@@ -91,7 +91,8 @@ function TeamAILogicTravel._upd_enemy_detection(data)
 
 	local delay = CopLogicBase._upd_attention_obj_detection(data, AIAttentionObject.REACT_CURIOUS, max_reaction)
 	local new_attention, new_prio_slot, new_reaction = TeamAILogicIdle._get_priority_attention(data,
-		data.detected_attention_objects, nil)
+																							   data.detected_attention_objects,
+																							   nil)
 
 	TeamAILogicBase._set_attention_obj(data, new_attention, new_reaction)
 
@@ -150,9 +151,9 @@ function TeamAILogicTravel._upd_enemy_detection(data)
 				local key = "RemoveAttentionOnUnit" .. tostring(data.key)
 
 				CopLogicBase.queue_task(my_data, key, TeamAILogicTravel._remove_enemy_attention, {
-					data = data,
-					target_key = civ:key()
-				}, data.t + 1.5)
+											data = data,
+											target_key = civ:key()
+										}, data.t + 1.5)
 			end
 		elseif LIES.settings.teamaihelpers then
 			TeamAILogicIdle.intimidate_others(data, my_data, can_turn)
@@ -162,7 +163,7 @@ function TeamAILogicTravel._upd_enemy_detection(data)
 	TeamAILogicAssault._chk_request_combat_chatter(data, my_data)
 
 	CopLogicBase.queue_task(my_data, my_data.detection_task_key, TeamAILogicTravel._upd_enemy_detection, data,
-		data.t + delay)
+							data.t + delay)
 end
 
 TeamAILogicTravel._pathing_complete_clbk = CopLogicTravel._pathing_complete_clbk
