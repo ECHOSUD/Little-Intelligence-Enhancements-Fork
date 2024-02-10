@@ -17,6 +17,10 @@ Hooks:PostHook(ElementSpawnEnemyGroup, "_finalize_values", "lies_finalize_values
 		return
 	end
 
+	if not self._values.preferred_spawn_groups then
+		self._values.preferred_spawn_groups = {}
+	end
+
 	if self._values.preferred_spawn_groups then
 		local has_regular_enemies = true
 

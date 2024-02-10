@@ -1564,6 +1564,7 @@ function CopLogicTravel.action_complete_clbk(data, action)
 			--log("wee")
 			if my_data == data.internal_data then
 				my_data.waiting_for_navlink = nil
+				CopLogicAttack._upd_aim(data, my_data)
 				CopLogicTravel.upd_advance(data)
 			end
 		end
@@ -1572,6 +1573,7 @@ function CopLogicTravel.action_complete_clbk(data, action)
 
 		if action:expired() then
 			my_data.waiting_for_navlink = nil
+			CopLogicAttack._upd_aim(data, my_data)
 			CopLogicTravel.upd_advance(data)
 		end
 	elseif action_type == "shoot" then
@@ -1579,13 +1581,17 @@ function CopLogicTravel.action_complete_clbk(data, action)
 	elseif action_type == "heal" then
 		if action:expired() then
 			my_data.waiting_for_navlink = nil
+			CopLogicAttack._upd_aim(data, my_data)
 			CopLogicTravel.upd_advance(data)
 		end
 	elseif action_type == "hurt" or action_type == "healed" or action_type == "act" and not my_data.advancing then
 		if action:expired() then
 			if my_data == data.internal_data then
 				my_data.waiting_for_navlink = nil
-				CopLogicTravel.upd_advance(data)
+				if action_type ~= "hurt" and action_type ~= "healed" or data.is_converted or not CopLogicBase.chk_start_action_dodge(data, "hit") then
+					CopLogicAttack._upd_aim(data, my_data)
+					CopLogicTravel.upd_advance(data)
+				end
 			end
 		end
 	elseif action_type == "dodge" then
@@ -1612,6 +1618,7 @@ function CopLogicTravel.action_complete_clbk(data, action)
 		if my_data == data.internal_data then
 			if action:expired() then
 				my_data.waiting_for_navlink = nil
+				CopLogicAttack._upd_aim(data, my_data)
 				CopLogicTravel.upd_advance(data)
 			end
 		end
