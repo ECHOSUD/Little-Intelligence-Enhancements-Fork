@@ -3407,7 +3407,7 @@ function GroupAIStateBesiege:_upd_recon_sweep_task()
 	end
 	
 	local target_area
-	
+	local used_group
 	for area_id, area in pairs(task_data.target_areas) do
 		if table.size(area.neighbours) < 2 and not visited_areas[area_id] and not next(area.police.units) then
 			target_area = area
