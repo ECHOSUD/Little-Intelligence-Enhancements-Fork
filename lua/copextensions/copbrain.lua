@@ -17,7 +17,7 @@ CopBrain._logic_variants.snowman_boss = CopBrain._logic_variants.triad_boss
 Hooks:PostHook(CopBrain, "post_init", "lies_post", function(self)
 	if self._logic_data.char_tweak.buddy then
 		local level = Global.level_data and Global.level_data.level_id
-		
+
 		if tweak_data.levels[level].follow_by_default then
 			self._logic_data.check_crim_jobless = true
 		end
@@ -35,11 +35,11 @@ local loud_bosses = {
 
 Hooks:PostHook(CopBrain, "_reset_logic_data", "lies_reset_logic_data", function(self)
 	self._logic_data.char_tweak = self._unit:base()._char_tweak or tweak_data.character[self._unit:base()._tweak_table]
-	
+
 	if LIES.settings.hhtacs then
 		if self._unit:base()._tweak_table == "tank_mini" then
 			local difficulty_index = tweak_data:difficulty_to_index(Global.game_settings.difficulty)
-			
+
 			if difficulty_index > 6 then
 				self._minigunner_firing_buff = {
 					id = self._unit:base():add_buff("base_damage", 0),
@@ -48,14 +48,14 @@ Hooks:PostHook(CopBrain, "_reset_logic_data", "lies_reset_logic_data", function(
 				}
 			end
 		end
-		
+
 		if loud_bosses[self._unit:base()._tweak_table] then
 			managers.groupai:state():register_boss(self._unit)
 		end
-		
+
 		self:_do_hhtacs_damage_modifiers()
 	end
-	
+
 	self._logic_data.next_mov_time = self:get_movement_delay()
 end)
 
@@ -69,14 +69,14 @@ end)
 
 Hooks:PostHook(CopBrain, "convert_to_criminal", "lies_convert_to_criminal", function(self, mastermind_criminal)
 	local char_tweaks = deep_clone(self._unit:base()._char_tweak)
-	
+
 	char_tweaks.suppression = nil
 	char_tweaks.throwable = nil
 	char_tweaks.crouch_move = false
-	
+
 	if LIES.settings.jokerhurts then
 		char_tweaks.damage.hurt_severity = deep_clone(tweak_data.character.presets.hurt_severities.only_light_hurt)
-		
+
 		char_tweaks.damage.hurt_severity.explosion = {
 			health_reference = 1,
 			zones = {
@@ -86,7 +86,7 @@ Hooks:PostHook(CopBrain, "convert_to_criminal", "lies_convert_to_criminal", func
 			}
 		}
 	end
-	
+
 	self._logic_data.char_tweak = char_tweaks
 	self._unit:base()._char_tweak = char_tweaks
 	self._unit:character_damage()._char_tweak = char_tweaks
@@ -105,7 +105,7 @@ function CopBrain:upd_falloff_sim()
 	if self._unit:character_damage():dead() then
 		return
 	end
-	
+
 	self._current_logic.upd_falloff_sim(self._logic_data)
 end
 
@@ -113,18 +113,18 @@ function CopBrain:check_upd_aim()
 	if self._unit:character_damage():dead() then
 		return
 	end
-	
+
 	if self._current_logic_name == "disabled" or self._current_logic_name == "arrest" then
 		return
 	end
-	
+
 	if not self._logic_data.internal_data or not self._logic_data.internal_data.weapon_range then
 		return
 	end
-	
+
 	self._logic_data.t = self._timer:time()
 	self._logic_data.dt = self._timer:delta_time()
-	
+
 	if self._current_logic_name == "attack" then
 		self._logics.attack._upd_aim(self._logic_data, self._logic_data.internal_data)
 	elseif self._current_logic_name == "sniper" then
@@ -197,11 +197,11 @@ function CopBrain:_do_hhtacs_damage_modifiers()
 	local difficulty_index = tweak_data:difficulty_to_index(difficulty)
 
 	if self._ludicrous_damage_debuff then
-		self._unit:base():remove_buff_by_id("base_damage", self._ludicrous_damage_debuff) 
-		
+		self._unit:base():remove_buff_by_id("base_damage", self._ludicrous_damage_debuff)
+
 		self._ludicrous_damage_debuff = nil
 	end
-	
+
 	if self._unit:base()._tweak_table == "old_hoxton_mission" or self._unit:base()._tweak_table == "spa_vip" then
 		if supposedly_shitty_guns[self._unit:base()._current_weapon_id] then
 			self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 2)
@@ -211,7 +211,7 @@ function CopBrain:_do_hhtacs_damage_modifiers()
 			self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", -0.6) --almost all guns in this game deal the same fucking damage, its dumb
 		else
 			self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", -0.5)
-		end	
+		end
 	elseif self._unit:base()._tweak_table ~= "marshal_shield" and self._unit:base()._tweak_table ~= "marshal_shield_break" and self._unit:base()._current_weapon_id == "deagle" then
 		if scaling_units[self._unit:base()._tweak_table] and difficulty_index > 6 then
 			self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", -0.4)
@@ -276,6 +276,8 @@ function CopBrain:_do_hhtacs_damage_modifiers()
 		elseif difficulty_index == 7 then
 			if mayhem_rifles[self._unit:base()._current_weapon_id] then
 				self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 0.5) --60
+			elseif self._unit:base()._current_weapon_id == "ak47" then
+				self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 0.5) --60
 			elseif self._unit:base()._current_weapon_id == "scar" then
 				self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 1.5) --75
 			elseif smgs[self._unit:base()._current_weapon_id] then
@@ -289,6 +291,8 @@ function CopBrain:_do_hhtacs_damage_modifiers()
 	elseif difficulty_index == 6 then
 		if mayhem_rifles[self._unit:base()._current_weapon_id] then
 			self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 1.25) --45
+		elseif self._unit:base()._current_weapon_id == "m4" then
+			self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 1.25) --45
 		elseif self._unit:base()._current_weapon_id == "ak47_ass" then
 			self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", -0.1) --45
 		elseif self._unit:base()._current_weapon_id == "scar" then
@@ -299,6 +303,8 @@ function CopBrain:_do_hhtacs_damage_modifiers()
 	elseif difficulty_index == 5 then
 		if ovk_rifles[self._unit:base()._current_weapon_id] then
 			self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 0.5) --30
+		elseif self._unit:base()._current_weapon_id == "ak47_ass" then
+			self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", -0.25)
 		elseif self._unit:base()._current_weapon_id == "scar" then
 			self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 0.5) --45
 		elseif self._unit:base()._current_weapon_id == "benelli" or self._unit:base()._current_weapon_id == "r870" then
@@ -307,7 +313,7 @@ function CopBrain:_do_hhtacs_damage_modifiers()
 	elseif difficulty_index < 4 then
 		if supposedly_shitty_guns[self._unit:base()._current_weapon_id] then
 			if difficulty_index == 2 then
-				self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 0.5)
+				self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 1)
 			else
 				self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", -0.75)
 			end
@@ -321,9 +327,9 @@ function CopBrain:_do_hhtacs_damage_modifiers()
 			if difficulty_index == 2 then
 				self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 4)
 			else
-				self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 0.88)
+				self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 1.5)
 			end
-		elseif self._unit:base()._current_weapon_id == "benelli" or self._unit:base()._current_weapon_id == "r870" then
+		elseif self._unit:base()._current_weapon_id == "r870" then
 			if difficulty_index == 2 then
 				self._ludicrous_damage_debuff = self._unit:base():add_buff("base_damage", 2)
 			else
@@ -344,7 +350,7 @@ Hooks:PostHook(CopBrain, "set_group", "lies_reset_weapons", function(self, group
 		if fbi_3_units[self._unit:name():key()] then
 			self._unit:base():change_and_sync_char_tweak("fbi")
 		end
-	
+
 		local not_america = tweak_data.group_ai._not_america
 		local difficulty = Global.game_settings and Global.game_settings.difficulty or "normal"
 		local difficulty_index = tweak_data:difficulty_to_index(difficulty)
@@ -354,7 +360,7 @@ Hooks:PostHook(CopBrain, "set_group", "lies_reset_weapons", function(self, group
 				self._unit:base():change_and_sync_char_tweak(new_tweak_name)
 			end
 		end
-		
+
 		if scaling_units[self._unit:base()._tweak_table] and difficulty_index > 6 then
 			self._needs_falloff = {
 				id = self._unit:base():add_buff("base_damage", 0),
@@ -364,14 +370,14 @@ Hooks:PostHook(CopBrain, "set_group", "lies_reset_weapons", function(self, group
 	end
 
 	local weap_name = self._unit:base():default_weapon_name()
-	
+
 	if self._unit:base()._old_weapon and weap_name ~= self._unit:base()._old_weapon then
 		self._unit:base()._old_weapon = nil
 		PlayerInventory.destroy_all_items(self._unit:inventory())
 
 		self._unit:inventory():add_unit_by_name(weap_name, true)
 	end
-	
+
 	if LIES.settings.hhtacs then
 		if self._unit:base()._tweak_table == "tank" and no_foff_tank_weapons[self._unit:base()._current_weapon_id] then
 			self._needs_falloff = {
@@ -379,7 +385,7 @@ Hooks:PostHook(CopBrain, "set_group", "lies_reset_weapons", function(self, group
 				amount = 0
 			}
 		end
-	
+
 		self:_do_hhtacs_damage_modifiers()
 	end
 end)
@@ -388,18 +394,18 @@ Hooks:PostHook(CopBrain, "on_reload", "lies_on_reload", function(self)
 	if not Network:is_server() then
 		return
 	end
-	
+
 	self._logic_data.char_tweak = self._unit:base()._char_tweak or tweak_data.character[self._unit:base()._tweak_table]
-	
+
 	local weap_name = self._unit:base():default_weapon_name()
-	
+
 	if self._unit:base()._old_weapon and weap_name ~= self._unit:base()._old_weapon then
 		self._unit:base()._old_weapon = nil
 		PlayerInventory.destroy_all_items(self._unit:inventory())
 
 		self._unit:inventory():add_unit_by_name(weap_name, true)
 	end
-	
+
 	if LIES.settings.hhtacs then
 		self:_do_hhtacs_damage_modifiers()
 	end
@@ -470,13 +476,13 @@ end
 function CopBrain:get_movement_delay()
 	if LIES.settings.enemy_travel_level < 4 then
 		local base_delay = 0.2 + 0.7 * math.random()
-		
+
 		if self._logic_data.important then
 			base_delay = base_delay / 1 + math.random()
 		end
-		
+
 		base_delay = base_delay / LIES.settings.enemy_travel_level
-		
+
 		return base_delay
 	else
 		return -1
@@ -486,7 +492,7 @@ end
 function CopBrain:on_suppressed(state)
 	if state ~= self._logic_data.is_suppressed then
 		self._logic_data.is_suppressed = state or nil
-		
+
 		if self._logic_data.is_suppressed then
 			if self._current_logic.on_suppressed_state then
 				self._current_logic.on_suppressed_state(self._logic_data)
@@ -499,9 +505,9 @@ function CopBrain:set_objective(new_objective, params)
 	local old_objective = self._logic_data.objective
 	local followup_objective
 	--if new_objective and self._logic_data.char_tweak.is_escort then
-		--managers.groupai:state():print_objective(new_objective)
+	--managers.groupai:state():print_objective(new_objective)
 	--end
-	
+
 	if new_objective and self._logic_data.char_tweak.buddy then
 		local level = Global.level_data and Global.level_data.level_id
 
@@ -510,15 +516,15 @@ function CopBrain:set_objective(new_objective, params)
 				if new_objective.complete_clbk then
 					new_objective.complete_clbk(self._unit, self._logic_data)
 				end
-				
+
 				if new_objective.action_start_clbk then
 					new_objective.action_start_clbk(self._unit)
 				end
-				
+
 				return
 			end
 		end
-		
+
 		if tweak_data.levels[level].trigger_follower_behavior_element and new_objective.element and tweak_data.levels[level].trigger_follower_behavior_element[new_objective.element._id] then
 			self._logic_data.check_crim_jobless = true
 		end
@@ -527,55 +533,55 @@ function CopBrain:set_objective(new_objective, params)
 			new_objective.stance = nil
 		end
 	end
-	
+
 	if new_objective and new_objective.element and new_objective.needs_admin_clbk then
 		new_objective.element:clbk_objective_administered(self._unit)
 	end
-	
+
 	if new_objective and new_objective.followup_SO and not new_objective.followup_objective then
 		local current_SO_element = new_objective.followup_SO
 		local so_element = current_SO_element:choose_followup_SO(self._unit)
 		followup_objective = so_element and so_element:get_objective(self._unit)
-		
+
 		if followup_objective and not followup_objective.trigger_on then
 			followup_objective.needs_admin_clbk = true
 			new_objective.followup_objective = followup_objective
 			new_objective.followup_SO = nil
 		end
 	end
-	
+
 	if new_objective and self:objective_is_sabotage(new_objective) then
 		new_objective.sabotage = true
 
 		local dialogue_said = new_objective.sabo_voiceline and new_objective.sabo_voiceline == "none"
-		
+
 		if not dialogue_said then
 			local m_key = self._logic_data.key
 			local voiceline = new_objective.sabo_voiceline or "gensabotage"
-			
+
 			if self._logic_data.group then
-				local group = self._logic_data.group 
+				local group = self._logic_data.group
 
 				for u_key, u_data in pairs(group.units) do
 					if u_key ~= m_key then
 						if u_data.char_tweak.chatter.go_go and managers.groupai:state():chk_say_enemy_chatter(u_data.unit, u_data.m_pos, voiceline) then
 							dialogue_said = true
-							
+
 							break
 						end
 					end
 				end
 			end
-			
+
 			if not dialogue_said then
 				local best_group = nil
 
 				for _, group in pairs(managers.groupai:state()._groups) do
 					local group_has_reenforce = group.objective.type == "reenforce_area"
-				
+
 					if not best_group or group_has_reenforce then
 						best_group = group
-						
+
 						if group_has_reenforce then
 							break
 						end
@@ -583,14 +589,14 @@ function CopBrain:set_objective(new_objective, params)
 						best_group = group
 					end
 				end
-				
-				
+
+
 				if best_group then
 					for u_key, u_data in pairs(best_group.units) do
 						if u_key ~= m_key then
 							if u_data.char_tweak.chatter.go_go and managers.groupai:state():chk_say_enemy_chatter(u_data.unit, u_data.m_pos, voiceline) then
 								dialogue_said = true
-								
+
 								break
 							end
 						end
@@ -598,7 +604,7 @@ function CopBrain:set_objective(new_objective, params)
 				end
 			end
 		end
-		
+
 		if LIES.settings.hhtacs then
 			if not self._sabotage_contour_id then
 				self._sabotage_contour_id = self._unit:contour():add("highlight_character", true)
@@ -611,7 +617,7 @@ function CopBrain:set_objective(new_objective, params)
 		self._unit:contour():remove_by_id(self._sabotage_contour_id, true)
 		self._sabotage_contour_id = nil
 	end
-	
+
 	self._logic_data.objective = new_objective
 
 	if new_objective and new_objective.followup_objective and new_objective.followup_objective.interaction_voice then
@@ -654,7 +660,7 @@ function CopBrain:search_for_path(search_id, to_pos, prio, access_neg, nav_segs)
 		access_neg = access_neg,
 		nav_segs = nav_segs
 	}
-	
+
 	self._logic_data.active_searches[search_id] = true
 
 	managers.navigation:search_pos_to_pos(params)
@@ -677,7 +683,7 @@ function CopBrain:search_for_path_from_pos(search_id, from_pos, to_pos, prio, ac
 		access_neg = access_neg,
 		nav_segs = nav_segs
 	}
-	
+
 	self._logic_data.active_searches[search_id] = true
 	managers.navigation:search_pos_to_pos(params)
 
@@ -699,7 +705,7 @@ function CopBrain:search_for_path_to_cover(search_id, cover, offset_pos, access_
 		access_pos = self._SO_access,
 		access_neg = access_neg
 	}
-	
+
 	if offset_pos then
 		params.pos_to = mvector3.copy(offset_pos)
 		params.tracker_to = nil
@@ -714,27 +720,27 @@ end
 Hooks:PostHook(CopBrain, "_add_pathing_result", "lies_pathing", function(self, search_id, path)
 	if path and path ~= "failed" then
 		--local line2 = Draw:brush(Color.green:with_alpha(0.5), 3)
-		
+
 		if line2 then
 			for i = 1, #path do
 				if path[i + 1] then
 					local cur_nav_point = path[i]
-					
+
 					if not cur_nav_point.z then
 						if alive(cur_nav_point) then
 							cur_nav_point = CopActionWalk._nav_point_pos(cur_nav_point:script_data())
 						end
 					end
-					
+
 					if cur_nav_point.z then
 						local next_nav_point = path[i + 1]
-						
+
 						if not next_nav_point.z then
 							if alive(next_nav_point) then
 								next_nav_point = CopActionWalk._nav_point_pos(next_nav_point:script_data())
 							end
 						end
-						
+
 						if next_nav_point.z then
 							line2:cylinder(cur_nav_point, next_nav_point, 20)
 						end
@@ -742,15 +748,15 @@ Hooks:PostHook(CopBrain, "_add_pathing_result", "lies_pathing", function(self, s
 				end
 			end
 		end
-	
+
 		self._logic_data.t = self._timer:time()
 		self._logic_data.dt = self._timer:delta_time()
 
 		--enemies in logictravel and logicattack will perform their appropriate actions as soon as possible once pathing has finished
-		
+
 		if self._current_logic._pathing_complete_clbk then
 			managers.groupai:state():on_unit_pathing_complete(self._unit)
-		
+
 			self._current_logic._pathing_complete_clbk(self._logic_data)
 		end
 	else
@@ -764,7 +770,7 @@ function CopBrain:_chk_use_cover_grenade(unit)
 	end
 
 	local t = TimerManager:game():time()
-	
+
 	if not self._next_grenade_use_t or self._next_grenade_use_t < t then
 		if self._logic_data.char_tweak.dodge_with_grenade.smoke then
 			local duration_tweak = self._logic_data.char_tweak.dodge_with_grenade.smoke.duration
@@ -797,23 +803,23 @@ function CopBrain:action_complete_clbk(action)
 	if self._unit:character_damage():dead() then
 		return
 	end
-	
+
 	local action_type = action:type()
-	
+
 	if walk_blocked_actions[action_type] then
 		if action_type ~= "walk" then
 			self._unit:movement():upd_m_head_pos()
 		end
-		
+
 		if not self:is_criminal() then
 			local delay = self:get_movement_delay()
-			
+
 			if delay > 0 then
 				self._logic_data.next_mov_time = self._timer:time() + delay
 			end
 		end
 	end
-	
+
 	self._current_logic.action_complete_clbk(self._logic_data, action)
 end
 
@@ -848,42 +854,42 @@ function CopBrain:request_switch_to_safe_weapon(t)
 
 	if self._logic_data.safe_equipped then
 		self._logic_data.safe_weapon_t = self._timer:time() + t
-		
+
 		return
 	end
 
 	if not self._logic_data.char_tweak or not self._logic_data.char_tweak.safe_weapon then
 		return
 	end
-	
+
 	if safe_weapons[self._unit:base()._current_weapon_id] or not unsafe_weapons[self._unit:base()._current_weapon_id] then
 		return
 	end
-	
+
 	local safe_weapon_id = self._logic_data.char_tweak.safe_weapon
 
 	self._logic_data.safe_equipped = true
 	self._logic_data.safe_weapon_t = self._timer:time() + t
-	
+
 	if not self._logic_data.safe_weapon_name then
 		local weap_ids = tweak_data.character.weap_ids
 		local weap_unit_names = tweak_data.character.weap_unit_names
-		
+
 		for i_weap_id, weap_id in ipairs(weap_ids) do
 			if safe_weapon_id == weap_id then
 				self._logic_data.safe_weapon_name = weap_unit_names[i_weap_id]
-				
+
 				break
 			end
 		end
 	end
-	
+
 	local safe_weapon_name = self._logic_data.safe_weapon_name
-	
+
 	self._unit:base()._shotgunner = nil
 	self._unit:base()._current_weapon_id = safe_weapon_id
 	self._unit:base()._old_weapon = safe_weapon_name
-	
+
 	PlayerInventory.destroy_all_items(self._unit:inventory())
 
 	self._unit:inventory():add_unit_by_name(safe_weapon_name, true)
@@ -897,21 +903,21 @@ function CopBrain:request_switch_to_normal_weapon(t)
 	if not self._logic_data.safe_equipped or self._logic_data.safe_weapon_t and self._logic_data.safe_weapon_t > self._timer:time() then
 		return
 	end
-	
+
 	self._logic_data.safe_equipped = nil
 	self._logic_data.safe_weapon_cooldown_t = self._timer:time() + t
 
 	local weap_name = self._unit:base():default_weapon_name()
-	
+
 	if self._unit:base()._old_weapon and weap_name ~= self._unit:base()._old_weapon then
 		self._unit:base()._old_weapon = nil
 		PlayerInventory.destroy_all_items(self._unit:inventory())
 
 		self._unit:inventory():add_unit_by_name(weap_name, true)
 	end
-	
+
 	self:_do_hhtacs_damage_modifiers()
-	
+
 	return true
 end
 
@@ -924,43 +930,43 @@ local yeahitssabo = {
 
 function CopBrain:objective_is_sabotage(objective)
 	local data = self._logic_data
-	
+
 	if not data then
 		return
 	end
-	
+
 	local objective = objective or self._logic_data.objective
-	
+
 	if not objective or objective.grp_objective or data.cool then
 		return
 	end
-	
+
 	local is_civilian = CopDamage.is_civilian(data.unit:base()._tweak_table)
-	
+
 	if not data.team or not data.team.foes[tweak_data.levels:get_default_team_ID("player")] or is_civilian then
 		return
 	end
-	
-	if not objective.action then 
+
+	if not objective.action then
 		if not objective.followup_objective or not objective.followup_objective.action then
 			return
 		elseif objective.followup_objective.element then
 			local element = objective.followup_objective.element
-			
+
 			if yeahitssabo[objective.followup_objective.action.variant] then
 				return true
 			end
-			
+
 			if element:_is_nav_link() then
 				if not objective.followup_objective.action.variant or not CopActionAct._act_redirects.script[objective.followup_objective.action.variant] and not string.begins(objective.followup_objective.action.variant, "e_so") then
 					return
 				end
 			end
-			
+
 			if not element._events then
 				return
 			end
-			
+
 			if element._events["anim_start"] and next(element._events["anim_start"]) or element._events["complete"] and next(element._events["complete"]) then
 				return true
 			else
@@ -971,21 +977,21 @@ function CopBrain:objective_is_sabotage(objective)
 		end
 	elseif objective.element then
 		local element = objective.element
-		
+
 		if yeahitssabo[objective.action.variant] then
 			return true
 		end
-		
+
 		if element:_is_nav_link() then
 			if not objective.action.variant or not CopActionAct._act_redirects.script[objective.action.variant] and not string.begins(objective.action.variant, "e_so") then
 				return
 			end
 		end
-			
+
 		if not element._events then
 			return
 		end
-		
+
 		if element._events["anim_start"] and next(element._events["anim_start"]) or element._events["complete"] and next(element._events["complete"]) then
 			return true
 		else
@@ -996,6 +1002,6 @@ function CopBrain:objective_is_sabotage(objective)
 	elseif not objective.sabo_voiceline then
 		return
 	end
-	
+
 	return true
 end
